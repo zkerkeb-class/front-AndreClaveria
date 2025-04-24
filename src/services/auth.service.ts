@@ -75,7 +75,6 @@ export const getToken = (): string | null => {
   try {
     const token = localStorage.getItem("token");
 
-    // Vérifier si le token existe et n'est pas vide
     if (!token || token === "undefined" || token === "null") {
       console.warn("Token non valide ou non trouvé dans le localStorage");
       return null;

@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import Navbar from "../components/NavBar/page";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata = {
@@ -18,11 +17,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body>
-        <AuthProvider>
-          {/* Navbar sera rendue conditionnellement dans chaque page en fonction 
-              de l'état d'authentification depuis le contexte */}
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

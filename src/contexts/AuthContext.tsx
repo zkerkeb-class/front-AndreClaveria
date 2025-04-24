@@ -11,17 +11,13 @@ import {
   login as loginService,
   logout as logoutService,
 } from "@/services/auth.service";
-import { updateUser, getStoredUser } from "@/services/user.service";
-
-// Définition des types
-interface User {
-  _id: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  role: string;
-  active: boolean;
-}
+import {
+  updateUser,
+  getStoredUser,
+  type User,
+  type UpdateUserRequest,
+} from "@/services/user.service";
+import LoadingOverlay from "@/components/common/LoadingOverlay";
 
 interface AuthContextType {
   user: User | null;
@@ -32,6 +28,11 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUserProfile: (firstName: string, lastName: string) => Promise<void>;
+  updateUserData: (
+    userId: string,
+    userData: UpdateUserRequest
+  ) => Promise<User>;
+  setLoadingWithMessage: (isLoading: boolean, message?: string) => void;
 }
 
 // Création du contexte
@@ -53,6 +54,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState<string>(
+    "Chargement en cours..."
+  );
   const router = useRouter();
 
   // Vérifie si le profil de l'utilisateur est complet
@@ -60,6 +64,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Vérifie si l'utilisateur est authentifié
   const isAuthenticated = !!token;
+
+  // Fonction pour définir l'état de chargement avec un message personnalisé
+  const setLoadingWithMessage = (loading: boolean, message?: string) => {
+    setIsLoading(loading);
+    if (message) {
+      setLoadingMessage(message);
+    } else {
+      setLoadingMessage("Chargement en cours...");
+    }
+  };
+
+  // Timeout de sécurité pour le chargement
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    if (isLoading) {
+      // Définir un délai maximum de 30 secondes pour le chargement
+      timeoutId = setTimeout(() => {
+        setIsLoading(false);
+        console.warn(
+          "Le chargement a été interrompu après 30 secondes d'attente"
+        );
+      }, 30000);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [isLoading]);
 
   // Charge l'utilisateur et le token depuis le localStorage au démarrage
   useEffect(() => {
@@ -69,15 +102,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const storedUser = getStoredUser();
 
         if (storedToken && storedUser) {
+          // Vérifier si l'utilisateur s'est connecté via Google
+          if (storedUser.email && storedUser.email.includes("@gmail.com")) {
+            // Marquer comme un utilisateur Google
+            setUser({
+              ...storedUser,
+              provider: "google",
+            });
+          } else {
+            setUser(storedUser);
+          }
           setToken(storedToken);
-          setUser(storedUser);
         }
       } catch (error) {
         console.error(
           "Erreur lors du chargement des données utilisateur:",
           error
         );
-        // En cas d'erreur, on réinitialise tout
         logoutService();
         setToken(null);
         setUser(null);
@@ -89,7 +130,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadUserFromStorage();
   }, []);
 
-  // Redirige l'utilisateur en fonction de son état d'authentification
   useEffect(() => {
     if (!isLoading) {
       const currentPath = window.location.pathname;
@@ -107,7 +147,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isProfileComplete &&
         (currentPath === "/auth" || currentPath === "/getting-started")
       ) {
-        // Authentifié et profil complet mais sur une page d'auth -> redirection vers le dashboard
         router.push("/dashboard");
       }
     }
@@ -116,15 +155,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Fonction de connexion
   const login = async (email: string, password: string) => {
     try {
-      setIsLoading(true);
+      setLoadingWithMessage(true, "Connexion en cours...");
 
-      // Utilisation du service d'authentification
       const data = await loginService({ email, password });
 
       setToken(data.token);
       setUser(data.user);
-
-      // La redirection est gérée par useEffect en fonction de isAuthenticated et isProfileComplete
     } catch (error) {
       console.error("Erreur de connexion:", error);
       throw error;
@@ -135,16 +171,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Fonction de déconnexion
   const logout = () => {
+    setLoadingWithMessage(true, "Déconnexion en cours...");
     logoutService();
     setToken(null);
     setUser(null);
     router.push("/auth");
+    setIsLoading(false);
   };
 
   // Fonction de mise à jour du profil
   const updateUserProfile = async (firstName: string, lastName: string) => {
     try {
-      setIsLoading(true);
+      setLoadingWithMessage(true, "Mise à jour du profil...");
 
       if (!user) {
         throw new Error("Utilisateur non authentifié");
@@ -163,6 +201,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Nouvelle fonction pour mettre à jour les données utilisateur et l'état global
+  const updateUserData = async (
+    userId: string,
+    userData: UpdateUserRequest
+  ): Promise<User> => {
+    try {
+      setLoadingWithMessage(true, "Mise à jour des informations...");
+
+      // Utilisation du service utilisateur
+      const updatedUser = await updateUser(userId, userData);
+
+      // Mettre à jour l'état global si l'utilisateur mis à jour est l'utilisateur actuel
+      if (user && user._id === userId) {
+        setUser(updatedUser);
+
+        // Mettre à jour le localStorage pour refléter les changements immédiatement
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      }
+
+      return updatedUser;
+    } catch (error) {
+      console.error(
+        "Erreur lors de la mise à jour des informations utilisateur:",
+        error
+      );
+      throw error;
+    } finally {
+      setLoadingWithMessage(false);
+    }
+  };
+
   // Valeur du contexte
   const contextValue: AuthContextType = {
     user,
@@ -173,10 +242,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     login,
     logout,
     updateUserProfile,
+    updateUserData, // Nouvelle fonction ajoutée
+    setLoadingWithMessage,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>
+      <LoadingOverlay isVisible={isLoading} message={loadingMessage} />
+      {children}
+    </AuthContext.Provider>
   );
 };
 

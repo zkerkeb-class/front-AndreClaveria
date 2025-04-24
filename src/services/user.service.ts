@@ -11,6 +11,9 @@ export interface User {
   email: string;
   role: string;
   active: boolean;
+  provider?: string;
+  phoneNumber?: string;
+  lastLogin?: string;
 }
 
 export interface UpdateUserRequest {
@@ -19,12 +22,14 @@ export interface UpdateUserRequest {
   email?: string;
   role?: string;
   active?: boolean;
+  phoneNumber?: string;
   password?: string; // Ajout du champ password
 }
 
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
+  confirmPassword: string;
 }
 
 /**
@@ -68,7 +73,7 @@ export const getUserById = async (userId: string): Promise<User> => {
   }
 
   try {
-    const response = await fetch(`${API_URL}/users/${userId}`, {
+    const response = await fetch(`${API_URL}users/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -89,6 +94,34 @@ export const getUserById = async (userId: string): Promise<User> => {
     throw error instanceof Error
       ? error
       : new Error("Erreur lors de la récupération de l'utilisateur");
+  }
+};
+
+export const verifyPassword = async (
+  email: string,
+  password: string
+): Promise<boolean> => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}auth/verify-password`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      }
+    );
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+    return data.valid === true;
+  } catch (error) {
+    console.error("Erreur lors de la vérification du mot de passe:", error);
+    return false;
   }
 };
 
@@ -121,7 +154,7 @@ export const updateUser = async (
 
     // Utiliser le token de secours
     try {
-      const response = await fetch(`${API_URL}/users/${userId}`, {
+      const response = await fetch(`${API_URL}users/${userId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -153,7 +186,7 @@ export const updateUser = async (
 
   // Chemin normal avec token valide
   try {
-    const response = await fetch(`${API_URL}/users/${userId}`, {
+    const response = await fetch(`${API_URL}users/${userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -197,7 +230,7 @@ export const changePassword = async (
   }
 
   try {
-    const response = await fetch(`${API_URL}/users/${userId}/change-password`, {
+    const response = await fetch(`${API_URL}users/${userId}/change-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -231,7 +264,7 @@ export const getAllUsers = async (): Promise<User[]> => {
   }
 
   try {
-    const response = await fetch(`${API_URL}/users`, {
+    const response = await fetch(`${API_URL}users`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -266,7 +299,7 @@ export const deleteUser = async (userId: string): Promise<void> => {
   }
 
   try {
-    const response = await fetch(`${API_URL}/users/${userId}`, {
+    const response = await fetch(`${API_URL}users/${userId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -285,5 +318,43 @@ export const deleteUser = async (userId: string): Promise<void> => {
     throw error instanceof Error
       ? error
       : new Error("Erreur lors de la suppression de l'utilisateur");
+  }
+};
+
+/**
+ * Crée un nouvel utilisateur (réservé aux admins)
+ */
+export const createUser = async (
+  userData: UpdateUserRequest
+): Promise<User> => {
+  const token = getToken();
+
+  if (!token) {
+    throw new Error("Vous devez être connecté pour effectuer cette action");
+  }
+
+  try {
+    const response = await fetch(`${API_URL}users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(userData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Erreur lors de la création de l'utilisateur"
+      );
+    }
+
+    return data;
+  } catch (error: any) {
+    throw error instanceof Error
+      ? error
+      : new Error("Erreur lors de la création de l'utilisateur");
   }
 };
