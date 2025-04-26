@@ -30,8 +30,9 @@ const ProfileSetupForm = () => {
     // Vérifier si l'utilisateur s'est connecté via Google
     const checkUserSource = () => {
       const userData = getStoredUser();
+      console.log("userData", userData);
+
       if (userData && userData.provider === "google") {
-        // Pour les utilisateurs Google, on ne demande pas de mot de passe
         setPasswordRequired(false);
       }
     };

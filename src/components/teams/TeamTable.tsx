@@ -1,0 +1,131 @@
+"use client";
+import React from "react";
+import { useRouter } from "next/navigation";
+import Table, { TableColumn } from "@/components/common/Table";
+import StatusBadge from "@/components/common/StatusBadge";
+import ActionButton from "@/components/common/ActionButton";
+import ToggleTeamStatus from "@/components/teams/ToggleTeamStatus";
+import { Team } from "@/services/team.service";
+import { tableStyleProps } from "@/styles/tableStyles";
+
+interface TeamTableProps {
+  teams: Team[];
+  companyId: string;
+  isLoading: boolean;
+  onStatusChange: (teamId: string, newStatus: boolean) => void;
+}
+
+const TeamTable: React.FC<TeamTableProps> = ({
+  teams,
+  companyId,
+  isLoading,
+  onStatusChange,
+}) => {
+  const router = useRouter();
+
+  // Formatage de la date de création
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Non disponible";
+    const date = new Date(dateString);
+    return date.toLocaleString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  const columns: TableColumn<Team>[] = [
+    {
+      header: "Nom",
+      accessor: "name",
+      align: "left",
+    },
+    {
+      header: "Description",
+      accessor: (team) => team.description || "Non renseignée",
+      align: "left",
+    },
+    {
+      header: "Nombre de membres",
+      accessor: (team) => team.members?.length || 0,
+      align: "center",
+    },
+    {
+      header: "Leader",
+      accessor: (team) => {
+        if (team.leader && typeof team.leader === "object") {
+          return `${team.leader.firstName} ${team.leader.lastName}`;
+        }
+        return "Non assigné";
+      },
+      align: "left",
+    },
+    {
+      header: "Statut",
+      accessor: (team) => <StatusBadge isActive={team.isActive} />,
+      align: "center",
+    },
+    {
+      header: "Date de création",
+      accessor: (team) => formatDate(team.createdAt),
+      align: "left",
+    },
+    {
+      header: "Actions",
+      accessor: (team) => (
+        <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
+          <ActionButton
+            onClick={() =>
+              router.push(
+                `/dashboard/admin/manage/company/teams/${companyId}/edit/${team._id}`
+              )
+            }
+            variant="secondary"
+            size="medium"
+          >
+            Éditer
+          </ActionButton>
+          <ActionButton
+            onClick={() =>
+              router.push(
+                `/dashboard/admin/manage/company/teams/${companyId}/members/${team._id}`
+              )
+            }
+            size="medium"
+          >
+            Membres
+          </ActionButton>
+          <ToggleTeamStatus
+            teamId={team._id}
+            isActive={team.isActive}
+            onStatusChange={(newStatus) => onStatusChange(team._id, newStatus)}
+          />
+        </div>
+      ),
+      align: "center",
+      isAction: true,
+    },
+  ];
+
+  // Utiliser les styles configurés
+  const customTableStyles = {
+    ...tableStyleProps,
+    variant: "striped" as const,
+    headerStyle: "light" as const,
+    rounded: true,
+    maxWidth: "1200px",
+  };
+
+  return (
+    <Table
+      data={teams}
+      columns={columns}
+      keyField="_id"
+      isLoading={isLoading}
+      emptyMessage="Aucune équipe trouvée pour cette entreprise"
+      styleProps={customTableStyles}
+    />
+  );
+};
+
+export default TeamTable;

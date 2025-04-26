@@ -18,16 +18,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
   userData,
   onUserUpdate,
 }) => {
-  // Récupération des données et fonctions du contexte d'authentification
   const { user: authUser, updateUserData } = useAuth();
 
-  // États
   const [activeTab, setActiveTab] = useState<"info" | "password" | "edit">(
     "info"
   );
   const [isCloseHovered, setIsCloseHovered] = useState(false);
 
-  // Utiliser l'ID de l'utilisateur du contexte Auth si disponible
   const userId = authUser?._id || userData._id;
 
   // Ne rien rendre si la modale n'est pas ouverte
