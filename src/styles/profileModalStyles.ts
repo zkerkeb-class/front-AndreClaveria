@@ -2,7 +2,7 @@
 import { CSSProperties } from "react";
 
 export const profileModalStyles = {
-  // Styles for the modal backdrop and container
+ 
   overlay: {
     position: "fixed",
     top: 0,
