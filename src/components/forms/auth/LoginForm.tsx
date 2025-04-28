@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
-import { pageStyles } from "@/styles/pageStyles";
+import { authStyles } from "@/styles/pages/authStyles";
 import IconInput from "@/components/forms/common/IconInput";
 import Logo_User from "@public/img/login/email.svg";
 import Logo_Password from "@public/img/login/password_img.svg";
@@ -50,7 +50,7 @@ const LoginForm: React.FC = () => {
         </div>
       )}
 
-      <form style={pageStyles.form} onSubmit={handleSubmit}>
+      <form style={authStyles.form} onSubmit={handleSubmit}>
         <IconInput
           type="email"
           placeholder="Email"
@@ -72,7 +72,7 @@ const LoginForm: React.FC = () => {
         <button
           type="submit"
           style={{
-            ...pageStyles.primaryButton,
+            ...authStyles.primaryButton,
             opacity: loading || authLoading ? 0.7 : 1,
             cursor: loading || authLoading ? "not-allowed" : "pointer",
           }}
@@ -82,11 +82,11 @@ const LoginForm: React.FC = () => {
         </button>
       </form>
 
-      <div style={pageStyles.loginOther}>Login with others</div>
+      <div style={authStyles.loginOther}>Login with others</div>
 
       <button
         type="button"
-        style={pageStyles.googleButton}
+        style={authStyles.googleButton}
         onClick={handleGoogleLogin}
         disabled={loading || authLoading}
       >

@@ -1,6 +1,6 @@
 // components/modals/ProfileModal/ProfileTabs.tsx
 import React from "react";
-import { profileModalStyles } from "@/styles/profileModalStyles";
+import { profileModalStyles } from "@/styles/components/profileModalStyles";
 import { TabProps } from "./types";
 
 const ProfileTabs: React.FC<TabProps> = ({

@@ -1,7 +1,7 @@
 // components/pages/auth/GettingStarted.tsx
 "use client";
 import Image from "next/image";
-import { gettingStartedStyles as styles } from "@/styles/getttingStartedStyles";
+import { gettingStartedStyles as styles } from "@/styles/pages/getttingStartedStyles";
 import ProfileSetupForm from "@/components/forms/auth/ProfileSetupForm";
 
 const GettingStartedPage = () => {

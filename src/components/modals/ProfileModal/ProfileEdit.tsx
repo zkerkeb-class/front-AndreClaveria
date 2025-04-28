@@ -1,6 +1,6 @@
 // components/modals/ProfileModal/ProfileEdit.tsx
 import React, { useState, useEffect } from "react";
-import { profileModalStyles } from "@/styles/profileModalStyles";
+import { profileModalStyles } from "@/styles/components/profileModalStyles";
 import { ProfileEditProps } from "./types";
 import { UpdateUserRequest } from "@/services/user.service";
 

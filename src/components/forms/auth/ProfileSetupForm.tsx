@@ -7,7 +7,7 @@ import {
   getStoredUser,
   verifyPassword,
 } from "@/services/user.service";
-import { gettingStartedStyles as styles } from "@/styles/getttingStartedStyles";
+import { gettingStartedStyles as styles } from "@/styles/pages/getttingStartedStyles";
 import TextInput from "@/components/forms/common/TextInput";
 import PasswordInput from "@/components/forms/common/PasswordInput";
 import Captcha from "@/components/forms/common/Captcha";

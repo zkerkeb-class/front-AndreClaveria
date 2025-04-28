@@ -1,6 +1,6 @@
 "use client";
 import React, { ReactNode } from "react";
-import { tableStyles, TableStyleProps } from "@/styles/tableStyles";
+import { tableStyles, TableStyleProps } from "@/styles/components/tableStyles";
 
 export interface TableColumn<T> {
   header: string;

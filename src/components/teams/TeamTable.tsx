@@ -6,7 +6,7 @@ import StatusBadge from "@/components/common/StatusBadge";
 import ActionButton from "@/components/common/ActionButton";
 import ToggleTeamStatus from "@/components/teams/ToggleTeamStatus";
 import { Team } from "@/services/team.service";
-import { tableStyleProps } from "@/styles/tableStyles";
+import { tableStyleProps } from "@/styles/components/tableStyles";
 
 interface TeamTableProps {
   teams: Team[];

@@ -6,7 +6,7 @@ import StatusBadge from "@/components/common/StatusBadge";
 import ActionButton from "@/components/common/ActionButton";
 import ToggleCompanyStatus from "@/components/company/ToggleCompanyStatus";
 import { Company } from "@/services/company.service";
-import { tableStyleProps } from "@/styles/tableStyles";
+import { tableStyleProps } from "@/styles/components/tableStyles";
 
 interface CompanyTableProps {
   companies: Company[];

@@ -1,6 +1,6 @@
 // components/modals/ProfileModal/ProfilePassword.tsx
 import React, { useState } from "react";
-import { profileModalStyles } from "@/styles/profileModalStyles";
+import { profileModalStyles } from "@/styles/components/profileModalStyles";
 import { ProfilePasswordProps } from "./types";
 import { ChangePasswordRequest } from "@/services/user.service";
 

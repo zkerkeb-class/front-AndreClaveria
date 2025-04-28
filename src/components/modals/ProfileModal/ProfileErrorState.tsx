@@ -1,6 +1,6 @@
 // components/modals/ProfileModal/ProfileErrorState.tsx
 import React from "react";
-import { profileModalStyles } from "@/styles/profileModalStyles";
+import { profileModalStyles } from "@/styles/components/profileModalStyles";
 import { ProfileErrorStateProps } from "./types";
 
 const ProfileErrorState: React.FC<ProfileErrorStateProps> = ({

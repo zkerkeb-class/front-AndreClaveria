@@ -24,13 +24,29 @@ export const borders = {
 
 export const fonts = {
   first: '"Cinzel", serif',
-  second: '"Lexend", sans-serif',
+  second: {
+    thin: '"Lexend-Thin", sans-serif',
+    extraLight: '"Lexend-ExtraLight", sans-serif',
+    light: '"Lexend-Light", sans-serif',
+    regular: '"Lexend-Regular", sans-serif',
+    medium: '"Lexend-Medium", sans-serif',
+    semiBold: '"Lexend-SemiBold", sans-serif',
+    bold: '"Lexend-Bold", sans-serif',
+    extraBold: '"Lexend-ExtraBold", sans-serif',
+    black: '"Lexend-Black", sans-serif',
+  },
 };
 
 export const fontWeights = {
-  regular: 200,
-  bold: 600,
-  extraBold: 900,
+  thin: 100,
+  extraLight: 200,
+  light: 300,
+  regular: 400,
+  medium: 500,
+  semiBold: 600,
+  bold: 700,
+  extraBold: 800,
+  black: 900,
 };
 
 export const fontSizes = {

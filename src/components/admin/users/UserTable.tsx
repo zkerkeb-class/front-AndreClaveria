@@ -6,7 +6,7 @@ import StatusBadge from "@/components/common/StatusBadge";
 import ActionButton from "@/components/common/ActionButton";
 import ToggleUserStatus from "@/components/admin/users/ToggleUserStatus";
 import { User } from "@/services/user.service";
-import { tableStyleProps } from "@/styles/tableStyles";
+import { tableStyleProps } from "@/styles/components/tableStyles";
 
 interface UserTableProps {
   users: User[];

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavbar } from "@/contexts/NavBarContext";
-import { dashboardStyles } from "@/styles/dashboardStyles";
+import { dashboardStyles } from "@/styles/pages/dashboardStyles";
 import { CSSProperties } from "react";
 import ProfileModal from "@/components/modals/ProfileModal/index"; // Importez votre composant ProfileModal
 import { User } from "@/services/user.service";
@@ -431,7 +431,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
           }}
           onMouseLeave={() => setHoveredIcon(null)}
         >
-          <div style={dashboardStyles.navItem}>Tableau de bord</div>
+          <div style={dashboardStyles.navItem}>dashboardStyles de bord</div>
           <div style={dashboardStyles.navItem}>Performance commerciale</div>
           <div style={dashboardStyles.navItem}>Analyse des ventes</div>
           <div style={dashboardStyles.navItem}>Statistiques d'équipe</div>

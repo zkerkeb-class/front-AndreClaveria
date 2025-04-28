@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { dashboardStyles } from "@/styles/dashboardStyles";
 
 const UserDashboard: React.FC = () => {
   const { user, isLoading } = useAuth();

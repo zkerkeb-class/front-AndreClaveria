@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, MouseEvent, CSSProperties, useEffect } from "react";
-import { profileModalStyles } from "@/styles/profileModalStyles";
+import { profileModalStyles } from "@/styles/components/profileModalStyles";
 import { useAuth } from "@/contexts/AuthContext";
 import { changePassword } from "@/services/user.service";
 import { ProfileModalProps } from "./types";

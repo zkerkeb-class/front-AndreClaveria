@@ -1,7 +1,7 @@
 // components/forms/common/IconInput.tsx
 import { ChangeEvent } from "react";
 import Image from "next/image";
-import { pageStyles } from "@/styles/pageStyles";
+import { authStyles } from "@/styles/pages/authStyles";
 
 interface IconInputProps {
   type: string;
@@ -21,18 +21,18 @@ const IconInput: React.FC<IconInputProps> = ({
   required,
 }) => {
   return (
-    <div style={pageStyles.inputContainer}>
+    <div style={authStyles.inputContainer}>
       <Image
         src={icon}
         alt={`${placeholder} Icon`}
         width={20}
         height={20}
-        style={pageStyles.logoInput}
+        style={authStyles.logoInput}
       />
       <input
         type={type}
         placeholder={placeholder}
-        style={pageStyles.input}
+        style={authStyles.input}
         value={value}
         onChange={onChange}
         required={required}

@@ -1,6 +1,6 @@
 // components/modals/ProfileModal/ProfileInfo.tsx
 import React, { useState } from "react";
-import { profileModalStyles } from "@/styles/profileModalStyles";
+import { profileModalStyles } from "@/styles/components/profileModalStyles";
 import { ProfileInfoProps } from "./types";
 
 const ProfileInfo: React.FC<ProfileInfoProps> = ({ userData }) => {
