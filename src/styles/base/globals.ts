@@ -17,6 +17,7 @@ export const globalStyles = {
     boxSizing: "border-box",
   },
   body: {
+    margin: "0 !important",
     overflow: "hidden",
     letterSpacing: text.letterSpacing,
     lineHeight: text.lineHeight,

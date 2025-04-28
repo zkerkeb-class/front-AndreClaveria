@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
-
+import "@/styles/base/global.css";
 export const metadata = {
   title: "Crew CRM",
   description: "Customer Relation Management",
