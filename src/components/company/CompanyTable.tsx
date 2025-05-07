@@ -103,6 +103,16 @@ const CompanyTable: React.FC<CompanyTableProps> = ({
             >
               Équipes
             </ActionButton>
+            <ActionButton
+              onClick={() =>
+                router.push(
+                  `/dashboard/${routePrefix}/manage/company/clients/${company._id}`
+                )
+              }
+              size="medium"
+            >
+              Clients
+            </ActionButton>
             <ToggleCompanyStatus
               companyId={company._id}
               isActive={company.isActive}
