@@ -79,6 +79,9 @@ const TeamManagement: React.FC<TeamManagementProps> = ({ params }) => {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
 
+  // Déterminer le préfixe de route pour les liens de navigation
+  const routePrefix = user?.role === "admin" ? "admin" : "manager";
+
   if (error) {
     return (
       <div style={{ padding: "20px", color: "#d32f2f" }}>
@@ -117,7 +120,9 @@ const TeamManagement: React.FC<TeamManagementProps> = ({ params }) => {
         </div>
         <div style={{ display: "flex", gap: "12px" }}>
           <ActionButton
-            onClick={() => router.push("/dashboard/admin/manage/company")}
+            onClick={() =>
+              router.push(`/dashboard/${routePrefix}/manage/company`)
+            }
             variant="secondary"
             size="medium"
           >
@@ -126,7 +131,7 @@ const TeamManagement: React.FC<TeamManagementProps> = ({ params }) => {
           <ActionButton
             onClick={() =>
               router.push(
-                `/dashboard/admin/manage/company/teams/${companyId}/new`
+                `/dashboard/${routePrefix}/manage/company/teams/${companyId}/new`
               )
             }
             variant="primary"

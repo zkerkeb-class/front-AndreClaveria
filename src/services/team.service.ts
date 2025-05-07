@@ -60,7 +60,7 @@ export const getTeamById = async (id: string): Promise<Team> => {
       throw new Error("Non authentifié");
     }
 
-    const response = await fetch(`${API_URL}/teams/${id}`, {
+    const response = await fetch(`${API_URL}teams/${id}`, {
       method: "GET",
       headers: {
         ...headers,

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { createTeam } from "@/services/team.service";
@@ -7,13 +7,14 @@ import { getCompanyById, Company } from "@/services/company.service";
 import { getAllUsers, User } from "@/services/user.service";
 
 interface CreateTeamProps {
-  params: {
+  params: Promise<{
     companyId: string;
-  };
+  }>;
 }
 
 const CreateTeam: React.FC<CreateTeamProps> = ({ params }) => {
-  const companyId = params.companyId;
+  const unwrappedParams = use(params);
+  const companyId = unwrappedParams.companyId;
   const router = useRouter();
   const { user, isLoading, setLoadingWithMessage } = useAuth();
   const [company, setCompany] = useState<Company | null>(null);

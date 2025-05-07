@@ -2,30 +2,19 @@
 import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { getTeamById, updateTeam, Team } from "@/services/team.service";
+import { createTeam } from "@/services/team.service";
 import { getCompanyById, Company } from "@/services/company.service";
-import { getAllUsers, getUserById, User } from "@/services/user.service";
+import { getAllUsers, User } from "@/services/user.service";
 
-interface EditTeamProps {
+interface CreateTeamProps {
   params: Promise<{
     companyId: string;
-    id: string; // ID de l'équipe
   }>;
 }
 
-// Fonction d'aide pour extraire l'ID du leader, peu importe le format
-const extractLeaderId = (leader: string | User | undefined): string => {
-  if (!leader) return "";
-  if (typeof leader === "string") return leader;
-  return leader._id || "";
-};
-
-const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
-  // Utilisation de React.use() pour déballer les paramètres
+const CreateTeam: React.FC<CreateTeamProps> = ({ params }) => {
   const unwrappedParams = use(params);
   const companyId = unwrappedParams.companyId;
-  const teamId = unwrappedParams.id;
-
   const router = useRouter();
   const { user, isLoading, setLoadingWithMessage } = useAuth();
   const [company, setCompany] = useState<Company | null>(null);
@@ -36,83 +25,17 @@ const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
     leader: "",
     isActive: true,
   });
-  const [originalTeam, setOriginalTeam] = useState<Team | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [isLoadingTeam, setIsLoadingTeam] = useState(false);
-  const [currentLeaderDetails, setCurrentLeaderDetails] = useState<User | null>(
-    null
-  );
 
-  // Vérification de l'accès
   useEffect(() => {
-    if (!isLoading && user) {
-      if (!["admin", "manager"].includes(user.role)) {
-        router.push("/dashboard");
-      } else if (user.role === "manager") {
-        // Pour les managers, vérifier si la compagnie leur appartient
-        const checkCompanyOwnership = async () => {
-          try {
-            const companyData = await getCompanyById(companyId);
-            if (companyData.owner !== user._id) {
-              console.warn(
-                "Le manager tente d'accéder à une entreprise qui ne lui appartient pas"
-              );
-              router.push("/dashboard/manager");
-            }
-          } catch (err) {
-            console.error(
-              "Erreur lors de la vérification de la propriété de l'entreprise:",
-              err
-            );
-            router.push("/dashboard/manager");
-          }
-        };
-
-        checkCompanyOwnership();
-      }
+    // Vérification du rôle admin ou manager
+    if (!isLoading && user && !["admin", "manager"].includes(user.role)) {
+      router.push("/dashboard");
     }
-  }, [user, isLoading, router, companyId]);
+  }, [user, isLoading, router]);
 
-  // Chargement des données
   useEffect(() => {
-    const fetchTeamDetails = async () => {
-      setIsLoadingTeam(true);
-      try {
-        const teamData = await getTeamById(teamId);
-        setOriginalTeam(teamData);
-
-        // Extraction sécurisée de l'ID du leader
-        const leaderId = extractLeaderId(teamData.leader);
-
-        // Initialisation du formulaire
-        setFormData({
-          name: teamData.name || "",
-          description: teamData.description || "",
-          leader: leaderId,
-          isActive: teamData.isActive,
-        });
-
-        // Si un leader existe, récupérer ses détails complets
-        if (leaderId) {
-          try {
-            const leaderDetails = await getUserById(leaderId);
-            setCurrentLeaderDetails(leaderDetails);
-          } catch (leaderErr) {
-            console.error(
-              "Erreur lors de la récupération des détails du leader:",
-              leaderErr
-            );
-          }
-        }
-      } catch (err: any) {
-        console.error("Erreur lors de la récupération de l'équipe:", err);
-        setError("Impossible de charger les détails de l'équipe.");
-      } finally {
-        setIsLoadingTeam(false);
-      }
-    };
-
     const fetchCompanyDetails = async () => {
       try {
         const companyData = await getCompanyById(companyId);
@@ -133,13 +56,11 @@ const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
     };
 
     if (user && ["admin", "manager"].includes(user.role)) {
-      fetchTeamDetails();
       fetchCompanyDetails();
       fetchUsers();
     }
-  }, [companyId, teamId, user]);
+  }, [companyId, user]);
 
-  // Gestionnaire de changements des champs du formulaire
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -152,22 +73,9 @@ const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
-
-      // Si le leader change, mettre à jour les détails du leader actuel
-      if (name === "leader" && value) {
-        const selectedUser = users.find((u) => u._id === value);
-        if (selectedUser) {
-          setCurrentLeaderDetails(selectedUser);
-        } else {
-          setCurrentLeaderDetails(null);
-        }
-      } else if (name === "leader" && !value) {
-        setCurrentLeaderDetails(null);
-      }
     }
   };
 
-  // Soumission du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -180,52 +88,36 @@ const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
     }
 
     try {
-      setLoadingWithMessage(true, "Mise à jour de l'équipe...");
+      setLoadingWithMessage(true, "Création de l'équipe...");
 
       const teamData = {
         name: formData.name,
         description: formData.description,
+        company: companyId,
         leader: formData.leader || undefined,
+        members: formData.leader ? [formData.leader] : [],
         isActive: formData.isActive,
       };
 
-      const updatedTeam = await updateTeam(teamId, teamData);
-      setSuccess("Équipe mise à jour avec succès !");
+      const newTeam = await createTeam(teamData);
+      setSuccess("Équipe créée avec succès !");
 
-      // Mettre à jour les données locales
-      setOriginalTeam(updatedTeam);
-
-      // Redirection différée pour permettre à l'utilisateur de voir le message de succès
       setTimeout(() => {
-        // Déterminer le préfixe de route basé sur le rôle
-        const routePrefix = user?.role === "admin" ? "admin" : "manager";
-        router.push(
-          `/dashboard/${routePrefix}/manage/company/teams/${companyId}`
-        );
+        router.push(`/dashboard/manager/manage/company/teams/${companyId}`);
       }, 2000);
     } catch (err: any) {
-      console.error("Erreur lors de la mise à jour de l'équipe:", err);
+      console.error("Erreur lors de la création de l'équipe:", err);
       setError(
-        err.message ||
-          "Une erreur est survenue lors de la mise à jour de l'équipe"
+        err.message || "Une erreur est survenue lors de la création de l'équipe"
       );
     } finally {
       setLoadingWithMessage(false);
     }
   };
 
-  // Annuler et revenir à la liste
-  const handleCancel = () => {
-    const routePrefix = user?.role === "admin" ? "admin" : "manager";
-    router.push(`/dashboard/${routePrefix}/manage/company/teams/${companyId}`);
-  };
-
-  if (isLoading || !user || isLoadingTeam) {
+  if (isLoading || !user) {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
-
-  // Déterminer le préfixe de route pour les liens de navigation
-  const routePrefix = user?.role === "admin" ? "admin" : "manager";
 
   return (
     <div>
@@ -239,7 +131,7 @@ const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
       >
         <div>
           <h1 style={{ fontSize: "24px", marginBottom: "8px" }}>
-            Modifier l'équipe
+            Ajouter une équipe
           </h1>
           {company && (
             <p style={{ color: "#666" }}>
@@ -249,9 +141,7 @@ const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
         </div>
         <button
           onClick={() =>
-            router.push(
-              `/dashboard/${routePrefix}/manage/company/teams/${companyId}`
-            )
+            router.push(`/dashboard/manager/manage/company/teams/${companyId}`)
           }
           style={{
             padding: "10px 16px",
@@ -374,7 +264,8 @@ const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
                 ))}
               </select>
               <p style={{ fontSize: "14px", color: "#666", marginTop: "4px" }}>
-                Le chef d'équipe est automatiquement membre de l'équipe.
+                Le chef d'équipe sera automatiquement ajouté comme membre de
+                l'équipe.
               </p>
             </div>
           </div>
@@ -414,7 +305,7 @@ const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
               type="button"
               onClick={() =>
                 router.push(
-                  `/dashboard/${routePrefix}/manage/company/teams/${companyId}`
+                  `/dashboard/manager/manage/company/teams/${companyId}`
                 )
               }
               style={{
@@ -440,7 +331,7 @@ const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
                 fontWeight: 500,
               }}
             >
-              Mettre à jour
+              Créer l'équipe
             </button>
           </div>
         </div>
@@ -449,4 +340,4 @@ const EditTeam: React.FC<EditTeamProps> = ({ params }) => {
   );
 };
 
-export default EditTeam;
+export default CreateTeam;

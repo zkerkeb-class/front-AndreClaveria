@@ -146,7 +146,7 @@ const EditCompany: React.FC<EditCompanyPageProps> = ({ params }) => {
 
       // Redirection après un court délai
       setTimeout(() => {
-        router.push("/dashboard/admin/manage/company");
+        router.push("/dashboard/manager/manage/company");
       }, 2000);
     } catch (err: any) {
       console.error("Erreur lors de la mise à jour de l'entreprise:", err);
@@ -175,7 +175,7 @@ const EditCompany: React.FC<EditCompanyPageProps> = ({ params }) => {
       >
         <h1 style={{ fontSize: "24px" }}>Modifier l'entreprise</h1>
         <button
-          onClick={() => router.push("/dashboard/admin/manage/company")}
+          onClick={() => router.push("/dashboard/manager/manage/company")}
           style={{
             padding: "10px 16px",
             backgroundColor: "#f5f5f5",
@@ -485,7 +485,7 @@ const EditCompany: React.FC<EditCompanyPageProps> = ({ params }) => {
             >
               <button
                 type="button"
-                onClick={() => router.push("/dashboard/admin/manage/company")}
+                onClick={() => router.push("/dashboard/manager/manage/company")}
                 style={{
                   padding: "10px 20px",
                   backgroundColor: "#f5f5f5",

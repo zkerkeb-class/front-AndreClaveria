@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -14,16 +14,26 @@ import { getAllUsers, User } from "@/services/user.service";
 import ActionButton from "@/components/common/ActionButton";
 
 interface TeamMembersManagementProps {
-  params: {
+  params: Promise<{
     companyId: string;
-    teamId: string;
-  };
+    teamsId: string;
+  }>;
 }
 
 const TeamMembersManagement: React.FC<TeamMembersManagementProps> = ({
   params,
 }) => {
-  const { companyId, teamId } = params;
+  // Utilisation de React.use() pour déballer les paramètres
+  const unwrappedParams = use(params);
+  const companyId = unwrappedParams.companyId;
+  const teamsId = unwrappedParams.teamsId;
+
+  // Logging pour debugger
+  console.log("TeamMembersManagement - Params déballés:", {
+    companyId,
+    teamsId,
+  });
+
   const router = useRouter();
   const { user, isLoading, setLoadingWithMessage } = useAuth();
   const [company, setCompany] = useState<Company | null>(null);
@@ -35,27 +45,56 @@ const TeamMembersManagement: React.FC<TeamMembersManagementProps> = ({
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
 
+  // Vérification des accès et redirection si nécessaire
   useEffect(() => {
-    // Vérification du rôle admin ou manager
-    if (!isLoading && user && !["admin", "manager"].includes(user.role)) {
-      router.push("/dashboard");
+    if (!isLoading && user) {
+      if (!["admin", "manager"].includes(user.role)) {
+        router.push("/dashboard");
+      }
     }
   }, [user, isLoading, router]);
 
+  // Fonction pour vérifier si les paramètres sont valides
+  const areParamsValid = () => {
+    if (!companyId) {
+      setError("ID de l'entreprise manquant");
+      return false;
+    }
+    if (!teamsId) {
+      setError("ID de l'équipe manquant");
+      return false;
+    }
+    return true;
+  };
+
+  // Chargement des données initiales
   useEffect(() => {
+    // Vérifie que les paramètres sont valides avant de faire les appels API
+    if (!areParamsValid()) {
+      return;
+    }
+
     const fetchData = async () => {
       setIsLoadingData(true);
       try {
+        console.log("Début de récupération des données avec IDs:", {
+          companyId,
+          teamsId,
+        });
+
         // Récupérer les données de l'entreprise
         const companyData = await getCompanyById(companyId);
         setCompany(companyData);
+        console.log("Données de l'entreprise récupérées:", companyData);
 
         // Récupérer les données de l'équipe
-        const teamData = await getTeamById(teamId);
+        const teamData = await getTeamById(teamsId);
         setTeam(teamData);
+        console.log("Données de l'équipe récupérées:", teamData);
 
         // Récupérer tous les utilisateurs
         const usersData = await getAllUsers();
+        console.log("Tous les utilisateurs récupérés:", usersData.length);
 
         // Si les membres de l'équipe sont des IDs, récupérer les objets User correspondants
         let memberIds: string[] = [];
@@ -69,21 +108,30 @@ const TeamMembersManagement: React.FC<TeamMembersManagementProps> = ({
           }
         }
 
+        console.log("IDs des membres de l'équipe:", memberIds);
+
         // Filtrer les utilisateurs qui ne sont pas déjà membres
         const teamMembersArray = usersData.filter((user) =>
           memberIds.includes(user._id)
         );
         setTeamMembers(teamMembersArray);
+        console.log("Membres de l'équipe filtrés:", teamMembersArray.length);
 
         const availableUsersArray = usersData.filter(
           (user) => !memberIds.includes(user._id)
         );
         setAvailableUsers(availableUsersArray);
+        console.log(
+          "Utilisateurs disponibles filtrés:",
+          availableUsersArray.length
+        );
 
         setError(null);
       } catch (err: any) {
         console.error("Erreur lors de la récupération des données:", err);
-        setError("Impossible de charger les données nécessaires.");
+        setError(
+          `Impossible de charger les données nécessaires: ${err.message}`
+        );
       } finally {
         setIsLoadingData(false);
       }
@@ -92,7 +140,12 @@ const TeamMembersManagement: React.FC<TeamMembersManagementProps> = ({
     if (user && ["admin", "manager"].includes(user.role)) {
       fetchData();
     }
-  }, [companyId, teamId, user]);
+  }, [companyId, teamsId, user]);
+
+  // Détermine le préfixe de route en fonction du rôle de l'utilisateur
+  const getRoutePrefix = () => {
+    return user?.role === "admin" ? "admin" : "manager";
+  };
 
   const handleAddMember = async () => {
     if (!selectedUserId) {
@@ -100,9 +153,14 @@ const TeamMembersManagement: React.FC<TeamMembersManagementProps> = ({
       return;
     }
 
+    if (!teamsId) {
+      setError("ID de l'équipe manquant");
+      return;
+    }
+
     setLoadingWithMessage(true, "Ajout du membre à l'équipe...");
     try {
-      await addMemberToTeam(teamId, selectedUserId);
+      await addMemberToTeam(teamsId, selectedUserId);
 
       // Mettre à jour les listes d'utilisateurs
       const selectedUser = availableUsers.find((u) => u._id === selectedUserId);
@@ -125,9 +183,14 @@ const TeamMembersManagement: React.FC<TeamMembersManagementProps> = ({
   };
 
   const handleRemoveMember = async (userId: string) => {
+    if (!teamsId) {
+      setError("ID de l'équipe manquant");
+      return;
+    }
+
     setLoadingWithMessage(true, "Retrait du membre de l'équipe...");
     try {
-      await removeMemberFromTeam(teamId, userId);
+      await removeMemberFromTeam(teamsId, userId);
 
       // Mettre à jour les listes d'utilisateurs
       const removedUser = teamMembers.find((u) => u._id === userId);
@@ -146,9 +209,30 @@ const TeamMembersManagement: React.FC<TeamMembersManagementProps> = ({
     }
   };
 
+  // Gestion des cas de chargement ou d'erreur
   if (isLoading || !user) {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
+
+  if (!companyId || !teamsId) {
+    return (
+      <div style={{ padding: "20px", color: "#d32f2f" }}>
+        <h2>Erreur</h2>
+        <p>
+          Paramètres manquants. Impossible de charger les détails de l'équipe.
+        </p>
+        <ActionButton
+          onClick={() => router.push("/dashboard")}
+          variant="secondary"
+          size="medium"
+        >
+          Retour au tableau de bord
+        </ActionButton>
+      </div>
+    );
+  }
+
+  const routePrefix = getRoutePrefix();
 
   return (
     <div>
@@ -173,7 +257,9 @@ const TeamMembersManagement: React.FC<TeamMembersManagementProps> = ({
         </div>
         <button
           onClick={() =>
-            router.push(`/dashboard/admin/manage/company/teams/${companyId}`)
+            router.push(
+              `/dashboard/${routePrefix}/manage/company/teams/${companyId}`
+            )
           }
           style={{
             padding: "10px 16px",

@@ -7,6 +7,7 @@ import { createCompany } from "@/services/company.service";
 const CreateCompany: React.FC = () => {
   const router = useRouter();
   const { user, isLoading, setLoadingWithMessage } = useAuth();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -44,6 +45,7 @@ const CreateCompany: React.FC = () => {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -79,7 +81,7 @@ const CreateCompany: React.FC = () => {
       setSuccess("Entreprise créée avec succès !");
 
       setTimeout(() => {
-        router.push("/dashboard/admin/manage/company");
+        router.push("/dashboard/manager/manage/company");
       }, 2000);
     } catch (err: any) {
       console.error("Erreur lors de la création de l'entreprise:", err);
@@ -108,7 +110,7 @@ const CreateCompany: React.FC = () => {
       >
         <h1 style={{ fontSize: "24px" }}>Ajouter une entreprise</h1>
         <button
-          onClick={() => router.push("/dashboard/admin/manage/company")}
+          onClick={() => router.push("/dashboard/manager/manage/company")}
           style={{
             padding: "10px 16px",
             backgroundColor: "#f5f5f5",
@@ -415,7 +417,7 @@ const CreateCompany: React.FC = () => {
           >
             <button
               type="button"
-              onClick={() => router.push("/dashboard/admin/manage/company")}
+              onClick={() => router.push("/dashboard/manager/manage/company")}
               style={{
                 padding: "10px 20px",
                 backgroundColor: "#f5f5f5",
