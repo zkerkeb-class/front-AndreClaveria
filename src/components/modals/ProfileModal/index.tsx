@@ -1,11 +1,10 @@
 "use client";
-import React, { useState, MouseEvent, CSSProperties, useEffect } from "react";
-import { profileModalStyles } from "@/styles/components/profileModalStyles";
+import React, { useState, MouseEvent, CSSProperties } from "react";
+import { profileModalStyles } from "@/styles/components/modals/ProfileModal/profileModalStyles";
 import { useAuth } from "@/contexts/AuthContext";
 import { changePassword } from "@/services/user.service";
 import { ProfileModalProps } from "./types";
 
-// Import des sous-composants
 import ProfileTabs from "./ProfileTabs";
 import ProfileInfo from "./ProfileInfo";
 import ProfileEdit from "./ProfileEdit";
@@ -27,27 +26,22 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
 
   const userId = authUser?._id || userData._id;
 
-  // Ne rien rendre si la modale n'est pas ouverte
   if (!isOpen) return null;
 
-  // Style pour les onglets actifs et inactifs
   const getTabStyle = (tab: "info" | "password" | "edit"): CSSProperties => ({
     ...profileModalStyles.tabButton,
     ...(activeTab === tab ? profileModalStyles.tabButtonActive : {}),
   });
 
-  // Style pour le bouton de fermeture
   const getCloseButtonStyle = (): CSSProperties => ({
     ...profileModalStyles.closeButton,
     ...(isCloseHovered ? profileModalStyles.closeButtonHover : {}),
   });
 
-  // Empêcher la propagation des clics dans la modale
   const handleModalClick = (e: MouseEvent) => {
     e.stopPropagation();
   };
 
-  // Styles mis à jour pour la modale plus grande
   const updatedModalContainer: CSSProperties = {
     ...profileModalStyles.modalContainer,
     maxHeight: "85vh",
@@ -59,7 +53,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     minHeight: "450px",
   };
 
-  // Si l'ID de l'utilisateur n'est pas disponible, afficher l'état d'erreur
   if (!userId) {
     return (
       <ProfileErrorState
@@ -101,14 +94,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
         </div>
 
         <div style={profileModalStyles.contentContainer}>
-          {/* Barre d'onglets latérale */}
           <ProfileTabs
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             tabStyle={getTabStyle}
           />
 
-          {/* Contenu principal qui change selon l'onglet actif */}
           <div style={updatedMainContent}>
             {activeTab === "info" && <ProfileInfo userData={userData} />}
 

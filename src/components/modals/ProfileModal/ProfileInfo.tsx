@@ -1,39 +1,28 @@
-// components/modals/ProfileModal/ProfileInfo.tsx
 import React, { useState } from "react";
-import { profileModalStyles } from "@/styles/components/profileModalStyles";
+import { profileModalStyles } from "@/styles/components/modals/ProfileModal/profileModalStyles";
 import { ProfileInfoProps } from "./types";
 
 const ProfileInfo: React.FC<ProfileInfoProps> = ({ userData }) => {
   const [language, setLanguage] = useState("Français");
 
-  // Générer les initiales pour l'avatar si pas d'image
   const initials = `${userData.firstName?.charAt(0) || ""}${
     userData.lastName?.charAt(0) || ""
   }`;
 
   return (
     <div>
-      {/* Avatar et nom */}
       <div style={profileModalStyles.profileHeader}>
         <div style={profileModalStyles.avatar}>
           {userData.avatar ? (
-            <img
-              src={userData.avatar}
-              alt="Avatar"
-              style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-              }}
-            />
+            <img src={userData.avatar} alt="Avatar" />
           ) : (
             <span>{initials}</span>
           )}
         </div>
         <div style={profileModalStyles.profileInfo}>
-          <h3 style={profileModalStyles.profileName}>
+          <h2 style={profileModalStyles.h2}>
             {`${userData.firstName} ${userData.lastName}`}
-          </h3>
+          </h2>
           <span style={profileModalStyles.roleBadge}>
             {userData.role === "admin"
               ? "Admin"
@@ -44,13 +33,11 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ userData }) => {
         </div>
       </div>
 
-      {/* Email */}
       <div style={profileModalStyles.formField}>
         <label style={profileModalStyles.fieldLabel}>Email</label>
         <p style={profileModalStyles.fieldValue}>{userData.email}</p>
       </div>
 
-      {/* Téléphone */}
       <div style={profileModalStyles.formField}>
         <label style={profileModalStyles.fieldLabel}>Téléphone</label>
         <p style={profileModalStyles.fieldValue}>
@@ -58,37 +45,22 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ userData }) => {
         </p>
       </div>
 
-      {/* Langue */}
-      <div style={{ ...profileModalStyles.formField, marginTop: "30px" }}>
-        <label
-          style={{
-            ...profileModalStyles.fieldLabel,
-            fontSize: "14px",
-            marginBottom: "10px",
-          }}
-        >
-          Langue d'affichage
-        </label>
+      <div style={profileModalStyles.formField}>
+        <label style={profileModalStyles.fieldLabel}>Langue d'affichage</label>
         <div style={profileModalStyles.languageContainer}>
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            style={{
-              ...profileModalStyles.select,
-              padding: "8px 12px",
-              minWidth: "150px",
-            }}
+            style={profileModalStyles.select}
           >
             <option>Français</option>
             <option>English</option>
             <option>Español</option>
             <option>Deutsch</option>
           </select>
-          <button style={{ ...profileModalStyles.button, padding: "8px 16px" }}>
-            Appliquer
-          </button>
+          <button style={profileModalStyles.button}>Appliquer</button>
         </div>
-        <p style={{ fontSize: "13px", color: "#6B7280", marginTop: "8px" }}>
+        <p style={profileModalStyles.p}>
           Cette langue sera utilisée dans toute l'interface du CRM.
         </p>
       </div>

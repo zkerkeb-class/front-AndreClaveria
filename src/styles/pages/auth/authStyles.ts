@@ -1,6 +1,20 @@
 import { CSSProperties } from "react";
 
 export const authStyles: Record<string, CSSProperties> = {
+  imageWrapper: {
+    position: "relative",
+    width: "90%",
+    height: "97vh",
+    borderRadius: "50px",
+    overflow: "hidden",
+    margin: "10px",
+  },
+  image: {
+    objectFit: "cover",
+    width: "100%",
+    height: "100%",
+    borderRadius: "40px",
+  },
   logoWrapper: {
     position: "absolute",
     zIndex: 2,
@@ -121,18 +135,5 @@ export const authStyles: Record<string, CSSProperties> = {
     fontWeight: "500",
     color: "#2a2f35",
     transition: "all 0.2s ease",
-  },
-  imageWrapper: {
-    position: "relative",
-    width: "90%",
-    height: "97vh",
-    borderRadius: "50px",
-    overflow: "hidden",
-  },
-  image: {
-    objectFit: "cover",
-    width: "100%",
-    height: "100%",
-    borderRadius: "40px",
   },
 };

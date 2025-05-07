@@ -1,8 +1,6 @@
-// styles/profileModalStyles.ts
 import { CSSProperties } from "react";
 
-export const profileModalStyles = {
- 
+export const profileModalStyles: Record<string, CSSProperties> = {
   overlay: {
     position: "fixed",
     top: 0,
@@ -14,17 +12,17 @@ export const profileModalStyles = {
     alignItems: "center",
     justifyContent: "center",
     zIndex: 999,
-  } as CSSProperties,
+  },
 
   modalContainer: {
     backgroundColor: "#FFFFFF",
-    borderRadius: "8px",
+    borderRadius: "20px",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
     width: "100%",
-    maxWidth: "800px",
+    maxWidth: "1200px",
     maxHeight: "90vh",
     overflow: "hidden",
-  } as CSSProperties,
+  },
 
   modalHeader: {
     display: "flex",
@@ -34,14 +32,14 @@ export const profileModalStyles = {
     borderBottomWidth: "1px",
     borderBottomStyle: "solid",
     borderBottomColor: "#E5E7EB",
-  } as CSSProperties,
+  },
 
   modalTitle: {
-    fontSize: "20px",
-    fontWeight: 600,
+    fontSize: "25px",
+    fontFamily: '"Lexend-Bold", sans-serif',
     color: "#1F2937",
-    margin: 0,
-  } as CSSProperties,
+    margin: 10,
+  },
 
   closeButton: {
     backgroundColor: "transparent",
@@ -52,26 +50,16 @@ export const profileModalStyles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-  } as CSSProperties,
+  },
 
   closeButtonHover: {
     backgroundColor: "#F3F4F6",
-  } as CSSProperties,
+  },
 
-  // Main content layout
   contentContainer: {
     display: "flex",
     height: "100%",
-  } as CSSProperties,
-
-  // Sidebar/Tabs
-  sidebar: {
-    width: "33%",
-    borderRightWidth: "1px",
-    borderRightStyle: "solid",
-    borderRightColor: "#E5E7EB",
-    backgroundColor: "#F9FAFB",
-  } as CSSProperties,
+  },
 
   tabButton: {
     width: "100%",
@@ -86,108 +74,20 @@ export const profileModalStyles = {
     display: "flex",
     alignItems: "center",
     transition: "background-color 0.2s",
-  } as CSSProperties,
+  },
 
   tabButtonActive: {
     backgroundColor: "#EBF5FF",
     borderLeftWidth: "3px",
     borderLeftStyle: "solid",
     borderLeftColor: "#3B82F6",
-  } as CSSProperties,
+  },
 
-  tabIconContainer: {
-    width: "24px",
-    height: "24px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: "12px",
-  } as CSSProperties,
-
-  tabText: {
-    fontSize: "14px",
-    color: "#374151",
-  } as CSSProperties,
-
-  // Main content area
   mainContent: {
     width: "67%",
     padding: "24px 30px",
     overflowY: "auto",
-  } as CSSProperties,
-
-  // Profile section
-  profileSection: {
-    marginBottom: "30px",
-  } as CSSProperties,
-
-  profileHeader: {
-    display: "flex",
-    alignItems: "center",
-    marginBottom: "30px",
-  } as CSSProperties,
-
-  avatar: {
-    width: "88px",
-    height: "88px",
-    borderRadius: "50%",
-    backgroundColor: "#3B82F6",
-    color: "#FFFFFF",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "28px",
-    fontWeight: "bold",
-    marginRight: "24px",
-    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-  } as CSSProperties,
-
-  profileInfo: {
-    display: "flex",
-    flexDirection: "column",
-  } as CSSProperties,
-
-  profileName: {
-    fontSize: "22px",
-    fontWeight: "bold",
-    color: "#1F2937",
-    margin: "0 0 6px 0",
-  } as CSSProperties,
-
-  profileRole: {
-    fontSize: "15px",
-    color: "#6B7280",
-    margin: "0 0 10px 0",
-  } as CSSProperties,
-
-  roleBadge: {
-    display: "inline-block",
-    backgroundColor: "#DBEAFE",
-    color: "#2563EB",
-    padding: "4px 10px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    fontWeight: 500,
-  } as CSSProperties,
-
-  // Form fields
-  formField: {
-    marginBottom: "24px",
-  } as CSSProperties,
-
-  fieldLabel: {
-    display: "block",
-    fontSize: "13px",
-    color: "#6B7280",
-    marginBottom: "6px",
-    fontWeight: 500,
-  } as CSSProperties,
-
-  fieldValue: {
-    fontSize: "15px",
-    color: "#1F2937",
-    padding: "4px 0",
-  } as CSSProperties,
+  },
 
   inputField: {
     width: "85%",
@@ -199,23 +99,7 @@ export const profileModalStyles = {
     fontSize: "14px",
     transition: "border-color 0.2s",
     outline: "none",
-  } as CSSProperties,
-
-  // Buttons
-  button: {
-    backgroundColor: "#3B82F6",
-    color: "#FFFFFF",
-    borderTopWidth: 0,
-    borderRightWidth: 0,
-    borderBottomWidth: 0,
-    borderLeftWidth: 0,
-    borderRadius: "6px",
-    padding: "8px 16px",
-    fontSize: "14px",
-    cursor: "pointer",
-    marginLeft: "8px",
-    transition: "background-color 0.2s",
-  } as CSSProperties,
+  },
 
   buttonPrimary: {
     backgroundColor: "#3B82F6",
@@ -232,13 +116,100 @@ export const profileModalStyles = {
     transition: "background-color 0.2s",
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
     minWidth: "140px",
-  } as CSSProperties,
+  },
 
-  // Language selector
+  sidebar: {
+    width: "33%",
+    borderRightWidth: "1px",
+    borderRightStyle: "solid",
+    borderRightColor: "#E5E7EB",
+    backgroundColor: "#F9FAFB",
+  },
+
+  tabIconContainer: {
+    width: "24px",
+    height: "24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: "12px",
+  },
+
+  h3: {
+    fontFamily: '"Lexend-Regular", sans-serif',
+    fontSize: "15px",
+    color: "#374151",
+  },
+
+  profileHeader: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "30px",
+  },
+
+  avatar: {
+    width: "88px",
+    height: "88px",
+    borderRadius: "50%",
+    backgroundColor: "#3B82F6",
+    color: "#FFFFFF",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "28px",
+    fontFamily: '"Lexend-Bold", sans-serif',
+    marginRight: "24px",
+    boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+  },
+
+  profileInfo: {
+    display: "flex",
+    flexDirection: "column",
+  },
+
+  h2: {
+    fontSize: "22px",
+    fontFamily: '"Lexend-Bold", sans-serif',
+    color: "#1F2937",
+    margin: "0 0 6px 0",
+  },
+
+  roleBadge: {
+    display: "inline-block",
+    backgroundColor: "#DBEAFE",
+    color: "#2563EB",
+    padding: "4px 10px",
+    borderRadius: "4px",
+    fontSize: "12px",
+    fontFamily: '"Lexend-Bold", sans-serif',
+  },
+
+  formField: {
+    marginTop: "15px",
+    marginBottom: "24px",
+  },
+
+  fieldLabel: {
+    display: "block",
+    fontSize: "13px",
+    color: "#6B7280",
+    marginBottom: "6px",
+    fontFamily: '"Lexend-SemiBold", sans-serif',
+  },
+
+  fieldValue: {
+    fontSize: "15px",
+    color: "#1F2937",
+    padding: "4px 0",
+    fontFamily: '"Lexend-Regular", sans-serif',
+  },
+
   languageContainer: {
     display: "flex",
     alignItems: "center",
-  } as CSSProperties,
+    marginTop: "15px",
+    marginBottom: "15px",
+  },
 
   select: {
     padding: "10px 12px",
@@ -248,46 +219,90 @@ export const profileModalStyles = {
     borderRadius: "6px",
     marginRight: "10px",
     fontSize: "14px",
-    minWidth: "180px",
+    minWidth: "150px",
     outline: "none",
-  } as CSSProperties,
+  },
 
-  // Error and success messages
-  errorMessage: {
-    backgroundColor: "#FEE2E2",
-    color: "#B91C1C",
-    padding: "12px 16px",
-    borderRadius: "6px",
-    fontSize: "14px",
-    marginBottom: "20px",
-  } as CSSProperties,
-
-  successMessage: {
-    backgroundColor: "#DCFCE7",
-    color: "#166534",
-    padding: "12px 16px",
-    borderRadius: "6px",
-    fontSize: "14px",
-    marginBottom: "20px",
-  } as CSSProperties,
-
-  // Security tip section
-  securityTip: {
-    marginTop: "32px",
-    padding: "16px",
-    backgroundColor: "#F3F4F6",
-    borderRadius: "6px",
+  button: {
+    backgroundColor: "#3B82F6",
+    color: "#FFFFFF",
     borderTopWidth: 0,
     borderRightWidth: 0,
     borderBottomWidth: 0,
-    borderLeftWidth: "4px",
-    borderLeftStyle: "solid",
-    borderLeftColor: "#9CA3AF",
-  } as CSSProperties,
+    borderLeftWidth: 0,
+    borderRadius: "6px",
+    padding: "8px 16px",
+    fontSize: "14px",
+    fontFamily: '"Lexend-Regular", sans-serif',
+    cursor: "pointer",
+    marginLeft: "8px",
+    transition: "background-color 0.2s",
+  },
 
-  securityTipText: {
+  p: {
     fontSize: "13px",
-    color: "#4B5563",
-    margin: 0,
-  } as CSSProperties,
+    color: "#6B7280",
+    fontFamily: '"Lexend-Regular", sans-serif',
+  },
+
+  info: {
+    marginTop: "30px",
+    padding: "12px",
+    backgroundColor: "#F3F4F6",
+    borderRadius: "4px",
+  },
+
+  error: {
+    backgroundColor: "#FEE2E2",
+    color: "#B91C1C",
+    padding: "10px 12px",
+    borderRadius: "4px",
+    marginBottom: "16px",
+  },
+
+  sucess: {
+    backgroundColor: "#DCFCE7",
+    color: "#166534",
+    padding: "10px 12px",
+    borderRadius: "4px",
+    marginBottom: "16px",
+  },
+
+  errorStateModalContainer: {
+    maxHeight: "85vh",
+    minHeight: "540px",
+  },
+
+  errorStateMainContent: {
+    minHeight: "450px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  errorStateBox: {
+    padding: "20px",
+    backgroundColor: "#FEF2F2",
+    borderRadius: "8px",
+    maxWidth: "400px",
+    textAlign: "center",
+  },
+
+  errorStateTitle: {
+    color: "#B91C1C",
+    marginBottom: "12px",
+  },
+
+  errorStateText: {
+    marginBottom: "16px",
+  },
+
+  errorStateButton: {
+    backgroundColor: "#3B82F6",
+    color: "white",
+    borderWidth: 0,
+    padding: "8px 16px",
+    borderRadius: "4px",
+    cursor: "pointer",
+  },
 };

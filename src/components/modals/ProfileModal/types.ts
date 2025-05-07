@@ -6,7 +6,6 @@ import {
   ChangePasswordRequest,
 } from "@/services/user.service";
 
-// Interface pour les propriétés de la modale principale
 export interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -23,19 +22,16 @@ export interface ProfileModalProps {
   onUserUpdate?: (updatedData: User) => void;
 }
 
-// Interface pour les propriétés des onglets
 export interface TabProps {
   activeTab: "info" | "password" | "edit";
   setActiveTab: (tab: "info" | "password" | "edit") => void;
   tabStyle: (tab: "info" | "password" | "edit") => CSSProperties;
 }
 
-// Interface pour les propriétés de l'onglet d'informations
 export interface ProfileInfoProps {
   userData: ProfileModalProps["userData"];
 }
 
-// Interface pour les propriétés de l'onglet d'édition
 export interface ProfileEditProps {
   userData: ProfileModalProps["userData"];
   userId: string;
@@ -43,7 +39,6 @@ export interface ProfileEditProps {
   onUserUpdate?: (updatedData: User) => void;
 }
 
-// Interface pour les propriétés de l'onglet de mot de passe
 export interface ProfilePasswordProps {
   userId: string;
   changePassword: (
@@ -52,7 +47,6 @@ export interface ProfilePasswordProps {
   ) => Promise<void>;
 }
 
-// Interface pour les propriétés de l'état d'erreur
 export interface ProfileErrorStateProps {
   onClose: () => void;
   getCloseButtonStyle: () => CSSProperties;

@@ -138,19 +138,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         router.push("/auth");
       } else if (
         isAuthenticated &&
+        user &&
+        !user.active &&
+        currentPath !== "/awaiting-confirmation"
+      ) {
+        // Rediriger vers la page d'attente de confirmation si le compte n'est pas actif
+        router.push("/awaiting-confirmation");
+      } else if (
+        isAuthenticated &&
+        user?.active && // S'assurer que le compte est actif
         !isProfileComplete &&
         currentPath !== "/getting-started"
       ) {
         router.push("/getting-started");
       } else if (
         isAuthenticated &&
+        user?.active && // S'assurer que le compte est actif
         isProfileComplete &&
-        (currentPath === "/auth" || currentPath === "/getting-started")
+        (currentPath === "/auth" ||
+          currentPath === "/getting-started" ||
+          currentPath === "/awaiting-confirmation")
       ) {
         router.push("/dashboard");
       }
     }
-  }, [isAuthenticated, isProfileComplete, isLoading, router]);
+  }, [isAuthenticated, isProfileComplete, isLoading, router, user]);
 
   // Fonction de connexion
   const login = async (email: string, password: string) => {

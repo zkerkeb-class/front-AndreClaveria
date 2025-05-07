@@ -3,7 +3,7 @@ import React, { ReactNode, useState } from "react";
 import NavBar from "@/components/common/NavBar";
 import { NavbarProvider } from "@/contexts/NavBarContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { dashboardStyles } from "@/styles/pages/dashboardStyles";
+import { dashboardStyles } from "@/styles/pages/dashboard/dashboardStyles";
 import { CSSProperties } from "react";
 
 interface DashboardLayoutProps {

@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavbar } from "@/contexts/NavBarContext";
-import { dashboardStyles } from "@/styles/pages/dashboardStyles";
+import { dashboardStyles } from "@/styles/pages/dashboard/dashboardStyles";
 import { CSSProperties } from "react";
-import ProfileModal from "@/components/modals/ProfileModal/index"; // Importez votre composant ProfileModal
+import ProfileModal from "@/components/modals/ProfileModal/index";
 import { User } from "@/services/user.service";
 
 interface NavBarProps {
@@ -26,10 +26,8 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
   const { hoveredIcon, setHoveredIcon } = useNavbar();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  // Utiliser les données d'utilisateur les plus récentes
   const user = authUser || initialUser;
 
-  // État local pour permettre les mises à jour immédiates de l'interface
   const [localUserData, setLocalUserData] = useState(user);
 
   const handleLogout = () => {
@@ -37,7 +35,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
   };
 
   const openProfileModal = () => {
-    // Assurez-vous d'utiliser les données les plus récentes
     setLocalUserData(authUser || user);
     setIsProfileModalOpen(true);
   };
@@ -46,8 +43,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
     setIsProfileModalOpen(false);
   };
 
-  // Fonction de rappel pour mettre à jour les données utilisateur localement
-  // Avec le type explicite pour updatedUser
   const handleUserUpdate = (updatedUser: User) => {
     setLocalUserData(updatedUser);
   };
@@ -83,10 +78,8 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
   const renderNavItems = () => {
     const role = localUserData?.role || "user";
 
-    // Éléments de navigation communs
     const commonNavItems = (
       <>
-        {/* Première icône (Dashboard) */}
         <div
           style={{
             ...dashboardStyles.iconButton,
@@ -187,7 +180,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
     );
   };
 
-  // Si aucun utilisateur n'est disponible, ne rendez pas la barre de navigation
   if (!localUserData) {
     return null;
   }
@@ -207,7 +199,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
 
         {renderNavItems()}
 
-        {/* Deuxième icône (Téléphone) */}
         <div
           style={{
             ...dashboardStyles.iconButton,
@@ -231,7 +222,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
           </svg>
         </div>
 
-        {/* Troisième icône (Email) */}
         <div
           style={{
             ...dashboardStyles.iconButton,
@@ -256,7 +246,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
           </svg>
         </div>
 
-        {/* Quatrième icône (Calendrier) */}
         <div
           style={{
             ...dashboardStyles.iconButton,
@@ -285,7 +274,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
 
         <div style={dashboardStyles.spacer}></div>
 
-        {/* Icône Utilisateur - MODIFIÉE pour ouvrir la modale de profil */}
         <div
           style={{
             ...dashboardStyles.iconButton,
@@ -310,7 +298,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
           </svg>
         </div>
 
-        {/* Icône Aide */}
         <div style={dashboardStyles.iconButton}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -330,7 +317,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
           </svg>
         </div>
 
-        {/* Icône Profil/Déconnexion */}
         <div style={dashboardStyles.iconButton} onClick={handleLogout}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -352,8 +338,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         </div>
       </div>
 
-      {/* Menus de navigation pour chaque icône */}
-      {/* Menu Dashboard */}
       <div
         style={getDashboardNavStyle()}
         onMouseLeave={() => setHoveredIcon(null)}
@@ -378,14 +362,12 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         <div style={dashboardStyles.navItem}>Programmer un appel</div>
       </div>
 
-      {/* Menu Email */}
       <div style={getEmailNavStyle()} onMouseLeave={() => setHoveredIcon(null)}>
         <div style={dashboardStyles.navItem}>Boîte de réception</div>
         <div style={dashboardStyles.navItem}>Envoyés</div>
         <div style={dashboardStyles.navItem}>Brouillons</div>
       </div>
 
-      {/* Menu Calendrier */}
       <div
         style={getCalendarNavStyle()}
         onMouseLeave={() => setHoveredIcon(null)}
@@ -395,7 +377,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         <div style={dashboardStyles.navItem}>Événements</div>
       </div>
 
-      {/* Menu Administration (pour admin) */}
       {localUserData?.role === "admin" && (
         <div
           style={{
@@ -416,7 +397,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         </div>
       )}
 
-      {/* Menu Rapports (pour manager et admin) */}
       {(localUserData?.role === "manager" ||
         localUserData?.role === "admin") && (
         <div
@@ -438,7 +418,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         </div>
       )}
 
-      {/* Modale de profil - avec rafraîchissement immédiat */}
       {localUserData && (
         <ProfileModal
           isOpen={isProfileModalOpen}

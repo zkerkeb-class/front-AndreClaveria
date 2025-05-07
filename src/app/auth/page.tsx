@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { authStyles } from "@/styles/pages/authStyles";
+import { authStyles } from "@/styles/pages/auth/authStyles";
 import Logo_Crew from "@public/img/logo/logo_crew.png";
 import Background_Image from "@public/img/login/one_piece.jpg";
 import LoginForm from "@/components/forms/auth/LoginForm";

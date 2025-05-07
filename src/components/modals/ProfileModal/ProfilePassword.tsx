@@ -1,6 +1,6 @@
 // components/modals/ProfileModal/ProfilePassword.tsx
 import React, { useState } from "react";
-import { profileModalStyles } from "@/styles/components/profileModalStyles";
+import { profileModalStyles } from "@/styles/components/modals/ProfileModal/profileModalStyles";
 import { ProfilePasswordProps } from "./types";
 import { ChangePasswordRequest } from "@/services/user.service";
 
@@ -32,7 +32,6 @@ const ProfilePassword: React.FC<ProfilePasswordProps> = ({
     setPasswordError(null);
     setPasswordSuccess(null);
 
-    // Validation basique
     if (
       !passwordData.currentPassword ||
       !passwordData.newPassword ||
@@ -63,7 +62,6 @@ const ProfilePassword: React.FC<ProfilePasswordProps> = ({
         confirmPassword: passwordData.confirmPassword,
       });
 
-      // Réinitialiser le formulaire après succès
       setPasswordData({
         currentPassword: "",
         newPassword: "",
@@ -82,43 +80,13 @@ const ProfilePassword: React.FC<ProfilePasswordProps> = ({
 
   return (
     <div>
-      <h3
-        style={{
-          fontSize: "16px",
-          fontWeight: 500,
-          marginBottom: "20px",
-        }}
-      >
-        Changer votre mot de passe
-      </h3>
-
-      {/* Messages d'erreur et de succès */}
+      <h2 style={profileModalStyles.h2}>Changer votre mot de passe</h2>
       {passwordError && (
-        <div
-          style={{
-            backgroundColor: "#FEE2E2",
-            color: "#B91C1C",
-            padding: "10px 12px",
-            borderRadius: "4px",
-            marginBottom: "16px",
-          }}
-        >
-          {passwordError}
-        </div>
+        <div style={profileModalStyles.error}>{passwordError}</div>
       )}
 
       {passwordSuccess && (
-        <div
-          style={{
-            backgroundColor: "#DCFCE7",
-            color: "#166534",
-            padding: "10px 12px",
-            borderRadius: "4px",
-            marginBottom: "16px",
-          }}
-        >
-          {passwordSuccess}
-        </div>
+        <div style={profileModalStyles.sucess}>{passwordSuccess}</div>
       )}
 
       <form onSubmit={handlePasswordSubmit}>
@@ -158,7 +126,7 @@ const ProfilePassword: React.FC<ProfilePasswordProps> = ({
             style={profileModalStyles.inputField}
           />
         </div>
-        <div style={{ marginTop: "20px" }}>
+        <div>
           <button
             type="submit"
             style={{
@@ -173,15 +141,8 @@ const ProfilePassword: React.FC<ProfilePasswordProps> = ({
         </div>
       </form>
 
-      <div
-        style={{
-          marginTop: "30px",
-          padding: "12px",
-          backgroundColor: "#F3F4F6",
-          borderRadius: "4px",
-        }}
-      >
-        <p style={{ fontSize: "13px", color: "#4B5563" }}>
+      <div style={profileModalStyles.info}>
+        <p style={profileModalStyles.p}>
           <strong>Conseil de sécurité :</strong> Utilisez un mot de passe unique
           et fort contenant au moins 8 caractères, des lettres majuscules,
           minuscules, des chiffres et des caractères spéciaux.
