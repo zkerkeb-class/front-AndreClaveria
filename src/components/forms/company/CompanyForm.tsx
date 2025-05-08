@@ -211,7 +211,9 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ mode, companyId }) => {
             : "Modifier l'entreprise"}
         </h1>
         <button
-          onClick={() => router.push("/dashboard/admin/manage/company")}
+          onClick={() =>
+            router.push(`/dashboard/${routePrefix}/manage/company`)
+          }
           style={styles.backButton}
         >
           Retour à la liste

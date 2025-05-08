@@ -46,7 +46,10 @@ const TeamForm: React.FC<TeamFormProps> = ({ mode, companyId, teamId }) => {
       router.push("/dashboard");
     }
   }, [user, isLoading, router]);
-
+  const getRoutePrefix = () => {
+    return user?.role === "admin" ? "admin" : "manager";
+  };
+  const routePrefix = getRoutePrefix();
   useEffect(() => {
     const fetchData = async () => {
       setIsLoadingData(true);
@@ -138,7 +141,9 @@ const TeamForm: React.FC<TeamFormProps> = ({ mode, companyId, teamId }) => {
 
       // Redirection après un délai
       setTimeout(() => {
-        router.push(`/dashboard/admin/manage/company/teams/${companyId}`);
+        router.push(
+          `/dashboard/${routePrefix}/manage/company/teams/${companyId}`
+        );
       }, 2000);
     } catch (err: any) {
       console.error(
@@ -194,7 +199,9 @@ const TeamForm: React.FC<TeamFormProps> = ({ mode, companyId, teamId }) => {
         </div>
         <button
           onClick={() =>
-            router.push(`/dashboard/admin/manage/company/teams/${companyId}`)
+            router.push(
+              `/dashboard/${routePrefix}/manage/company/teams/${companyId}`
+            )
           }
           style={styles.backButton}
         >
@@ -229,7 +236,7 @@ const TeamForm: React.FC<TeamFormProps> = ({ mode, companyId, teamId }) => {
               type="button"
               onClick={() =>
                 router.push(
-                  `/dashboard/admin/manage/company/teams/${companyId}`
+                  `/dashboard/${routePrefix}/manage/company/teams/${companyId}`
                 )
               }
               style={styles.cancelButton}

@@ -25,6 +25,7 @@ const TeamMembersManagement: React.FC<TeamMembersManagementProps> = ({
 }) => {
   // Utilisation de React.use() pour déballer les paramètres
   const unwrappedParams = use(params);
+
   const companyId = unwrappedParams.companyId;
   const teamsId = unwrappedParams.teamsId;
 

@@ -2,26 +2,26 @@
 import React, { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { getTeamsByCompany, Team } from "@/services/team.service";
+import { getClientsByCompany, Client } from "@/services/client.service";
 import { getCompanyById, Company } from "@/services/company.service";
-import TeamTable from "@/components/teams/TeamTable";
+import ClientTable from "@/components/clients/ClientTable";
 import ActionButton from "@/components/common/ActionButton";
 
-interface TeamManagementProps {
+interface ClientManagementProps {
   params: Promise<{
     companyId: string;
   }>;
 }
 
-const TeamManagement: React.FC<TeamManagementProps> = ({ params }) => {
+const ClientManagement: React.FC<ClientManagementProps> = ({ params }) => {
   const unwrappedParams = use(params);
   const companyId = unwrappedParams.companyId;
   const router = useRouter();
   const { user, isLoading, setLoadingWithMessage } = useAuth();
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [company, setCompany] = useState<Company | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isLoadingTeams, setIsLoadingTeams] = useState(false);
+  const [isLoadingClients, setIsLoadingClients] = useState(false);
 
   useEffect(() => {
     // Vérification du rôle admin ou manager
@@ -30,10 +30,6 @@ const TeamManagement: React.FC<TeamManagementProps> = ({ params }) => {
     }
   }, [user, isLoading, router]);
 
-  const getRoutePrefix = () => {
-    return user?.role === "admin" ? "admin" : "manager";
-  };
-  const routePrefix = getRoutePrefix();
   useEffect(() => {
     const fetchCompanyDetails = async () => {
       try {
@@ -45,36 +41,48 @@ const TeamManagement: React.FC<TeamManagementProps> = ({ params }) => {
       }
     };
 
-    const fetchTeams = async () => {
-      setIsLoadingTeams(true);
+    const fetchClients = async () => {
+      setIsLoadingClients(true);
       try {
-        console.log("Début de la récupération des équipes");
-        const teamsData = await getTeamsByCompany(companyId);
-        console.log("Équipes récupérées:", teamsData);
-        setTeams(teamsData);
-        setError(null);
+        console.log("Début de la récupération des clients");
+        const clientsData = await getClientsByCompany(companyId);
+        console.log("Clients récupérés:", clientsData);
+
+        // Vérifier que clientsData est bien un tableau
+        if (Array.isArray(clientsData)) {
+          setClients(clientsData);
+        } else {
+          console.error(
+            "Les données reçues ne sont pas un tableau:",
+            clientsData
+          );
+          setClients([]); // Initialiser avec un tableau vide
+          setError(
+            "Format de données incorrect. Veuillez contacter l'administrateur."
+          );
+        }
       } catch (err: any) {
-        console.error("Erreur lors de la récupération des équipes:", err);
+        console.error("Erreur lors de la récupération des clients:", err);
         setError(
           err.message ||
-            "Impossible de charger les équipes. Veuillez réessayer."
+            "Impossible de charger les clients. Veuillez réessayer."
         );
+        setClients([]); // Initialiser avec un tableau vide en cas d'erreur
       } finally {
-        setIsLoadingTeams(false);
+        setIsLoadingClients(false);
       }
     };
-
     if (user && ["admin", "manager"].includes(user.role)) {
       fetchCompanyDetails();
-      fetchTeams();
+      fetchClients();
     }
   }, [companyId, user]);
 
-  // Gestionnaire pour le changement de statut d'une équipe
-  const handleStatusChange = (teamId: string, newStatus: boolean) => {
-    setTeams((prevTeams) =>
-      prevTeams.map((t) =>
-        t._id === teamId ? { ...t, isActive: newStatus } : t
+  // Gestionnaire pour le changement de statut d'un client
+  const handleStatusChange = (clientId: string, newStatus: boolean) => {
+    setClients((prevClients) =>
+      prevClients.map((c) =>
+        c._id === clientId ? { ...c, isActive: newStatus } : c
       )
     );
   };
@@ -82,6 +90,9 @@ const TeamManagement: React.FC<TeamManagementProps> = ({ params }) => {
   if (isLoading || !user) {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
+
+  // Déterminer le préfixe de route pour les liens de navigation
+  const routePrefix = user?.role === "admin" ? "admin" : "manager";
 
   if (error) {
     return (
@@ -111,7 +122,7 @@ const TeamManagement: React.FC<TeamManagementProps> = ({ params }) => {
       >
         <div>
           <h1 style={{ fontSize: "24px", marginBottom: "8px" }}>
-            Gestion des équipes
+            Gestion des clients
           </h1>
           {company && (
             <p style={{ color: "#666" }}>
@@ -122,7 +133,7 @@ const TeamManagement: React.FC<TeamManagementProps> = ({ params }) => {
         <div style={{ display: "flex", gap: "12px" }}>
           <ActionButton
             onClick={() =>
-              router.push(`/dashboard/${routePrefix}/manage/company/`)
+              router.push(`/dashboard/${routePrefix}/manage/company`)
             }
             variant="secondary"
             size="medium"
@@ -132,25 +143,25 @@ const TeamManagement: React.FC<TeamManagementProps> = ({ params }) => {
           <ActionButton
             onClick={() =>
               router.push(
-                `/dashboard/${routePrefix}/manage/company/teams/${companyId}/new`
+                `/dashboard/${routePrefix}/manage/company/clients/${companyId}/add`
               )
             }
             variant="primary"
             size="large"
           >
-            Ajouter une équipe
+            Ajouter un client
           </ActionButton>
         </div>
       </div>
 
-      <TeamTable
-        teams={teams}
+      <ClientTable
+        clients={clients}
         companyId={companyId}
-        isLoading={isLoadingTeams}
+        isLoading={isLoadingClients}
         onStatusChange={handleStatusChange}
       />
     </div>
   );
 };
 
-export default TeamManagement;
+export default ClientManagement;
