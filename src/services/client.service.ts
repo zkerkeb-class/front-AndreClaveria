@@ -120,7 +120,19 @@ export const getClientById = async (id: string): Promise<Client> => {
       );
     }
 
-    return await response.json();
+    // Ajouter du debug pour voir la structure de la réponse
+    const data = await response.json();
+    console.log("Réponse de getClientById:", data);
+
+    // Gérer différentes structures de réponse
+    if (data && data.data) {
+      return data.data;
+    } else if (data && data._id) {
+      return data;
+    } else {
+      console.warn("Structure de réponse inattendue dans getClientById:", data);
+      return data;
+    }
   } catch (error: any) {
     console.error(`getClientById error for id ${id}:`, error);
     throw error;
