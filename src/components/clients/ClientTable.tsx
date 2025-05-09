@@ -174,7 +174,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
             <ActionButton
               onClick={() =>
                 router.push(
-                  `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunities/${client._id}`
+                  `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${client._id}`
                 )
               }
               variant="primary"

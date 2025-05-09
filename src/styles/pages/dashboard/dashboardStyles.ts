@@ -3,12 +3,12 @@ import { CSSProperties } from "react";
 export const dashboardStyles: Record<string, CSSProperties> = {
   container: {
     display: "flex",
-    height: "100vh",
     width: "100%",
-    overflow: "hidden",
     margin: 0,
     padding: 0,
     position: "relative",
+    minHeight: "100vh", // Utiliser minHeight au lieu de height fixe
+    overflowY: "visible", // Permettre le défilement vertical
   },
   sidebar: {
     width: "80px",
@@ -20,8 +20,11 @@ export const dashboardStyles: Record<string, CSSProperties> = {
     paddingBottom: "1rem",
     color: "#FFFFFF",
     boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
-    position: "relative",
+    position: "fixed", // Modifié en fixed pour rester visible pendant le défilement
     zIndex: 10,
+    height: "100vh",
+    top: 0,
+    left: 0,
   },
   navigation: {
     width: "180px",
@@ -30,12 +33,13 @@ export const dashboardStyles: Record<string, CSSProperties> = {
     paddingTop: "8rem", // Espace pour aligner avec l'icône
     margin: 0,
     transition: "all 0.3s ease",
-    position: "absolute",
+    position: "fixed", // Modifié en fixed pour rester visible pendant le défilement
     left: "80px",
     top: 0,
-    height: "100%",
+    height: "100vh",
     zIndex: 5,
     boxShadow: "2px 0 5px rgba(0,0,0,0.05)",
+    overflowY: "auto", // Permettre le défilement de la navigation
   },
   navigationHidden: {
     display: "none",
@@ -65,12 +69,20 @@ export const dashboardStyles: Record<string, CSSProperties> = {
     position: "relative",
     margin: 0,
     transition: "margin-left 0.3s ease",
+    marginLeft: "80px",
+    width: "calc(100% - 80px)",
+    minHeight: "100vh",
+    height: "auto",
+    overflowY: "auto",
+    boxSizing: "border-box",
   },
   contentWithMenu: {
-    marginLeft: "180px",
+    marginLeft: "260px", // 80px (sidebar) + 180px (navigation)
+    width: "calc(100% - 260px)",
   },
   contentFullWidth: {
-    marginLeft: 0,
+    marginLeft: "80px",
+    width: "calc(100% - 80px)",
   },
   welcomeCard: {
     backgroundColor: "#F9FAFB",
@@ -181,5 +193,33 @@ export const dashboardStyles: Record<string, CSSProperties> = {
   },
   navigationCalendarVisible: {
     display: "block",
+  },
+  // Styles additionnels pour la solution de défilement
+  globalContainer: {
+    display: "flex",
+    width: "100%",
+    position: "relative",
+    margin: 0,
+    padding: 0,
+    minHeight: "100vh",
+  },
+  fixedSidebar: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "80px",
+    height: "100vh",
+    zIndex: 10,
+    backgroundColor: "#1F2937",
+    overflow: "visible",
+  },
+  contentArea: {
+    marginLeft: "80px",
+    width: "calc(100% - 80px)",
+    padding: "2rem",
+    overflowY: "auto",
+    height: "auto",
+    minHeight: "100vh",
+    boxSizing: "border-box",
   },
 };

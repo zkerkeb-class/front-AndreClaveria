@@ -68,6 +68,7 @@ export const getAllOpportunities = async (): Promise<Opportunity[]> => {
 /**
  * Récupère une opportunité par son ID
  */
+// Dans opportunity.service.ts
 export const getOpportunityById = async (id: string): Promise<Opportunity> => {
   try {
     const token = localStorage.getItem("token");
@@ -90,7 +91,41 @@ export const getOpportunityById = async (id: string): Promise<Opportunity> => {
       );
     }
 
-    return await response.json();
+    // Récupérer les données et les examiner
+    const responseData = await response.json();
+    console.log("Réponse brute de getOpportunityById:", responseData);
+
+    // Gérer les différentes structures de réponse possibles
+    if (responseData && typeof responseData === "object") {
+      // Si la réponse est { success: true, data: {...} }
+      if ("data" in responseData && responseData.data) {
+        console.log(
+          "Format de réponse avec structure { success, data }",
+          responseData.data
+        );
+        return responseData.data;
+      }
+      // Si la réponse est directement l'objet d'opportunité avec un _id
+      else if ("_id" in responseData) {
+        console.log("Format de réponse: objet direct avec _id", responseData);
+        return responseData;
+      }
+      // Autres structures possibles
+      else if ("opportunity" in responseData) {
+        console.log(
+          "Format de réponse avec structure { opportunity }",
+          responseData.opportunity
+        );
+        return responseData.opportunity;
+      }
+    }
+
+    // Si la structure n'est pas reconnue mais contient des données, retourner tel quel
+    console.warn(
+      "Structure de réponse non reconnue dans getOpportunityById:",
+      responseData
+    );
+    return responseData;
   } catch (error: any) {
     console.error(`getOpportunityById error for id ${id}:`, error);
     throw error;
@@ -141,9 +176,14 @@ export const getOpportunitiesByCompany = async (
 /**
  * Récupère les opportunités par client
  */
+// services/opportunity.service.ts
+// Modifiez la fonction pour gérer correctement le type de retour
+
 export const getOpportunitiesByClient = async (
   clientId: string
-): Promise<Opportunity[]> => {
+): Promise<
+  Opportunity[] | { success: boolean; count: number; data: Opportunity[] }
+> => {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -169,7 +209,11 @@ export const getOpportunitiesByClient = async (
       );
     }
 
-    return await response.json();
+    // Récupérer la réponse
+    const responseData = await response.json();
+
+    // Retourner les données dans le format approprié
+    return responseData;
   } catch (error: any) {
     console.error(
       `getOpportunitiesByClient error for client ${clientId}:`,
@@ -178,7 +222,6 @@ export const getOpportunitiesByClient = async (
     throw error;
   }
 };
-
 /**
  * Récupère les opportunités par statut
  */

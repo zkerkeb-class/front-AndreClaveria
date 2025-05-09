@@ -241,8 +241,9 @@ export const createClient = async (
       throw new Error("Non authentifié");
     }
 
+    // Ajouter un log explicite pour voir les données envoyées
     console.log(
-      "Données envoyées à l'API:",
+      "Données envoyées à l'API (createClient):",
       JSON.stringify(clientData, null, 2)
     );
 

@@ -1,4 +1,3 @@
-// /components/form/client/ClientForm.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -23,6 +22,11 @@ import ClientEvaluationSection from "./ClientEvaluationSection";
 import ClientSettingsSection from "./ClientSettingsSection";
 import ContactsSection from "../contact/ContactsSection";
 import { ContactFormData } from "../contact/type";
+import {
+  getContactById,
+  Contact,
+  getContactsByClient,
+} from "@/services/contact.service";
 
 interface ClientFormProps {
   mode: "create" | "edit";
@@ -63,6 +67,19 @@ const ClientForm: React.FC<ClientFormProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // État pour la gestion des étapes
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 5;
+
+  // Définition des étapes
+  const steps = [
+    { number: 1, label: "Informations" },
+    { number: 2, label: "Coordonnées & Adresse" },
+    { number: 3, label: "Attribution" },
+    { number: 4, label: "Contacts" },
+    { number: 5, label: "Récapitulatif" },
+  ];
+
   // Vérification des droits d'accès
   useEffect(() => {
     if (
@@ -75,6 +92,8 @@ const ClientForm: React.FC<ClientFormProps> = ({
   }, [user, isLoading, router]);
 
   // Chargement des données initiales
+  // Dans la fonction useEffect qui charge les données initiales
+  // Dans ClientForm.tsx, modifions le useEffect pour charger correctement les contacts en mode édition
   useEffect(() => {
     let isMounted = true;
 
@@ -89,21 +108,21 @@ const ClientForm: React.FC<ClientFormProps> = ({
         // Récupération des détails de l'entreprise
         const companyData = await getCompanyById(companyId);
         if (isMounted) setCompany(companyData);
-        console.log("Entreprise chargée:", companyData);
 
         // Récupération des utilisateurs
         const usersData = await getAllUsers();
         if (isMounted) setUsers(usersData);
-        console.log("Utilisateurs chargés:", usersData?.length);
 
         // Récupération des équipes de l'entreprise
         const teamsData = await getTeamsByCompany(companyId);
         if (isMounted) setTeams(teamsData);
-        console.log("Équipes chargées:", teamsData?.length);
 
         // En mode édition, charger les données du client
         if (mode === "edit" && clientId) {
-          console.log("Chargement du client pour édition, ID:", clientId);
+          console.log(
+            "Mode édition: chargement des données du client",
+            clientId
+          );
           const clientData = await getClientById(clientId);
           console.log("Données client reçues:", clientData);
 
@@ -112,17 +131,14 @@ const ClientForm: React.FC<ClientFormProps> = ({
 
             // Vérifier et extraire correctement les valeurs des propriétés
             const assignedToId =
-              typeof clientData.assignedTo === "object"
+              typeof clientData.assignedTo === "object" && clientData.assignedTo
                 ? clientData.assignedTo
                 : clientData.assignedTo;
 
             const teamId =
-              typeof clientData.team === "object"
+              typeof clientData.team === "object" && clientData.team
                 ? clientData.team
                 : clientData.team;
-
-            console.log("ID assigné:", assignedToId);
-            console.log("ID équipe:", teamId);
 
             // Mise à jour du formulaire avec les données du client
             setFormData({
@@ -143,7 +159,74 @@ const ClientForm: React.FC<ClientFormProps> = ({
               isActive:
                 clientData.isActive !== undefined ? clientData.isActive : true,
             });
-            console.log("Formulaire mis à jour avec les données du client");
+
+            // Chargement explicite des contacts du client via appel API séparé
+            try {
+              console.log("Chargement des contacts pour le client:", clientId);
+              const contactsData = await getContactsByClient(clientId);
+              console.log("Contacts récupérés:", contactsData);
+
+              // Vérifier que la réponse a le bon format
+              if (
+                contactsData &&
+                typeof contactsData === "object" &&
+                "data" in contactsData &&
+                Array.isArray(contactsData.data)
+              ) {
+                // Si la structure est { success, count, data }
+                console.log(
+                  "Contacts extraits de la structure API:",
+                  contactsData.data
+                );
+
+                if (isMounted) {
+                  setContacts(
+                    contactsData.data.map((contact: any) => ({
+                      _id: contact._id || "",
+                      firstName: contact.firstName || "",
+                      lastName: contact.lastName || "",
+                      position: contact.position || "",
+                      email: contact.email || "",
+                      phone: contact.phone || "",
+                      mobile: contact.mobile || "",
+                      isPrimary: contact.isPrimary || false,
+                      notes: contact.notes || "",
+                    }))
+                  );
+                }
+              } else if (Array.isArray(contactsData)) {
+                // Si la réponse est directement un tableau
+                console.log("Contacts reçus au format tableau:", contactsData);
+
+                if (isMounted) {
+                  setContacts(
+                    contactsData.map((contact: any) => ({
+                      _id: contact._id || "",
+                      firstName: contact.firstName || "",
+                      lastName: contact.lastName || "",
+                      position: contact.position || "",
+                      email: contact.email || "",
+                      phone: contact.phone || "",
+                      mobile: contact.mobile || "",
+                      isPrimary: contact.isPrimary || false,
+                      notes: contact.notes || "",
+                    }))
+                  );
+                }
+              } else {
+                console.error(
+                  "Format de données de contacts inattendu:",
+                  contactsData
+                );
+                if (isMounted) setContacts([]);
+              }
+            } catch (contactError) {
+              console.error(
+                "Erreur lors de la récupération des contacts:",
+                contactError
+              );
+              if (isMounted) setContacts([]); // Initialiser avec un tableau vide en cas d'erreur
+            }
           }
         }
 
@@ -163,6 +246,24 @@ const ClientForm: React.FC<ClientFormProps> = ({
       isMounted = false;
     };
   }, [companyId, clientId, user, mode]);
+  // Navigation entre les étapes
+  const nextStep = () => {
+    // Validation de l'étape actuelle avant de passer à la suivante
+    if (currentStep === 1 && !formData.name) {
+      setError("Le nom du client est obligatoire");
+      return;
+    }
+
+    setError(null);
+    setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
+  };
+
+  const prevStep = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  // Calcul du pourcentage de progression
+  const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
 
   // Gestion des changements des champs du formulaire client
   const handleChange = (
@@ -178,13 +279,22 @@ const ClientForm: React.FC<ClientFormProps> = ({
     } else if (name.includes(".")) {
       // Gestion des champs imbriqués (comme address.street)
       const [parent, child] = name.split(".");
-      setFormData((prev) => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof typeof prev],
-          [child]: value,
-        },
-      }));
+      setFormData((prev) => {
+        // Utiliser une assertion de type pour indiquer à TypeScript que
+        // prev[parent] est un objet Record<string, any>
+        const parentObj = prev[parent as keyof typeof prev] as Record<
+          string,
+          any
+        >;
+
+        return {
+          ...prev,
+          [parent]: {
+            ...parentObj,
+            [child]: value,
+          },
+        };
+      });
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -231,14 +341,15 @@ const ClientForm: React.FC<ClientFormProps> = ({
   };
 
   // Soumission du formulaire
+  // Mise à jour de la fonction handleSubmit dans ClientForm.tsx
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
 
-    // Validation basique
+    // Validation finale
     if (!formData.name) {
-      setError("Veuillez remplir tous les champs obligatoires");
+      setError("Le nom du client est obligatoire");
       return;
     }
 
@@ -250,6 +361,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
       const validContacts = contacts
         .filter((c) => c.firstName && c.lastName)
         .map((c) => ({
+          _id: c._id, // Conserver l'ID pour les contacts existants
           firstName: c.firstName,
           lastName: c.lastName,
           position: c.position || undefined,
@@ -259,6 +371,8 @@ const ClientForm: React.FC<ClientFormProps> = ({
           isPrimary: c.isPrimary || false,
           notes: c.notes || undefined,
         }));
+
+      console.log("Contacts valides préparés:", validContacts);
 
       // Préparer des données client épurées
       const clientData = {
@@ -289,42 +403,40 @@ const ClientForm: React.FC<ClientFormProps> = ({
       let clientResponse;
 
       if (mode === "create") {
-        // Créer le client
-        clientResponse = await createClient(clientData as any);
+        // Ajouter les contacts au payload pour la création du client
+        const clientWithContacts = {
+          ...clientData,
+          contacts: validContacts.length > 0 ? validContacts : undefined,
+        };
+
+        console.log(
+          "Données complètes pour création du client:",
+          clientWithContacts
+        );
+
+        // Créer le client avec les contacts en une seule requête
+        clientResponse = await createClient(clientWithContacts as any);
         console.log("Client créé avec succès:", clientResponse);
-
-        // Si des contacts sont fournis, les ajouter
-        if (validContacts.length > 0) {
-          try {
-            console.log(`Ajout de ${validContacts.length} contacts...`);
-
-            // Ajouter les contacts un par un
-            for (const contact of validContacts) {
-              const contactWithClientInfo = {
-                ...contact,
-                client: clientResponse._id,
-                company: companyId,
-              };
-
-              // Vous devrez peut-être implémenter cette fonction
-              // await addContactToClient(clientResponse._id, contactWithClientInfo);
-              console.log("Contact à ajouter:", contactWithClientInfo);
-            }
-          } catch (contactError) {
-            console.error("Erreur lors de l'ajout des contacts:", contactError);
-            // Ne pas faire échouer toute l'opération si l'ajout de contacts échoue
-            setError("Client créé, mais problème lors de l'ajout des contacts");
-          }
-        }
 
         setSuccess(`Client ${clientResponse.name} créé avec succès !`);
       } else {
-        // Mettre à jour le client
-        clientResponse = await updateClient(clientId!, clientData as any);
+        // Ajouter les contacts au payload pour la mise à jour du client
+        const clientWithContacts = {
+          ...clientData,
+          contacts: validContacts.length > 0 ? validContacts : undefined,
+        };
 
-        // La mise à jour des contacts nécessitera une logique spécifique
-        // (créer de nouveaux contacts, mettre à jour les existants, supprimer ceux qui ne sont plus là)
-        // Cette partie dépendra de votre API et de votre logique métier
+        console.log(
+          "Données complètes pour mise à jour du client:",
+          clientWithContacts
+        );
+
+        // Mettre à jour le client avec les contacts en une seule requête
+        clientResponse = await updateClient(
+          clientId!,
+          clientWithContacts as any
+        );
+        console.log("Client mis à jour avec succès:", clientResponse);
 
         setSuccess(`Client ${clientResponse.name} mis à jour avec succès !`);
       }
@@ -353,7 +465,6 @@ const ClientForm: React.FC<ClientFormProps> = ({
       setLoadingWithMessage(false);
     }
   };
-
   // Affichage conditionnel pendant le chargement initial
   if (isLoading || !user) {
     return null; // Le LoadingOverlay du AuthContext s'affichera
@@ -362,17 +473,7 @@ const ClientForm: React.FC<ClientFormProps> = ({
   // Affichage pendant le chargement des données spécifiques à cette page
   if (dataLoading) {
     return (
-      <div
-        style={
-          styles.loadingContainer || {
-            padding: "20px",
-            textAlign: "center",
-            backgroundColor: "#fff",
-            borderRadius: "8px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-          }
-        }
-      >
+      <div style={styles.loadingContainer}>
         <p>Chargement des données...</p>
       </div>
     );
@@ -381,24 +482,389 @@ const ClientForm: React.FC<ClientFormProps> = ({
   // Déterminer le préfixe de route pour la navigation
   const routePrefix = user?.role === "admin" ? "admin" : "manager";
 
+  // Trouver un utilisateur ou une équipe par ID
+  const findUserById = (id: string) => {
+    return users.find((u) => u._id === id)?.firstName || "Non assigné";
+  };
+
+  const findTeamById = (id: string) => {
+    return teams.find((t) => t._id === id)?.name || "Aucune équipe";
+  };
+
+  // Rendu du stepper (indicateur d'étapes)
+  const renderStepper = () => (
+    <div style={styles.stepperContainer}>
+      <div style={styles.stepperSteps}>
+        <div style={styles.stepperLine}></div>
+        {steps.map((step) => (
+          <div key={step.number} style={styles.stepperStep}>
+            <div
+              style={{
+                ...styles.stepperCircle,
+                ...(currentStep === step.number
+                  ? styles.stepperActiveCircle
+                  : {}),
+                ...(currentStep > step.number
+                  ? styles.stepperCompletedCircle
+                  : {}),
+              }}
+            >
+              {currentStep > step.number ? "✓" : step.number}
+            </div>
+            <div
+              style={{
+                ...styles.stepperLabel,
+                ...(currentStep === step.number
+                  ? styles.stepperActiveLabel
+                  : {}),
+              }}
+            >
+              {step.label}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={styles.stepperProgressBar}>
+        <div
+          style={{
+            ...styles.stepperProgress,
+            width: `${progressPercentage}%`,
+          }}
+        ></div>
+      </div>
+    </div>
+  );
+
+  // Styles additionnels pour le récapitulatif en colonnes
+  const twoColumnLayout = {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    gap: "20px",
+  };
+
+  const leftColumn = {
+    flex: "1 1 400px",
+  };
+
+  const rightColumn = {
+    flex: "1 1 300px",
+  };
+
+  // Rendu du contenu de l'étape actuelle
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div style={styles.container}>
+            <h2 style={styles.sectionTitle}>Informations du client</h2>
+            <ClientInfoSection
+              name={formData.name}
+              sector={formData.sector}
+              description={formData.description}
+              handleChange={handleChange}
+            />
+            <ClientSettingsSection
+              isActive={formData.isActive}
+              handleChange={handleChange}
+            />
+          </div>
+        );
+
+      case 2:
+        return (
+          <div style={styles.container}>
+            <h2 style={styles.sectionTitle}>Coordonnées et adresse</h2>
+            <ClientContactSection
+              email={formData.email}
+              phone={formData.phone}
+              handleChange={handleChange}
+            />
+            <ClientAddressSection
+              address={formData.address}
+              handleChange={handleChange}
+            />
+          </div>
+        );
+
+      case 3:
+        return (
+          <div style={styles.container}>
+            <h2 style={styles.sectionTitle}>Attribution et évaluation</h2>
+            <ClientAssignmentSection
+              assignedTo={formData.assignedTo}
+              team={formData.team}
+              users={users}
+              teams={teams}
+              handleChange={handleChange}
+            />
+            <ClientEvaluationSection
+              goodForCustomer={formData.goodForCustomer}
+              handleChange={handleChange}
+            />
+          </div>
+        );
+
+      case 4:
+        return (
+          <div style={styles.container}>
+            <h2 style={styles.sectionTitle}>Contacts du client</h2>
+            <ContactsSection
+              contacts={contacts}
+              addContact={addContact}
+              removeContact={removeContact}
+              handleContactChange={handleContactChange}
+            />
+          </div>
+        );
+
+      case 5:
+        return (
+          <div style={styles.container}>
+            <h2 style={styles.sectionTitle}>Récapitulatif</h2>
+            <div style={twoColumnLayout}>
+              {/* Colonne de gauche */}
+              <div style={leftColumn}>
+                <div style={styles.summaryContainer}>
+                  <div style={styles.summarySection}>
+                    <h3 style={styles.summarySectionTitle}>
+                      Informations client
+                    </h3>
+                    <div style={styles.summaryItem}>
+                      <div style={styles.summaryLabel}>Nom :</div>
+                      <div style={styles.summaryValue}>{formData.name}</div>
+                    </div>
+                    {formData.sector && (
+                      <div style={styles.summaryItem}>
+                        <div style={styles.summaryLabel}>Secteur :</div>
+                        <div style={styles.summaryValue}>{formData.sector}</div>
+                      </div>
+                    )}
+                    {formData.description && (
+                      <div style={styles.summaryItem}>
+                        <div style={styles.summaryLabel}>Description :</div>
+                        <div style={styles.summaryValue}>
+                          {formData.description}
+                        </div>
+                      </div>
+                    )}
+                    <div style={styles.summaryItem}>
+                      <div style={styles.summaryLabel}>Statut :</div>
+                      <div style={styles.summaryValue}>
+                        {formData.isActive ? "Actif" : "Inactif"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={styles.summarySection}>
+                    <h3 style={styles.summarySectionTitle}>Coordonnées</h3>
+                    {formData.email && (
+                      <div style={styles.summaryItem}>
+                        <div style={styles.summaryLabel}>Email :</div>
+                        <div style={styles.summaryValue}>{formData.email}</div>
+                      </div>
+                    )}
+                    {formData.phone && (
+                      <div style={styles.summaryItem}>
+                        <div style={styles.summaryLabel}>Téléphone :</div>
+                        <div style={styles.summaryValue}>{formData.phone}</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Adresse si renseignée */}
+                  {(formData.address.street ||
+                    formData.address.city ||
+                    formData.address.zipCode ||
+                    formData.address.country) && (
+                    <div style={styles.summarySection}>
+                      <h3 style={styles.summarySectionTitle}>Adresse</h3>
+                      {formData.address.street && (
+                        <div style={styles.summaryItem}>
+                          <div style={styles.summaryLabel}>Rue :</div>
+                          <div style={styles.summaryValue}>
+                            {formData.address.street}
+                          </div>
+                        </div>
+                      )}
+                      {formData.address.city && (
+                        <div style={styles.summaryItem}>
+                          <div style={styles.summaryLabel}>Ville :</div>
+                          <div style={styles.summaryValue}>
+                            {formData.address.city}
+                          </div>
+                        </div>
+                      )}
+                      {formData.address.zipCode && (
+                        <div style={styles.summaryItem}>
+                          <div style={styles.summaryLabel}>Code postal :</div>
+                          <div style={styles.summaryValue}>
+                            {formData.address.zipCode}
+                          </div>
+                        </div>
+                      )}
+                      {formData.address.country && (
+                        <div style={styles.summaryItem}>
+                          <div style={styles.summaryLabel}>Pays :</div>
+                          <div style={styles.summaryValue}>
+                            {formData.address.country}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div style={styles.summarySection}>
+                    <h3 style={styles.summarySectionTitle}>Attribution</h3>
+                    <div style={styles.summaryItem}>
+                      <div style={styles.summaryLabel}>Responsable :</div>
+                      <div style={styles.summaryValue}>
+                        {formData.assignedTo
+                          ? findUserById(formData.assignedTo)
+                          : "Non assigné"}
+                      </div>
+                    </div>
+                    <div style={styles.summaryItem}>
+                      <div style={styles.summaryLabel}>Équipe :</div>
+                      <div style={styles.summaryValue}>
+                        {formData.team
+                          ? findTeamById(formData.team)
+                          : "Aucune équipe"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={styles.summarySection}>
+                    <h3 style={styles.summarySectionTitle}>Évaluation</h3>
+                    <div style={styles.summaryItem}>
+                      <div style={styles.summaryLabel}>
+                        Indice "bonne poire" :
+                      </div>
+                      <div style={styles.summaryValue}>
+                        {formData.goodForCustomer}/100
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Colonne de droite */}
+              <div style={rightColumn}>
+                {contacts.length > 0 && (
+                  <div style={styles.summaryContainer}>
+                    <div style={styles.summarySection}>
+                      <h3 style={styles.summarySectionTitle}>
+                        Contacts ({contacts.length})
+                      </h3>
+                      {contacts.map((contact, index) => (
+                        <div key={index} style={styles.summaryContactItem}>
+                          <div style={styles.summaryItem}>
+                            <div style={styles.summaryLabel}>Nom :</div>
+                            <div style={styles.summaryValue}>
+                              {contact.firstName} {contact.lastName}
+                            </div>
+                          </div>
+                          {contact.position && (
+                            <div style={styles.summaryItem}>
+                              <div style={styles.summaryLabel}>Poste :</div>
+                              <div style={styles.summaryValue}>
+                                {contact.position}
+                              </div>
+                            </div>
+                          )}
+                          {contact.email && (
+                            <div style={styles.summaryItem}>
+                              <div style={styles.summaryLabel}>Email :</div>
+                              <div style={styles.summaryValue}>
+                                {contact.email}
+                              </div>
+                            </div>
+                          )}
+                          {contact.phone && (
+                            <div style={styles.summaryItem}>
+                              <div style={styles.summaryLabel}>Téléphone :</div>
+                              <div style={styles.summaryValue}>
+                                {contact.phone}
+                              </div>
+                            </div>
+                          )}
+                          {contact.isPrimary && (
+                            <div style={styles.summaryPrimaryContact}>
+                              Contact principal
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {contacts.length === 0 && (
+                  <div style={styles.summaryContainer}>
+                    <div style={styles.summarySection}>
+                      <h3 style={styles.summarySectionTitle}>Contacts</h3>
+                      <p style={{ color: "#666", fontStyle: "italic" }}>
+                        Aucun contact ajouté
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  // Rendu des boutons de navigation
+  const renderNavigationButtons = () => (
+    <div style={styles.buttonContainer}>
+      {currentStep > 1 ? (
+        <button type="button" onClick={prevStep} style={styles.prevButton}>
+          ← Précédent
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            router.push(
+              `/dashboard/${routePrefix}/manage/company/clients/${companyId}`
+            );
+          }}
+          style={styles.cancelButton}
+        >
+          Annuler
+        </button>
+      )}
+
+      {currentStep < totalSteps ? (
+        <button type="button" onClick={nextStep} style={styles.nextButton}>
+          Suivant →
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={handleSubmit}
+          style={styles.submitStepperButton}
+        >
+          {mode === "create"
+            ? "Créer le client"
+            : "Enregistrer les modifications"}
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <div>
-      <div
-        style={
-          styles.header || {
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "20px",
-          }
-        }
-      >
+      <div style={styles.header}>
         <div>
-          <h1 style={styles.title || { fontSize: "24px", marginBottom: "8px" }}>
+          <h1 style={styles.title}>
             {mode === "create" ? "Ajouter un client" : "Modifier le client"}
           </h1>
           {company && (
-            <p style={styles.subTitle || { color: "#666" }}>
+            <p style={styles.subTitle}>
               Entreprise: <strong>{company.name}</strong>
             </p>
           )}
@@ -409,159 +875,23 @@ const ClientForm: React.FC<ClientFormProps> = ({
               `/dashboard/${routePrefix}/manage/company/clients/${companyId}`
             )
           }
-          style={
-            styles.backButton || {
-              padding: "10px 16px",
-              backgroundColor: "#f5f5f5",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }
-          }
+          style={styles.backButton}
         >
           Retour à la liste
         </button>
       </div>
 
-      {error && (
-        <div
-          style={
-            styles.errorMessage || {
-              padding: "12px",
-              backgroundColor: "#ffebee",
-              color: "#d32f2f",
-              borderRadius: "4px",
-              marginBottom: "20px",
-            }
-          }
-        >
-          {error}
-        </div>
-      )}
+      {error && <div style={styles.errorMessage}>{error}</div>}
 
-      {success && (
-        <div
-          style={
-            styles.successMessage || {
-              padding: "12px",
-              backgroundColor: "#e6f7e6",
-              color: "#2e7d32",
-              borderRadius: "4px",
-              marginBottom: "20px",
-            }
-          }
-        >
-          {success}
-        </div>
-      )}
+      {success && <div style={styles.successMessage}>{success}</div>}
 
-      <form onSubmit={handleSubmit}>
-        {/* Informations principales du client */}
-        <div
-          style={
-            styles.container || {
-              backgroundColor: "white",
-              padding: "24px",
-              borderRadius: "8px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-              marginBottom: "24px",
-            }
-          }
-        >
-          <ClientInfoSection
-            name={formData.name}
-            sector={formData.sector}
-            description={formData.description}
-            handleChange={handleChange}
-          />
+      {/* Stepper */}
+      {renderStepper()}
 
-          <ClientContactSection
-            email={formData.email}
-            phone={formData.phone}
-            handleChange={handleChange}
-          />
-
-          <ClientAddressSection
-            address={formData.address}
-            handleChange={handleChange}
-          />
-
-          <ClientAssignmentSection
-            assignedTo={formData.assignedTo}
-            team={formData.team}
-            users={users}
-            teams={teams}
-            handleChange={handleChange}
-          />
-
-          <ClientEvaluationSection
-            goodForCustomer={formData.goodForCustomer}
-            handleChange={handleChange}
-          />
-
-          <ClientSettingsSection
-            isActive={formData.isActive}
-            handleChange={handleChange}
-          />
-        </div>
-
-        {/* Section des contacts */}
-        <ContactsSection
-          contacts={contacts}
-          addContact={addContact}
-          removeContact={removeContact}
-          handleContactChange={handleContactChange}
-        />
-
-        <div
-          style={
-            styles.buttonContainer || {
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: "16px",
-              marginTop: "24px",
-            }
-          }
-        >
-          <button
-            type="button"
-            onClick={() =>
-              router.push(
-                `/dashboard/${routePrefix}/manage/company/clients/${companyId}`
-              )
-            }
-            style={
-              styles.cancelButton || {
-                padding: "10px 20px",
-                backgroundColor: "#f5f5f5",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }
-            }
-          >
-            Annuler
-          </button>
-
-          <button
-            type="submit"
-            style={
-              styles.submitButton || {
-                padding: "10px 20px",
-                backgroundColor: "#4c84ff",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: 500,
-              }
-            }
-          >
-            {mode === "create"
-              ? "Créer le client"
-              : "Enregistrer les modifications"}
-          </button>
-        </div>
+      {/* Contenu de l'étape actuelle */}
+      <form onSubmit={(e) => e.preventDefault()}>
+        {renderStepContent()}
+        {renderNavigationButtons()}
       </form>
     </div>
   );

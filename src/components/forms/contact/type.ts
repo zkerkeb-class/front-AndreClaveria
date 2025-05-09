@@ -1,4 +1,5 @@
 export interface ContactFormData {
+  _id?: string;
   firstName: string;
   lastName: string;
   position?: string;

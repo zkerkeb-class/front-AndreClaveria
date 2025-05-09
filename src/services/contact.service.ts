@@ -12,7 +12,7 @@ export interface Contact {
   phone?: string;
   mobile?: string;
   company: string; // Référence à l'entreprise propriétaire
-  client: string; // ID du client associé
+  client?: string; // ID du client associé
   team?: string; // Équipe responsable
   assignedTo?: string; // ID utilisateur responsable
   isPrimary?: boolean;
@@ -94,15 +94,17 @@ export const getContactById = async (id: string): Promise<Contact> => {
 /**
  * Récupère les contacts par client
  */
+// Dans contact.service.ts, assurons-nous que getContactsByClient gère correctement tous les formats de réponse
 export const getContactsByClient = async (
   clientId: string
-): Promise<Contact[]> => {
+): Promise<Contact[] | any> => {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("Non authentifié");
     }
 
+    console.log(`Appel API pour récupérer les contacts du client ${clientId}`);
     const response = await fetch(`${API_URL}/contacts/client/${clientId}`, {
       method: "GET",
       headers: {
@@ -119,13 +121,31 @@ export const getContactsByClient = async (
       );
     }
 
-    return await response.json();
+    // Récupérer la réponse et l'examiner
+    const responseData = await response.json();
+    console.log("Réponse brute de l'API pour les contacts:", responseData);
+
+    // Vérifier le format de la réponse et extraire les contacts
+    if (
+      responseData &&
+      typeof responseData === "object" &&
+      "data" in responseData &&
+      Array.isArray(responseData.data)
+    ) {
+      console.log("Format de réponse avec structure { success, data }");
+      return responseData; // Retourner toute la structure
+    } else if (Array.isArray(responseData)) {
+      console.log("Format de réponse: tableau direct");
+      return responseData; // Retourner directement le tableau
+    } else {
+      console.warn("Format de réponse inattendu:", responseData);
+      return []; // Retourner un tableau vide par défaut
+    }
   } catch (error: any) {
     console.error(`getContactsByClient error for client ${clientId}:`, error);
     throw error;
   }
 };
-
 /**
  * Récupère les contacts par entreprise
  */
