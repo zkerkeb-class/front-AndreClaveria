@@ -24,7 +24,7 @@ const headers = {
 export const getAllTeams = async (): Promise<Team[]> => {
   try {
     const token = localStorage.getItem("token");
-    if (!token) {
+    if (!token) { 
       throw new Error("Non authentifié");
     }
 
@@ -60,7 +60,8 @@ export const getTeamById = async (id: string): Promise<Team> => {
       throw new Error("Non authentifié");
     }
 
-    const response = await fetch(`${API_URL}teams/${id}`, {
+    // Notez le slash ajouté ici entre API_URL et "teams/"
+    const response = await fetch(`${API_URL}/teams/${id}`, {
       method: "GET",
       headers: {
         ...headers,
