@@ -7,8 +7,8 @@ export const gettingStartedStyles = {
     flexDirection: "column" as const,
     justifyContent: "center",
     alignItems: "center",
-    padding: "3rem 1rem",
-    backgroundColor: "#f9fafb",
+    padding: "3rem var(--spacing-normal)",
+    backgroundColor: "var(--color-grey-100)",
   },
 
   formWrapper: {
@@ -24,78 +24,78 @@ export const gettingStartedStyles = {
   },
 
   logo: {
-    borderRadius: "9999px",
+    borderRadius: "var(--border-circle-radius)",
     objectFit: "cover" as const,
   },
 
   title: {
-    fontSize: "1.875rem",
-    fontWeight: "800",
-    color: "#111827",
+    fontSize: "var(--font-size-big)",
+    fontWeight: "var(--font-weight-bold)",
+    color: "var(--color-text)",
     textAlign: "center" as const,
     marginTop: "1.5rem",
     marginBottom: "0.5rem",
   },
 
   subtitle: {
-    fontSize: "0.875rem",
-    color: "#6b7280",
+    fontSize: "var(--font-size-small)",
+    color: "var(--color-grey-600)",
     textAlign: "center" as const,
-    marginBottom: "2rem",
+    marginBottom: "var(--spacing-big)",
   },
 
   form: {
-    marginTop: "2rem",
+    marginTop: "var(--spacing-big)",
     display: "flex",
     flexDirection: "column" as const,
     gap: "1.5rem",
   },
 
   inputGroup: {
-    marginBottom: "1rem",
+    marginBottom: "var(--spacing-normal)",
   },
 
   label: {
     display: "block",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    color: "#374151",
+    fontSize: "var(--font-size-small)",
+    fontWeight: "var(--font-weight-medium)",
+    color: "var(--color-text)",
     marginBottom: "0.5rem",
   },
 
   input: {
     width: "100%",
     padding: "0.75rem 1rem",
-    borderRadius: "0.375rem",
-    border: "1px solid #d1d5db",
-    backgroundColor: "#ffffff",
-    color: "#111827",
-    fontSize: "0.875rem",
+    borderRadius: "var(--border-small-radius)",
+    border: "var(--border-width) solid var(--color-grey-400)",
+    backgroundColor: "var(--color-white)",
+    color: "var(--color-text)",
+    fontSize: "var(--font-size-small)",
     outline: "none",
-    transition: "border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out",
+    transition: "var(--animation-transition)",
   },
 
   inputFocus: {
-    borderColor: "#3b82f6",
+    borderColor: "var(--color-blue)",
     boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
   },
 
   errorContainer: {
-    backgroundColor: "rgba(255, 77, 79, 0.1)",
-    color: "#ff4d4f",
+    backgroundColor: "var(--color-error-light)",
+    color: "var(--color-error-dark)",
     padding: "0.75rem",
-    borderRadius: "0.375rem",
-    marginBottom: "1rem",
-    fontSize: "0.875rem",
+    borderRadius: "var(--border-small-radius)",
+    marginBottom: "var(--spacing-normal)",
+    fontSize: "var(--font-size-small)",
     textAlign: "center" as const,
   },
 
   captchaContainer: {
-    padding: "1rem",
-    border: "1px solid #d1d5db",
-    borderRadius: "0.375rem",
-    backgroundColor: "#f3f4f6",
-    marginBottom: "1rem",
+    padding: "var(--spacing-normal)",
+    border: "var(--border-width) solid var(--color-grey-400)",
+    borderRadius: "var(--border-small-radius)",
+    backgroundColor: "var(--color-grey-100)",
+    marginBottom: "var(--spacing-normal)",
   },
 
   captchaHeader: {
@@ -106,27 +106,28 @@ export const gettingStartedStyles = {
   },
 
   captchaTitle: {
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    color: "#374151",
+    fontSize: "var(--font-size-small)",
+    fontWeight: "var(--font-weight-medium)",
+    color: "var(--color-text)",
   },
 
   captchaButton: {
     display: "inline-flex",
     alignItems: "center",
     padding: "0.25rem 0.75rem",
-    borderRadius: "0.25rem",
-    backgroundColor: "#3b82f6",
-    color: "#ffffff",
-    fontSize: "0.75rem",
-    fontWeight: "500",
+    borderRadius: "var(--border-small-radius)",
+    backgroundColor: "var(--color-blue)",
+    color: "var(--color-white)",
+    fontSize: "var(--font-size-small-small)",
+    fontWeight: "var(--font-weight-medium)",
     border: "none",
     cursor: "pointer",
-    transition: "background-color 0.15s ease-in-out",
+    transition: "var(--animation-transition)",
   },
 
   captchaButtonHover: {
-    backgroundColor: "#2563eb",
+    backgroundColor: "var(--color-blue)",
+    opacity: "var(--opacity-less)",
   },
 
   captchaPlaceholder: {
@@ -134,15 +135,15 @@ export const gettingStartedStyles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#e5e7eb",
-    color: "#6b7280",
-    fontSize: "0.875rem",
+    backgroundColor: "var(--color-grey-300)",
+    color: "var(--color-grey-600)",
+    fontSize: "var(--font-size-small)",
     marginTop: "0.5rem",
   },
 
   captchaInfo: {
-    fontSize: "0.75rem",
-    color: "#6b7280",
+    fontSize: "var(--font-size-small-small)",
+    color: "var(--color-grey-600)",
     marginTop: "0.25rem",
   },
 
@@ -152,22 +153,23 @@ export const gettingStartedStyles = {
     display: "flex",
     justifyContent: "center",
     padding: "0.75rem 1.5rem",
-    backgroundColor: "#3b82f6",
-    color: "#ffffff",
-    fontWeight: "500",
-    fontSize: "0.875rem",
-    borderRadius: "0.375rem",
+    backgroundColor: "var(--color-blue)",
+    color: "var(--color-white)",
+    fontWeight: "var(--font-weight-medium)",
+    fontSize: "var(--font-size-small)",
+    borderRadius: "var(--border-small-radius)",
     border: "none",
     cursor: "pointer",
-    transition: "background-color 0.15s ease-in-out",
+    transition: "var(--animation-transition)",
   },
 
   submitButtonHover: {
-    backgroundColor: "#2563eb",
+    backgroundColor: "var(--color-blue)",
+    opacity: "var(--opacity-less)",
   },
 
   submitButtonDisabled: {
-    opacity: 0.5,
+    opacity: "var(--opacity-less)",
     cursor: "not-allowed",
   },
 

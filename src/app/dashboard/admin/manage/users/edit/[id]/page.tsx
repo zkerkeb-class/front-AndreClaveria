@@ -1,13 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  getUserById,
-  updateUser,
-  User,
-  UpdateUserRequest,
-} from "@/services/user.service";
+import { useRoleCheck } from "@/hooks/useRoleCheck";
+import { useEditUser } from "@/hooks/useEditUser";
 
 interface EditUserPageProps {
   params: {
@@ -18,144 +14,32 @@ interface EditUserPageProps {
 const EditUser: React.FC<EditUserPageProps> = ({ params }) => {
   const userId = params.id;
   const router = useRouter();
-  const { user: currentUser, isLoading, setLoadingWithMessage } = useAuth();
-  const [formData, setFormData] = useState<{
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-    phoneNumber: string;
-    active: boolean;
-    password: string;
-    confirmPassword: string;
-  }>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    role: "user",
-    phoneNumber: "",
-    active: true,
-    password: "",
-    confirmPassword: "",
+  const { user: currentUser, isLoading } = useAuth();
+
+  // Vérification du rôle admin
+  const hasAdminAccess = useRoleCheck({
+    isLoading,
+    user: currentUser,
+    requiredRole: "admin",
+    redirectPath: "/dashboard",
   });
-  const [originalUser, setOriginalUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [changePassword, setChangePassword] = useState(false);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-  useEffect(() => {
-    // Vérification du rôle admin
-    if (!isLoading && currentUser && currentUser.role !== "admin") {
-      router.push("/dashboard");
-    }
-  }, [currentUser, isLoading, router]);
 
-  // Charger les données de l'utilisateur
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!userId) return;
-      setIsLoadingUsers(true);
-      try {
-        // setLoadingWithMessage(
-        //   true,
-        //   "Chargement des informations utilisateur..."
-        // );
-        const userData = await getUserById(userId);
-        setOriginalUser(userData);
-        setFormData({
-          firstName: userData.firstName || "",
-          lastName: userData.lastName || "",
-          email: userData.email || "",
-          role: userData.role || "user",
-          phoneNumber: userData.phoneNumber || "",
-          active: userData.active !== undefined ? userData.active : true,
-          password: "",
-          confirmPassword: "",
-        });
-      } catch (err: any) {
-        console.error(
-          "Erreur lors de la récupération des données utilisateur:",
-          err
-        );
-        setError(
-          err.message ||
-            "Impossible de charger les informations de l'utilisateur"
-        );
-      } finally {
-        // setLoadingWithMessage(false);
-        setIsLoadingUsers(false);
-      }
-    };
-
-    if (currentUser && currentUser.role === "admin") {
-      fetchUserData();
-    }
-  }, [userId, currentUser, setLoadingWithMessage]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target as HTMLInputElement;
-
-    if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    // Validation basique
-    if (!formData.firstName || !formData.lastName || !formData.email) {
-      setError("Veuillez remplir tous les champs obligatoires");
-      return;
-    }
-
-    if (changePassword && formData.password !== formData.confirmPassword) {
-      setError("Les mots de passe ne correspondent pas");
-      return;
-    }
-
-    try {
-      setLoadingWithMessage(true, "Mise à jour du compte utilisateur...");
-
-      // Création de l'objet à envoyer à l'API
-      const updateData: UpdateUserRequest = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        role: formData.role,
-        phoneNumber: formData.phoneNumber,
-        active: formData.active,
-      };
-
-      // Ajouter le mot de passe seulement si changePassword est activé
-      if (changePassword && formData.password) {
-        updateData.password = formData.password;
-      }
-
-      await updateUser(userId, updateData);
-      setSuccess("Utilisateur mis à jour avec succès");
-
-      // Redirection après un court délai
-      setTimeout(() => {
-        router.push("/dashboard/admin/manage/users");
-      }, 2000);
-    } catch (err: any) {
-      console.error("Erreur lors de la mise à jour de l'utilisateur:", err);
-      setError(
-        err.message ||
-          "Une erreur est survenue lors de la mise à jour de l'utilisateur"
-      );
-    } finally {
-      setLoadingWithMessage(false);
-    }
-  };
+  // Utilisation du hook pour gérer l'édition de l'utilisateur
+  const {
+    formData,
+    originalUser,
+    error,
+    success,
+    changePassword,
+    isLoadingUsers,
+    handleChange,
+    handleSubmit,
+    setChangePassword,
+  } = useEditUser({
+    userId,
+    redirectPath: "/dashboard/admin/manage/users",
+    redirectDelay: 2000,
+  });
 
   if (isLoading || !currentUser) {
     return null; // Le LoadingOverlay du AuthContext s'affichera

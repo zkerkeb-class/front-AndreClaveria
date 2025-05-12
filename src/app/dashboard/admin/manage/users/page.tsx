@@ -1,62 +1,38 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { getAllUsers, User } from "@/services/user.service";
+import { useRoleCheck } from "@/hooks/useRoleCheck";
+import { useUser } from "@/hooks/useUser";
 import UserTable from "@/components/admin/users/UserTable";
 import ActionButton from "@/components/common/ActionButton";
 
 const UserManagement: React.FC = () => {
   const router = useRouter();
-  const { user, isLoading, setLoadingWithMessage } = useAuth();
-  const [users, setUsers] = useState<User[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const { user, isLoading } = useAuth();
 
-  useEffect(() => {
-    // Vérification du rôle admin
-    if (!isLoading && user && user.role !== "admin") {
-      router.push("/dashboard");
-    }
-  }, [user, isLoading, router]);
+  // Vérification du rôle admin
+  const hasAccess = useRoleCheck({
+    isLoading,
+    user,
+    requiredRole: "admin",
+    redirectPath: "/dashboard",
+  });
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoadingUsers(true);
-      try {
-        // Vous pouvez réactiver cette ligne si elle fonctionne
-        // setLoadingWithMessage(true, "Chargement des utilisateurs...");
-
-        console.log("Début de la récupération des utilisateurs");
-        const usersData = await getAllUsers();
-        console.log("Utilisateurs récupérés:", usersData);
-        setUsers(usersData);
-        setError(null);
-      } catch (err: any) {
-        console.error("Erreur lors de la récupération des utilisateurs:", err);
-        setError(
-          err.message ||
-            "Impossible de charger les utilisateurs. Veuillez réessayer."
-        );
-      } finally {
-        setIsLoadingUsers(false);
-        // setLoadingWithMessage(false);
-      }
-    };
-
-    if (user && user.role === "admin" && !isLoadingUsers) {
-      fetchUsers();
-    }
-  }, [user]);
+  // Utilisation du hook useUser pour charger tous les utilisateurs
+  const {
+    users,
+    isLoading: isLoadingUsers,
+    error,
+    updateUserData,
+  } = useUser({ loadAll: true });
 
   // Gestionnaire pour le changement de statut d'un utilisateur
   const handleStatusChange = (userId: string, newStatus: boolean) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((u) => (u._id === userId ? { ...u, active: newStatus } : u))
-    );
+    updateUserData(userId, { active: newStatus });
   };
 
-  if (isLoading || !user) {
+  if (isLoading || !hasAccess) {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
 

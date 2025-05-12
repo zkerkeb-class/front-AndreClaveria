@@ -28,16 +28,18 @@ export const tableStyles = (props: TableStyleProps = {}) => {
     margin: centered ? "0 auto" : undefined,
     overflowX: "auto",
     boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-    borderRadius: rounded ? "8px" : "0",
+    borderRadius: rounded ? "var(--border-radius)" : "0",
   };
 
   // Styles de base du tableau
   const tableStyle: CSSProperties = {
     width: "100%",
     borderCollapse: "collapse",
-    backgroundColor: "white",
+    backgroundColor: "var(--color-white)",
     overflow: "hidden",
-    border: borderless ? "none" : "1px solid #e0e0e0",
+    border: borderless
+      ? "none"
+      : `var(--border-width) solid var(--table-border)`,
   };
 
   // Styles d'en-tête selon le thème
@@ -45,29 +47,31 @@ export const tableStyles = (props: TableStyleProps = {}) => {
     const baseStyle: CSSProperties = {
       padding: variant === "compact" ? "8px 12px" : "16px",
       textAlign: "left",
-      fontWeight: 600,
-      borderBottom: borderless ? "none" : "2px solid #e0e0e0",
+      fontWeight: "var(--font-weight-bold)",
+      borderBottom: borderless
+        ? "none"
+        : `var(--border-big-width) solid var(--table-border)`,
     };
 
     switch (headerStyle) {
       case "dark":
         return {
           ...baseStyle,
-          backgroundColor: "#333",
-          color: "#fff",
+          backgroundColor: "var(--color-black)",
+          color: "var(--color-white)",
         };
       case "primary":
         return {
           ...baseStyle,
-          backgroundColor: "#4c84ff",
-          color: "#fff",
+          backgroundColor: "var(--color-blue)",
+          color: "var(--color-white)",
         };
       case "light":
       default:
         return {
           ...baseStyle,
-          backgroundColor: "#f5f5f5",
-          color: "#333",
+          backgroundColor: "var(--table-header-bg)",
+          color: "var(--table-header-text)",
         };
     }
   };
@@ -76,14 +80,16 @@ export const tableStyles = (props: TableStyleProps = {}) => {
   const cellStyle = (isEven: boolean = false): CSSProperties => {
     const baseStyle: CSSProperties = {
       padding: variant === "compact" ? "8px 12px" : "14px 16px",
-      borderBottom: borderless ? "none" : "1px solid #e0e0e0",
+      borderBottom: borderless
+        ? "none"
+        : `var(--border-width) solid var(--table-border)`,
     };
 
     // Appliquer des couleurs alternées en fonction du variant
     if (variant === "striped" && isEven) {
       return {
         ...baseStyle,
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "var(--table-row-alt-bg)",
       };
     }
 
@@ -93,9 +99,11 @@ export const tableStyles = (props: TableStyleProps = {}) => {
   // Style pour les lignes
   const rowStyle = (isEven: boolean = false): CSSProperties => {
     return {
-      transition: "background-color 0.2s",
-
-      backgroundColor: variant === "striped" && isEven ? "#f9f9f9" : "white",
+      transition: "var(--animation-transition)",
+      backgroundColor:
+        variant === "striped" && isEven
+          ? "var(--table-row-alt-bg)"
+          : "var(--table-row-bg)",
     };
   };
 

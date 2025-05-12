@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import Table, { TableColumn } from "@/components/common/Table";
 import StatusBadge from "@/components/common/StatusBadge";
 import ActionButton from "@/components/common/ActionButton";
 import ToggleClientStatus from "@/components/clients/ToogleClientStatus";
 import { Client } from "@/services/client.service";
-import { getUserById, User } from "@/services/user.service";
 import { tableStyleProps } from "@/styles/components/tableStyles";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAssignedUsers } from "@/hooks/useAssignedUsers";
+import { useRoutePrefix } from "@/hooks/useRoutePrefix";
+import { useDateFormatterFr } from "@/hooks/useDateFormatter";
 
 interface ClientTableProps {
   clients: Client[];
@@ -23,87 +24,15 @@ const ClientTable: React.FC<ClientTableProps> = ({
   onStatusChange,
 }) => {
   const router = useRouter();
-  const { user } = useAuth();
-  const [assignedUsers, setAssignedUsers] = useState<{ [key: string]: User }>(
-    {}
-  );
-  const [loadingUsers, setLoadingUsers] = useState(false);
 
-  // Détermination du préfixe de route basé sur le rôle
-  const getRoutePrefix = () => {
-    return user?.role === "admin" ? "admin" : "manager";
-  };
-
-  // Chargement des utilisateurs assignés au montage du composant
-  useEffect(() => {
-    const fetchAssignedUsers = async () => {
-      if (!clients || clients.length === 0) return;
-
-      setLoadingUsers(true);
-      const userMap: { [key: string]: User } = {};
-
-      // Création d'un ensemble pour éviter les doublons
-      const userIds = new Set<string>();
-
-      // Collecte des IDs uniques des utilisateurs assignés
-      clients.forEach((client) => {
-        if (client.assignedTo) {
-          userIds.add(client.assignedTo);
-        }
-      });
-
-      // Récupération des détails pour chaque utilisateur
-      try {
-        const promises = Array.from(userIds).map(async (userId) => {
-          try {
-            const userData = await getUserById(userId);
-            userMap[userId] = userData;
-          } catch (error) {
-            console.error(
-              `Erreur lors de la récupération de l'utilisateur ${userId}:`,
-              error
-            );
-          }
-        });
-
-        await Promise.all(promises);
-        setAssignedUsers(userMap);
-      } catch (error) {
-        console.error(
-          "Erreur lors de la récupération des utilisateurs:",
-          error
-        );
-      } finally {
-        setLoadingUsers(false);
-      }
-    };
-
-    fetchAssignedUsers();
-  }, [clients]);
-
-  // Formatage de la date de création
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "Non disponible";
-    const date = new Date(dateString);
-    return date.toLocaleString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
-  // Fonction pour obtenir le nom de l'utilisateur assigné
-  const getAssignedUserName = (client: Client) => {
-    if (!client.assignedTo) return "Non assigné";
-
-    if (assignedUsers[client.assignedTo]) {
-      return `${assignedUsers[client.assignedTo].firstName} ${
-        assignedUsers[client.assignedTo].lastName
-      }`;
-    }
-
-    return "Chargement...";
-  };
+  // Utilisation des hooks personnalisés
+  const routePrefix = useRoutePrefix();
+  const formatDate = useDateFormatterFr();
+  const {
+    assignedUsers,
+    loading: loadingUsers,
+    getAssignedUserName,
+  } = useAssignedUsers({ clients });
 
   const columns: TableColumn<Client>[] = [
     {
@@ -144,8 +73,6 @@ const ClientTable: React.FC<ClientTableProps> = ({
     {
       header: "Actions",
       accessor: (client) => {
-        const routePrefix = getRoutePrefix();
-
         return (
           <div
             style={{ display: "flex", justifyContent: "center", gap: "10px" }}

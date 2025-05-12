@@ -1,13 +1,13 @@
-import React, { use, useEffect, useState } from "react";
+// /components/teams/TeamTable.tsx
+import React from "react";
 import { useRouter } from "next/navigation";
 import Table, { TableColumn } from "@/components/common/Table";
 import StatusBadge from "@/components/common/StatusBadge";
 import ActionButton from "@/components/common/ActionButton";
 import ToggleTeamStatus from "@/components/teams/ToggleTeamStatus";
 import { Team } from "@/services/team.service";
-import { getUserById, User } from "@/services/user.service"; // Ajout de l'import getUserById
 import { tableStyleProps } from "@/styles/components/tableStyles";
-import { useAuth } from "@/contexts/AuthContext";
+import { useTeamTable } from "@/hooks/useTeamTable";
 
 interface TeamTableProps {
   teams: Team[];
@@ -23,99 +23,10 @@ const TeamTable: React.FC<TeamTableProps> = ({
   onStatusChange,
 }) => {
   const router = useRouter();
-  const { user } = useAuth();
-  const [teamLeaders, setTeamLeaders] = useState<{ [key: string]: User }>({});
-  const [loadingLeaders, setLoadingLeaders] = useState(false);
 
-  // Détermination du préfixe de route basé sur le rôle
-  const getRoutePrefix = () => {
-    return user?.role === "admin" ? "admin" : "manager";
-  };
-
-  // Chargement des leaders au montage du composant
-  useEffect(() => {
-    const fetchLeaderDetails = async () => {
-      if (!teams || teams.length === 0) return;
-
-      setLoadingLeaders(true);
-      const leaderMap: { [key: string]: User } = {};
-
-      // Création d'un ensemble pour éviter les doublons
-      const leaderIds = new Set<string>();
-
-      // Collecte des IDs uniques de leaders
-      teams.forEach((team) => {
-        if (team.leader) {
-          const leaderId =
-            typeof team.leader === "object" ? team.leader._id : team.leader;
-          if (leaderId) {
-            leaderIds.add(leaderId);
-          }
-        }
-      });
-
-      // Récupération des détails pour chaque leader
-      try {
-        const promises = Array.from(leaderIds).map(async (leaderId) => {
-          try {
-            const leaderData = await getUserById(leaderId);
-            leaderMap[leaderId] = leaderData;
-          } catch (error) {
-            console.error(
-              `Erreur lors de la récupération du leader ${leaderId}:`,
-              error
-            );
-          }
-        });
-
-        await Promise.all(promises);
-        setTeamLeaders(leaderMap);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des leaders:", error);
-      } finally {
-        setLoadingLeaders(false);
-      }
-    };
-
-    fetchLeaderDetails();
-  }, [teams]);
-
-  // Formatage de la date de création
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "Non disponible";
-    const date = new Date(dateString);
-    return date.toLocaleString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
-  // Fonction pour obtenir le nom du leader
-  const getLeaderName = (team: Team) => {
-    // Si le leader est déjà un objet User complet
-    if (
-      team.leader &&
-      typeof team.leader === "object" &&
-      team.leader.firstName
-    ) {
-      return `${team.leader.firstName} ${team.leader.lastName}`;
-    }
-
-    // Si le leader est un ID et que nous avons récupéré ses détails
-    const leaderId =
-      typeof team.leader === "string"
-        ? team.leader
-        : team.leader && "_id" in team.leader
-        ? team.leader._id
-        : "";
-
-    if (leaderId && teamLeaders[leaderId]) {
-      return `${teamLeaders[leaderId].firstName} ${teamLeaders[leaderId].lastName}`;
-    }
-
-    return "Non assigné";
-  };
+  // Utilisation du hook personnalisé
+  const { loadingLeaders, getLeaderName, formatDate, getRoutePrefix } =
+    useTeamTable({ teams });
 
   const columns: TableColumn<Team>[] = [
     {

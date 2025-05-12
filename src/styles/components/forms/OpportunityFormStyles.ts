@@ -5,55 +5,55 @@ export const opportunityFormStyles = {
     justifyContent: "center",
     alignItems: "center",
     height: "200px",
-    fontSize: "16px",
-    color: "#666",
+    fontSize: "var(--font-size-normal)",
+    color: "var(--color-grey-600)",
   },
 
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "24px",
+    marginBottom: "var(--spacing-big)",
   },
 
   title: {
-    fontSize: "24px",
+    fontSize: "var(--font-size-big)",
     margin: "0 0 4px 0",
-    fontWeight: "600",
+    fontWeight: "var(--font-weight-bold)",
   },
 
   subTitle: {
-    fontSize: "16px",
-    color: "#666",
+    fontSize: "var(--font-size-normal)",
+    color: "var(--color-grey-600)",
     margin: "0",
   },
 
   backButton: {
-    padding: "8px 16px",
-    background: "#f5f5f5",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
+    padding: "10px 20px",
+    background: "var(--color-neutral)",
+    border: "var(--border-width) solid var(--color-grey-400)",
+    borderRadius: "var(--border-small-radius)",
     cursor: "pointer",
-    fontSize: "14px",
-    transition: "all 0.2s",
+    fontSize: "var(--font-size-small)",
+    transition: "var(--animation-transition)",
   },
 
   errorMessage: {
     padding: "12px 16px",
-    backgroundColor: "#ffebee",
-    color: "#d32f2f",
-    borderRadius: "4px",
-    marginBottom: "20px",
-    border: "1px solid #ffcdd2",
+    backgroundColor: "var(--color-error-light)",
+    color: "var(--color-error-dark)",
+    borderRadius: "var(--border-small-radius)",
+    marginBottom: "var(--spacing-normal)",
+    border: "var(--border-width) solid var(--color-error-dark)",
   },
 
   successMessage: {
     padding: "12px 16px",
-    backgroundColor: "#e8f5e9",
-    color: "#2e7d32",
-    borderRadius: "4px",
-    marginBottom: "20px",
-    border: "1px solid #c8e6c9",
+    backgroundColor: "var(--color-success-light)",
+    color: "var(--color-success-dark)",
+    borderRadius: "var(--border-small-radius)",
+    marginBottom: "var(--spacing-normal)",
+    border: "var(--border-width) solid var(--color-success-dark)",
   },
 
   // Stepper styles
@@ -72,8 +72,8 @@ export const opportunityFormStyles = {
     position: "absolute" as "absolute",
     top: "50%",
     transform: "translateY(-50%)",
-    height: "2px",
-    background: "#e0e0e0",
+    height: "var(--border-big-width)",
+    background: "var(--color-grey-300)",
     width: "100%",
     zIndex: 0,
   },
@@ -89,63 +89,63 @@ export const opportunityFormStyles = {
   stepperCircle: {
     width: "30px",
     height: "30px",
-    borderRadius: "50%",
-    background: "#fff",
-    border: "2px solid #e0e0e0",
+    borderRadius: "var(--border-circle-radius)",
+    background: "var(--color-white)",
+    border: "var(--border-big-width) solid var(--color-grey-500)",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: "8px",
-    color: "#666",
-    fontWeight: "600",
-    fontSize: "14px",
-    transition: "all 0.2s",
+    color: "var(--color-grey-600)",
+    fontWeight: "var(--font-weight-bold)",
+    fontSize: "var(--font-size-small)",
+    transition: "var(--animation-transition)",
   },
 
   stepperActiveCircle: {
-    border: "2px solid #2196f3",
-    color: "#2196f3",
+    border: "var(--border-big-width) solid var(--color-blue)",
+    color: "var(--color-blue)",
   },
 
   stepperCompletedCircle: {
-    border: "2px solid #4caf50",
-    background: "#4caf50",
-    color: "#fff",
+    border: "var(--border-big-width) solid var(--color-green)",
+    background: "var(--color-green)",
+    color: "var(--color-white)",
   },
 
   stepperLabel: {
-    fontSize: "14px",
-    color: "#666",
-    fontWeight: "400",
-    transition: "all 0.2s",
+    fontSize: "var(--font-size-small)",
+    color: "var(--color-grey-600)",
+    fontWeight: "var(--font-weight-regular)",
+    transition: "var(--animation-transition)",
   },
 
   stepperActiveLabel: {
-    color: "#2196f3",
-    fontWeight: "600",
+    color: "var(--color-blue)",
+    fontWeight: "var(--font-weight-bold)",
   },
 
   stepperProgressBar: {
     height: "4px",
-    backgroundColor: "#e0e0e0",
-    borderRadius: "4px",
+    backgroundColor: "var(--color-grey-300)",
+    borderRadius: "var(--border-small-radius)",
     overflow: "hidden",
   },
 
   stepperProgress: {
     height: "100%",
-    backgroundColor: "#4caf50",
-    borderRadius: "4px",
+    backgroundColor: "var(--color-green)",
+    borderRadius: "var(--border-small-radius)",
     transition: "width 0.3s ease",
   },
 
   // Section styles
   container: {
-    backgroundColor: "#fff",
-    padding: "24px",
-    borderRadius: "8px",
+    backgroundColor: "var(--color-white)",
+    padding: "var(--spacing-big)",
+    borderRadius: "var(--border-radius)",
     boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-    marginBottom: "20px",
+    marginBottom: "var(--spacing-normal)",
   },
 
   sectionContainer: {
@@ -153,50 +153,50 @@ export const opportunityFormStyles = {
   },
 
   sectionTitle: {
-    fontSize: "20px",
-    fontWeight: "600",
+    fontSize: "var(--font-size-medium)",
+    fontWeight: "var(--font-weight-bold)",
     marginTop: "0",
-    marginBottom: "20px",
+    marginBottom: "var(--spacing-normal)",
   },
 
   subSectionTitle: {
-    fontSize: "18px",
-    fontWeight: "500",
+    fontSize: "var(--font-size-medium)",
+    fontWeight: "var(--font-weight-medium)",
     marginTop: "0",
-    marginBottom: "16px",
-    color: "#333",
+    marginBottom: "var(--spacing-normal)",
+    color: "var(--color-text)",
   },
 
   formGroup: {
-    marginBottom: "20px",
+    marginBottom: "var(--spacing-normal)",
   },
 
   label: {
     display: "block",
-    marginBottom: "8px",
-    fontWeight: "500",
-    color: "#333",
+    marginBottom: "var(--spacing-small)",
+    fontWeight: "var(--font-weight-medium)",
+    color: "var(--color-text)",
   },
 
   required: {
-    color: "red",
+    color: "var(--color-red)",
   },
 
   input: {
     width: "100%",
     padding: "10px 12px",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
-    fontSize: "14px",
-    transition: "border-color 0.2s",
+    border: "var(--border-width) solid var(--color-grey-400)",
+    borderRadius: "var(--border-small-radius)",
+    fontSize: "var(--font-size-small)",
+    transition: "var(--animation-transition)",
   },
 
   select: {
     width: "100%",
     padding: "10px 12px",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
-    fontSize: "14px",
+    border: "var(--border-width) solid var(--color-grey-400)",
+    borderRadius: "var(--border-small-radius)",
+    fontSize: "var(--font-size-small)",
     backgroundImage:
       "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
     backgroundRepeat: "no-repeat",
@@ -206,8 +206,8 @@ export const opportunityFormStyles = {
 
   helperText: {
     display: "block",
-    fontSize: "12px",
-    color: "#666",
+    fontSize: "var(--font-size-small-small)",
+    color: "var(--color-grey-600)",
     marginTop: "4px",
   },
 
@@ -218,12 +218,12 @@ export const opportunityFormStyles = {
   },
 
   checkbox: {
-    marginRight: "8px",
+    marginRight: "var(--spacing-small)",
   },
 
   checkboxLabel: {
-    fontSize: "14px",
-    color: "#333",
+    fontSize: "var(--font-size-small)",
+    color: "var(--color-text)",
   },
 
   // Slider styles
@@ -240,8 +240,8 @@ export const opportunityFormStyles = {
     display: "flex",
     justifyContent: "space-between",
     marginTop: "4px",
-    fontSize: "12px",
-    color: "#666",
+    fontSize: "var(--font-size-small-small)",
+    color: "var(--color-grey-600)",
   },
 
   // Product section styles
@@ -249,34 +249,34 @@ export const opportunityFormStyles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "16px",
+    marginBottom: "var(--spacing-normal)",
   },
 
   addButton: {
-    padding: "8px 16px",
-    backgroundColor: "#2196f3",
-    color: "white",
+    padding: "10px 20px",
+    backgroundColor: "var(--color-blue)",
+    color: "var(--color-white)",
     border: "none",
-    borderRadius: "4px",
+    borderRadius: "var(--border-small-radius)",
     cursor: "pointer",
-    fontSize: "14px",
-    transition: "background-color 0.2s",
+    fontSize: "var(--font-size-small)",
+    transition: "var(--animation-transition)",
   },
 
   emptyState: {
-    padding: "24px",
+    padding: "var(--spacing-big)",
     textAlign: "center" as "center",
-    backgroundColor: "#f5f5f5",
-    borderRadius: "4px",
-    color: "#666",
+    backgroundColor: "var(--color-neutral)",
+    borderRadius: "var(--border-small-radius)",
+    color: "var(--color-grey-600)",
   },
 
   productCard: {
-    padding: "16px",
-    backgroundColor: "#f9f9f9",
-    borderRadius: "4px",
-    marginBottom: "16px",
-    border: "1px solid #eee",
+    padding: "var(--spacing-normal)",
+    backgroundColor: "var(--color-grey-100)",
+    borderRadius: "var(--border-small-radius)",
+    marginBottom: "var(--spacing-normal)",
+    border: "var(--border-width) solid var(--color-grey-400)",
   },
 
   productCardHeader: {
@@ -288,19 +288,19 @@ export const opportunityFormStyles = {
 
   productTitle: {
     margin: "0",
-    fontSize: "16px",
-    fontWeight: "500",
+    fontSize: "var(--font-size-normal)",
+    fontWeight: "var(--font-weight-medium)",
   },
 
   removeButton: {
     padding: "4px 8px",
-    backgroundColor: "#f44336",
-    color: "white",
+    backgroundColor: "var(--color-red)",
+    color: "var(--color-white)",
     border: "none",
-    borderRadius: "4px",
+    borderRadius: "var(--border-small-radius)",
     cursor: "pointer",
-    fontSize: "12px",
-    transition: "background-color 0.2s",
+    fontSize: "var(--font-size-small-small)",
+    transition: "var(--animation-transition)",
   },
 
   productFormGroup: {
@@ -309,40 +309,40 @@ export const opportunityFormStyles = {
 
   productRow: {
     display: "flex",
-    gap: "16px",
+    gap: "var(--spacing-normal)",
   },
 
   productTotal: {
     padding: "10px 12px",
-    backgroundColor: "#f0f0f0",
-    borderRadius: "4px",
-    fontWeight: "600",
+    backgroundColor: "var(--color-grey-200)",
+    borderRadius: "var(--border-small-radius)",
+    fontWeight: "var(--font-weight-bold)",
   },
 
   totalSection: {
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
-    marginTop: "20px",
+    marginTop: "var(--spacing-normal)",
     padding: "12px 16px",
-    backgroundColor: "#e8f5e9",
-    borderRadius: "4px",
+    backgroundColor: "var(--color-success-light)",
+    borderRadius: "var(--border-small-radius)",
   },
 
   totalLabel: {
-    fontWeight: "600",
+    fontWeight: "var(--font-weight-bold)",
     marginRight: "12px",
   },
 
   totalValue: {
-    fontWeight: "700",
-    fontSize: "18px",
-    color: "#2e7d32",
+    fontWeight: "var(--font-weight-bold)",
+    fontSize: "var(--font-size-medium)",
+    color: "var(--color-success-dark)",
   },
 
   // Contact section styles
   contactsContainer: {
-    marginTop: "16px",
+    marginTop: "var(--spacing-normal)",
     maxHeight: "300px",
     overflowY: "auto" as "auto",
     padding: "4px",
@@ -352,16 +352,16 @@ export const opportunityFormStyles = {
     display: "flex",
     alignItems: "center",
     padding: "12px",
-    borderRadius: "4px",
-    border: "1px solid #eee",
+    borderRadius: "var(--border-small-radius)",
+    border: "var(--border-width) solid var(--color-grey-400)",
     marginBottom: "8px",
     cursor: "pointer",
-    transition: "all 0.2s",
+    transition: "var(--animation-transition)",
   },
 
   contactCardSelected: {
-    backgroundColor: "#e3f2fd",
-    borderColor: "#90caf9",
+    backgroundColor: "var(--table-row-selected-bg)",
+    borderColor: "var(--color-blue)",
   },
 
   contactCheckbox: {
@@ -373,104 +373,104 @@ export const opportunityFormStyles = {
   },
 
   contactName: {
-    fontWeight: "600",
+    fontWeight: "var(--font-weight-bold)",
     marginBottom: "4px",
   },
 
   contactPosition: {
-    fontSize: "13px",
-    color: "#666",
+    fontSize: "var(--font-size-small-small)",
+    color: "var(--color-grey-600)",
     marginBottom: "2px",
   },
 
   contactEmail: {
-    fontSize: "13px",
-    color: "#666",
+    fontSize: "var(--font-size-small-small)",
+    color: "var(--color-grey-600)",
   },
 
   noResults: {
     padding: "12px",
     textAlign: "center" as "center",
-    color: "#666",
+    color: "var(--color-grey-600)",
     fontStyle: "italic",
   },
 
   selectedSummary: {
-    marginTop: "16px",
-    fontSize: "14px",
-    color: "#2196f3",
-    fontWeight: "500",
+    marginTop: "var(--spacing-normal)",
+    fontSize: "var(--font-size-small)",
+    color: "var(--color-blue)",
+    fontWeight: "var(--font-weight-medium)",
   },
 
   // Navigation buttons
   buttonContainer: {
     display: "flex",
     justifyContent: "space-between",
-    marginTop: "24px",
+    marginTop: "var(--spacing-big)",
   },
 
   prevButton: {
     padding: "10px 20px",
-    backgroundColor: "#f5f5f5",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
+    backgroundColor: "var(--color-neutral)",
+    border: "var(--border-width) solid var(--color-grey-400)",
+    borderRadius: "var(--border-small-radius)",
     cursor: "pointer",
-    fontSize: "14px",
-    transition: "all 0.2s",
+    fontSize: "var(--font-size-small)",
+    transition: "var(--animation-transition)",
   },
 
   nextButton: {
     padding: "10px 20px",
-    backgroundColor: "#2196f3",
-    color: "white",
+    backgroundColor: "var(--color-blue)",
+    color: "var(--color-white)",
     border: "none",
-    borderRadius: "4px",
+    borderRadius: "var(--border-small-radius)",
     cursor: "pointer",
-    fontSize: "14px",
-    transition: "background-color 0.2s",
+    fontSize: "var(--font-size-small)",
+    transition: "var(--animation-transition)",
   },
 
   submitStepperButton: {
     padding: "10px 20px",
-    backgroundColor: "#4caf50",
-    color: "white",
+    backgroundColor: "var(--color-green)",
+    color: "var(--color-white)",
     border: "none",
-    borderRadius: "4px",
+    borderRadius: "var(--border-small-radius)",
     cursor: "pointer",
-    fontSize: "14px",
-    fontWeight: "500",
-    transition: "background-color 0.2s",
+    fontSize: "var(--font-size-small)",
+    fontWeight: "var(--font-weight-medium)",
+    transition: "var(--animation-transition)",
   },
 
   cancelButton: {
     padding: "10px 20px",
-    backgroundColor: "#f5f5f5",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
+    backgroundColor: "var(--color-neutral)",
+    border: "var(--border-width) solid var(--color-grey-400)",
+    borderRadius: "var(--border-small-radius)",
     cursor: "pointer",
-    fontSize: "14px",
-    transition: "all 0.2s",
+    fontSize: "var(--font-size-small)",
+    transition: "var(--animation-transition)",
   },
 
   // Summary styles
   summaryContainer: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: "8px",
-    padding: "16px",
-    marginBottom: "20px",
+    backgroundColor: "var(--color-grey-100)",
+    borderRadius: "var(--border-radius)",
+    padding: "var(--spacing-normal)",
+    marginBottom: "var(--spacing-normal)",
   },
 
   summarySection: {
-    marginBottom: "20px",
+    marginBottom: "var(--spacing-normal)",
   },
 
   summarySectionTitle: {
-    fontSize: "16px",
-    fontWeight: "600",
+    fontSize: "var(--font-size-normal)",
+    fontWeight: "var(--font-weight-bold)",
     marginTop: "0",
     marginBottom: "12px",
     paddingBottom: "8px",
-    borderBottom: "1px solid #eee",
+    borderBottom: "var(--border-width) solid var(--color-grey-400)",
   },
 
   summaryItem: {
@@ -480,8 +480,8 @@ export const opportunityFormStyles = {
 
   summaryLabel: {
     flex: "0 0 150px",
-    fontWeight: "500",
-    color: "#555",
+    fontWeight: "var(--font-weight-medium)",
+    color: "var(--color-grey-600)",
   },
 
   summaryValue: {
@@ -489,8 +489,8 @@ export const opportunityFormStyles = {
   },
 
   summaryContactItem: {
-    backgroundColor: "#f5f5f5",
-    borderRadius: "4px",
+    backgroundColor: "var(--color-grey-200)",
+    borderRadius: "var(--border-small-radius)",
     padding: "12px",
     marginBottom: "12px",
   },
@@ -498,13 +498,10 @@ export const opportunityFormStyles = {
   summaryPrimaryContact: {
     display: "inline-block",
     padding: "4px 8px",
-    backgroundColor: "#2196f3",
-    color: "white",
-    borderRadius: "4px",
-    fontSize: "12px",
+    backgroundColor: "var(--color-blue)",
+    color: "var(--color-white)",
+    borderRadius: "var(--border-small-radius)",
+    fontSize: "var(--font-size-small-small)",
     marginTop: "8px",
   },
 };
-
-// Exportation pour permettre à d'autres composants d'y accéder
-export const styles = opportunityFormStyles;

@@ -1,11 +1,8 @@
+"use client";
+
 import { ReactNode } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
-import "@/styles/base/global.css";
-
-export const metadata = {
-  title: "Crew CRM",
-  description: "Customer Relation Management",
-};
+import { globalStyles } from "@/styles/base/globals";
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -16,8 +13,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="fr">
       <head>
         <link rel="icon" href="/favicon.ico" />
+        <title>Crew CRM</title>
+        <meta name="description" content="Customer Relation Management" />
       </head>
       <body>
+        <style jsx global>
+          {globalStyles}
+        </style>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

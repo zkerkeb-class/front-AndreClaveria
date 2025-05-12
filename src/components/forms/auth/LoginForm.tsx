@@ -35,20 +35,7 @@ const LoginForm: React.FC = () => {
   };
   return (
     <>
-      {error && (
-        <div
-          style={{
-            color: "#ff4d4f",
-            backgroundColor: "rgba(255, 77, 79, 0.1)",
-            padding: "10px",
-            borderRadius: "4px",
-            marginBottom: "15px",
-            textAlign: "center",
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <div style={authStyles.error}>{error}</div>}
 
       <form style={authStyles.form} onSubmit={handleSubmit}>
         <IconInput

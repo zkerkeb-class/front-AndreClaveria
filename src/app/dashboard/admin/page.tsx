@@ -1,21 +1,20 @@
 "use client";
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRoleCheck } from "@/hooks/useRoleCheck";
 
 const AdminDashboard: React.FC = () => {
-  const router = useRouter();
   const { user, isLoading } = useAuth();
 
-  useEffect(() => {
-    // Vérification du rôle admin
-    if (!isLoading && user && user.role !== "admin") {
-      // Redirection si l'utilisateur n'est pas admin
-      router.push("/dashboard");
-    }
-  }, [user, isLoading, router]);
+  // Utilisation du hook pour vérifier le rôle admin
+  const hasAdminRole = useRoleCheck({
+    isLoading,
+    user,
+    requiredRole: "admin",
+    redirectPath: "/dashboard",
+  });
 
-  if (isLoading || !user) {
+  if (isLoading || !user || !hasAdminRole) {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
 

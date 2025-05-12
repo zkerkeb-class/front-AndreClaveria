@@ -1,14 +1,11 @@
-import { CSSProperties } from "react";
-
-export const healthStyles: Record<string, CSSProperties> = {
+export const healthStyles = {
   container: {
     display: "flex",
     flexDirection: "column",
-    padding: "24px",
+    padding: "var(--spacing-big)",
     maxWidth: "1200px",
     margin: "0 auto",
-    backgroundColor: "#FFFFFF",
-    borderRadius: "8px",
+    borderRadius: "var(--border-radius)",
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
   },
 
@@ -16,66 +13,67 @@ export const healthStyles: Record<string, CSSProperties> = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "24px",
-    paddingBottom: "16px",
-    borderBottom: "1px solid #E5E7EB",
+    marginBottom: "var(--spacing-big)",
+    paddingBottom: "var(--spacing-normal)",
+    borderBottom: "var(--border-width) solid var(--table-border)",
   },
 
   title: {
-    fontSize: "28px",
-    fontFamily: '"Lexend-Bold", sans-serif',
-    color: "#1F2937",
+    fontSize: "var(--font-size-big)",
+    color: "var(--color-text)",
     margin: 0,
   },
 
   actions: {
     display: "flex",
-    gap: "8px",
+    gap: "var(--spacing-small)",
   },
-
+  reply: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: "12px",
+  },
   refreshButton: {
     padding: "10px 16px",
-    backgroundColor: "#3B82F6",
-    color: "#FFFFFF",
+    backgroundColor: "var(--color-blue)",
+    color: "var(--color-white)",
     border: "none",
-    borderRadius: "6px",
-    fontSize: "14px",
-    fontFamily: '"Lexend-Regular", sans-serif',
+    borderRadius: "var(--border-small-radius)",
+    fontSize: "var(--font-size-small)",
     cursor: "pointer",
-    transition: "background-color 0.2s",
+    transition: "var(--animation-transition)",
   },
 
   statusOverview: {
-    marginBottom: "24px",
+    marginBottom: "var(--spacing-big)",
   },
 
   overviewCard: {
-    padding: "20px",
-    backgroundColor: "#F9FAFB",
-    borderRadius: "8px",
+    padding: "var(--spacing-normal)",
+    backgroundColor: "var(--color-grey-100)",
+    borderRadius: "var(--border-radius)",
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
-    border: "1px solid #E5E7EB",
+    border: "var(--border-width) solid var(--table-border)",
   },
 
   lastUpdated: {
-    fontSize: "13px",
-    color: "#6B7280",
-    marginTop: "8px",
-    fontFamily: '"Lexend-Regular", sans-serif',
+    fontSize: "var(--font-size-small-small)",
+    color: "var(--color-grey-600)",
+    marginTop: "var(--spacing-small)",
   },
 
   servicesGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-    gap: "24px",
+    gap: "var(--spacing-big)",
   },
 
   serviceCard: {
-    padding: "20px",
-    borderRadius: "8px",
+    padding: "var(--spacing-normal)",
+    borderRadius: "var(--border-radius)",
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-    border: "1px solid #E5E7EB",
-    transition: "all 0.2s ease",
+    border: "var(--border-width) solid var(--table-border)",
+    transition: "var(--animation-transition)",
   },
 
   serviceHeader: {
@@ -83,46 +81,46 @@ export const healthStyles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: "12px",
-    paddingBottom: "8px",
-    borderBottom: "1px solid #E5E7EB",
+    paddingBottom: "var(--spacing-small)",
+    borderBottom: "var(--border-width) solid var(--table-border)",
   },
 
   statusBadge: {
-    fontSize: "12px",
-    fontFamily: '"Lexend-Bold", sans-serif',
+    fontSize: "var(--font-size-small-small)",
+    fontFamily: "var(--font-second-bold)",
     padding: "4px 8px",
-    borderRadius: "4px",
+    borderRadius: "var(--border-small-radius)",
     display: "inline-block",
   },
 
   statusUp: {
-    backgroundColor: "#DCFCE7",
-    color: "#166534",
-    border: "1px solid #BBF7D0",
+    backgroundColor: "var(--color-success-light)",
+    color: "var(--color-success-dark)",
+    border: "var(--border-width) solid var(--color-success-dark)",
   },
 
   statusDown: {
-    backgroundColor: "#FEE2E2",
-    color: "#B91C1C",
-    border: "1px solid #FECACA",
+    backgroundColor: "var(--color-error-light)",
+    color: "var(--color-error-dark)",
+    border: "var(--border-width) solid var(--color-error-dark)",
   },
 
   serviceDetails: {
-    fontSize: "14px",
-    fontFamily: '"Lexend-Regular", sans-serif',
+    fontSize: "var(--font-size-small)",
+    fontFamily: "var(--font-second-regular)",
   },
 
   errorDetails: {
     marginBottom: "12px",
     padding: "12px",
-    backgroundColor: "#FEF2F2",
-    borderRadius: "4px",
-    color: "#B91C1C",
+    backgroundColor: "var(--color-error-light)",
+    borderRadius: "var(--border-small-radius)",
+    color: "var(--color-error-dark)",
   },
 
   timestamp: {
-    fontSize: "12px",
-    color: "#6B7280",
+    fontSize: "var(--font-size-small-small)",
+    color: "var(--color-grey-600)",
   },
 
   loadingContainer: {
@@ -130,31 +128,25 @@ export const healthStyles: Record<string, CSSProperties> = {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    padding: "40px",
+    padding: "var(--spacing-big)",
   },
 
   loadingSpinner: {
     width: "32px",
     height: "32px",
-    border: "4px solid #E5E7EB",
-    borderTop: "4px solid #3B82F6",
-    borderRadius: "50%",
+    border: "4px solid var(--color-grey-400)",
+    borderTop: "4px solid var(--color-blue)",
+    borderRadius: "var(--border-circle-radius)",
     animation: "spin 1s linear infinite",
-    marginBottom: "16px",
+    marginBottom: "var(--spacing-normal)",
   },
 
   errorPanel: {
-    padding: "16px",
-    marginBottom: "24px",
-    backgroundColor: "#FEE2E2",
-    color: "#B91C1C",
-    borderRadius: "6px",
-    border: "1px solid #FECACA",
+    padding: "var(--spacing-normal)",
+    marginBottom: "var(--spacing-big)",
+    backgroundColor: "var(--color-error-light)",
+    color: "var(--color-error-dark)",
+    borderRadius: "var(--border-small-radius)",
+    border: "var(--border-width) solid var(--color-error-dark)",
   },
 };
-
-// Vous devrez ajouter cette animation à votre CSS global
-// @keyframes spin {
-//   0% { transform: rotate(0deg); }
-//   100% { transform: rotate(360deg); }
-// }

@@ -4,6 +4,10 @@ import { Opportunity } from "@/services/opportunity.service";
 import { formatCurrency } from "@/utils/formatters";
 import ActionButton from "@/components/common/ActionButton";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  opportunityBoardStyles,
+  statusColumns,
+} from "@/styles/components/opportunity/opportunityBoardStyles";
 
 interface OpportunityBoardProps {
   opportunities: Opportunity[];
@@ -13,16 +17,6 @@ interface OpportunityBoardProps {
   onStatusChange: (opportunityId: string, newStatus: string) => void;
   viewMode: "kanban" | "list";
 }
-
-// Définition des statuts et leurs propriétés
-const statusColumns = [
-  { id: "lead", label: "Nouveaux", color: "#4CAF50" },
-  { id: "qualified", label: "Qualifié", color: "#FFC107" },
-  { id: "proposition", label: "En négociation", color: "#FF9800" },
-  { id: "negotiation", label: "En attente de validation", color: "#2196F3" },
-  { id: "won", label: "Terminé (Gagné)", color: "#8BC34A" },
-  { id: "lost", label: "Terminé (Perdu)", color: "#F44336" },
-];
 
 const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
   opportunities,
@@ -35,19 +29,7 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
   const router = useRouter();
   const { user } = useAuth();
   const routePrefix = user?.role === "admin" ? "admin" : "manager";
-
-  // Style pour la carte d'opportunité
-  const opportunityCardStyle = {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-    padding: "16px",
-    marginBottom: "12px",
-    cursor: "pointer",
-    transition: "transform 0.2s, box-shadow 0.2s",
-    hoverTransform: "translateY(-3px)",
-    hoverBoxShadow: "0 4px 8px rgba(0,0,0,0.15)",
-  };
+  const styles = opportunityBoardStyles;
 
   const handleOpportunityClick = (opportunityId: string) => {
     router.push(
@@ -55,7 +37,6 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
     );
   };
 
-  // Fonction de drag and drop pour le changement de statut
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
     opportunityId: string
@@ -67,7 +48,6 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
     e.preventDefault();
   };
 
-  // Dans OpportunityBoard.tsx
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, status: string) => {
     e.preventDefault();
     const opportunityId = e.dataTransfer.getData("opportunityId");
@@ -77,26 +57,14 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
   };
 
   if (isLoading) {
-    // Indicateur de chargement simple sans composant externe
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "200px",
-          fontSize: "16px",
-          color: "#666",
-        }}
-      >
-        Chargement des opportunités...
-      </div>
+      <div style={styles.loadingContainer}>Chargement des opportunités...</div>
     );
   }
 
   if (opportunities.length === 0) {
     return (
-      <div style={{ textAlign: "center", marginTop: "40px", color: "#666" }}>
+      <div style={styles.emptyContainer}>
         <p>Aucune opportunité trouvée pour ce client.</p>
         <ActionButton
           onClick={() =>
@@ -114,34 +82,17 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
   }
 
   if (viewMode === "list") {
-    // Vue Liste - Style Airtable
     return (
-      <div style={{ overflowX: "auto" }}>
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            backgroundColor: "white",
-          }}
-        >
+      <div style={styles.tableContainer}>
+        <table style={styles.table}>
           <thead>
-            <tr style={{ borderBottom: "2px solid #eee" }}>
-              <th style={{ padding: "12px 16px", textAlign: "left" }}>Titre</th>
-              <th style={{ padding: "12px 16px", textAlign: "left" }}>
-                Statut
-              </th>
-              <th style={{ padding: "12px 16px", textAlign: "right" }}>
-                Valeur
-              </th>
-              <th style={{ padding: "12px 16px", textAlign: "center" }}>
-                Probabilité
-              </th>
-              <th style={{ padding: "12px 16px", textAlign: "left" }}>
-                Date de clôture
-              </th>
-              <th style={{ padding: "12px 16px", textAlign: "center" }}>
-                Actions
-              </th>
+            <tr style={styles.tableHead}>
+              <th style={styles.tableHeader}>Titre</th>
+              <th style={styles.tableHeader}>Statut</th>
+              <th style={styles.tableHeaderRight}>Valeur</th>
+              <th style={styles.tableHeaderCenter}>Probabilité</th>
+              <th style={styles.tableHeader}>Date de clôture</th>
+              <th style={styles.tableHeaderCenter}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -151,48 +102,37 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
               ) || { color: "#999", label: "Non défini" };
 
               return (
-                <tr
-                  key={opportunity._id}
-                  style={{ borderBottom: "1px solid #eee" }}
-                >
+                <tr key={opportunity._id} style={styles.tableRow}>
                   <td
-                    style={{
-                      padding: "12px 16px",
-                      fontWeight: "500",
-                      cursor: "pointer",
-                    }}
+                    style={styles.tableCellLink}
                     onClick={() => handleOpportunityClick(opportunity._id)}
                   >
                     {opportunity.title}
                   </td>
-                  <td style={{ padding: "12px 16px" }}>
+                  <td style={styles.tableCell}>
                     <span
                       style={{
-                        display: "inline-block",
-                        padding: "4px 8px",
-                        borderRadius: "4px",
+                        ...styles.statusBadge,
                         backgroundColor: statusInfo.color,
-                        color: "white",
-                        fontSize: "12px",
                       }}
                     >
                       {statusInfo.label}
                     </span>
                   </td>
-                  <td style={{ padding: "12px 16px", textAlign: "right" }}>
+                  <td style={styles.tableCellRight}>
                     {formatCurrency(opportunity.value)}
                   </td>
-                  <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                  <td style={styles.tableCellCenter}>
                     {opportunity.probability || 0}%
                   </td>
-                  <td style={{ padding: "12px 16px" }}>
+                  <td style={styles.tableCell}>
                     {opportunity.expectedClosingDate
                       ? new Date(
                           opportunity.expectedClosingDate
                         ).toLocaleDateString("fr-FR")
                       : "Non définie"}
                   </td>
-                  <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                  <td style={styles.tableCellCenter}>
                     <ActionButton
                       onClick={() => handleOpportunityClick(opportunity._id)}
                       variant="secondary"
@@ -210,9 +150,8 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
     );
   }
 
-  // Vue Kanban - Style Monday
   return (
-    <div style={{ display: "flex", overflowX: "auto", padding: "20px 0" }}>
+    <div style={styles.kanbanContainer}>
       {statusColumns.map((status) => {
         const filteredOpportunities = opportunities.filter(
           (opportunity) => opportunity.status === status.id
@@ -221,65 +160,39 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
         return (
           <div
             key={status.id}
-            style={{
-              minWidth: "280px",
-              width: "280px",
-              marginRight: "16px",
-              display: "flex",
-              flexDirection: "column",
-            }}
+            style={styles.statusColumn}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, status.id)}
           >
             <div
               style={{
-                backgroundColor: "#f5f5f5",
-                borderRadius: "8px 8px 0 0",
-                padding: "12px 16px",
+                ...styles.statusHeader,
                 borderLeft: `4px solid ${status.color}`,
-                display: "flex",
-                justifyContent: "space-between",
               }}
             >
-              <h3 style={{ margin: 0, fontSize: "16px" }}>{status.label}</h3>
+              <h3 style={styles.statusTitle}>{status.label}</h3>
               <span
                 style={{
+                  ...styles.statusCount,
                   backgroundColor: status.color,
-                  color: "white",
-                  borderRadius: "100px",
-                  width: "24px",
-                  height: "24px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "12px",
                 }}
               >
                 {filteredOpportunities.length}
               </span>
             </div>
 
-            <div
-              style={{
-                backgroundColor: "#f9f9f9",
-                borderRadius: "0 0 8px 8px",
-                padding: "12px",
-                flex: 1,
-                minHeight: "400px",
-              }}
-            >
+            <div style={styles.statusBody}>
               {filteredOpportunities.map((opportunity) => (
                 <div
                   key={opportunity._id}
-                  style={opportunityCardStyle}
+                  style={styles.opportunityCard}
                   onClick={() => handleOpportunityClick(opportunity._id)}
                   draggable
                   onDragStart={(e) => handleDragStart(e, opportunity._id)}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.transform =
-                      opportunityCardStyle.hoverTransform;
+                    e.currentTarget.style.transform = "translateY(-3px)";
                     e.currentTarget.style.boxShadow =
-                      opportunityCardStyle.hoverBoxShadow;
+                      "0 4px 8px rgba(0,0,0,0.15)";
                   }}
                   onMouseOut={(e) => {
                     e.currentTarget.style.transform = "none";
@@ -287,27 +200,11 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
                       "0 2px 4px rgba(0,0,0,0.1)";
                   }}
                 >
-                  <h4 style={{ margin: "0 0 8px 0", fontSize: "16px" }}>
-                    {opportunity.title}
-                  </h4>
-                  <div
-                    style={{
-                      fontSize: "14px",
-                      color: "#333",
-                      fontWeight: "bold",
-                      marginBottom: "4px",
-                    }}
-                  >
+                  <h4 style={styles.opportunityTitle}>{opportunity.title}</h4>
+                  <div style={styles.opportunityValue}>
                     {formatCurrency(opportunity.value)}
                   </div>
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      color: "#666",
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
+                  <div style={styles.opportunityMeta}>
                     <span>Prob: {opportunity.probability || 0}%</span>
                     <span>
                       {opportunity.expectedClosingDate
@@ -320,17 +217,7 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
                 </div>
               ))}
               {filteredOpportunities.length === 0 && (
-                <div
-                  style={{
-                    textAlign: "center",
-                    color: "#999",
-                    fontSize: "14px",
-                    marginTop: "20px",
-                    padding: "40px 0",
-                    border: "2px dashed #eee",
-                    borderRadius: "8px",
-                  }}
-                >
+                <div style={styles.emptyColumnPlaceholder}>
                   Aucune opportunité
                 </div>
               )}

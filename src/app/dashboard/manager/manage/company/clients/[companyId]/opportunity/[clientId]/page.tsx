@@ -1,13 +1,8 @@
 "use client";
-import React, { useEffect, useState, use } from "react";
-import { useRouter } from "next/navigation";
+import React, { use } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  getOpportunitiesByClient,
-  Opportunity,
-  updateOpportunity,
-} from "@/services/opportunity.service";
-import { getClientById, Client } from "@/services/client.service";
+import { useRoleCheck } from "@/hooks/useRoleCheck";
+import { useOpportunityManagement } from "@/hooks/useOpportunityManagement";
 import OpportunityBoard from "@/components/opportunity/OpportunityBoard";
 import ActionButton from "@/components/common/ActionButton";
 
@@ -24,180 +19,33 @@ const OpportunityManagement: React.FC<OpportunityManagementProps> = ({
   const unwrappedParams = use(params);
   const clientId = unwrappedParams.clientId;
   const companyId = unwrappedParams.companyId;
-  const router = useRouter();
-  const { user, isLoading, setLoadingWithMessage } = useAuth();
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
-  const [client, setClient] = useState<Client | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoadingOpportunities, setIsLoadingOpportunities] = useState(false);
-  const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
 
-  useEffect(() => {
-    // Vérification du rôle admin ou manager
-    if (
-      !isLoading &&
-      user &&
-      !["admin", "manager", "user"].includes(user.role)
-    ) {
-      router.push("/dashboard");
-    }
-  }, [user, isLoading, router]);
+  const { user, isLoading } = useAuth();
 
-  useEffect(() => {
-    const fetchClientDetails = async () => {
-      try {
-        const clientData = await getClientById(clientId);
-        setClient(clientData);
-      } catch (err: any) {
-        console.error("Erreur lors de la récupération du client:", err);
-        setError("Impossible de charger les détails du client.");
-      }
-    };
+  // Vérification du rôle admin, manager ou user
+  const hasAccess = useRoleCheck({
+    isLoading,
+    user,
+    requiredRole: ["admin", "manager", "user"],
+    redirectPath: "/dashboard",
+  });
 
-    // Modifiez la déclaration de la variable opportunitiesData
-    const fetchOpportunities = async () => {
-      setIsLoadingOpportunities(true);
-      try {
-        console.log(
-          "Début de la récupération des opportunités pour le client:",
-          clientId
-        );
-        const response = await getOpportunitiesByClient(clientId);
-        console.log("Réponse reçue pour les opportunités:", response);
+  // Utilisation du hook personnalisé pour gérer la logique des opportunités
+  const {
+    opportunities,
+    client,
+    error,
+    isLoadingOpportunities,
+    viewMode,
+    setViewMode,
+    handleStatusChange,
+    navigateToClientsList,
+    navigateToAddOpportunity,
+  } = useOpportunityManagement({ clientId, companyId });
 
-        // Extraction des opportunités de la réponse selon sa structure
-        // Typage explicite de la variable
-        let opportunitiesData: Opportunity[] = [];
-
-        if (
-          response &&
-          typeof response === "object" &&
-          "data" in response &&
-          Array.isArray(response.data)
-        ) {
-          opportunitiesData = response.data;
-          console.log(
-            "Opportunités extraites de la structure d'API:",
-            opportunitiesData
-          );
-        } else if (Array.isArray(response)) {
-          opportunitiesData = response;
-          console.log(
-            "Opportunités directement reçues comme tableau:",
-            opportunitiesData
-          );
-        } else {
-          console.error("Format de réponse non reconnu:", response);
-          // opportunitiesData est déjà initialisé comme un tableau vide
-        }
-
-        setOpportunities(opportunitiesData);
-      } catch (err: any) {
-        console.error("Erreur lors de la récupération des opportunités:", err);
-        setError(
-          err.message ||
-            "Impossible de charger les opportunités. Veuillez réessayer."
-        );
-        setOpportunities([]); // Initialiser avec un tableau vide en cas d'erreur
-      } finally {
-        setIsLoadingOpportunities(false);
-      }
-    };
-
-    if (user && ["admin", "manager", "user"].includes(user.role)) {
-      fetchClientDetails();
-      fetchOpportunities();
-    }
-  }, [clientId, companyId, user]);
-
-  // Gestionnaire pour changer le statut d'une opportunité
-  // Gestionnaire pour changer le statut d'une opportunité
-  // Gestionnaire pour changer le statut d'une opportunité
-  // Modifiez la fonction handleStatusChange dans OpportunityManagement.tsx
-
-  const handleStatusChange = async (
-    opportunityId: string,
-    newStatus: string
-  ) => {
-    // Vérifier que le statut est valide pour le type Opportunity
-    if (
-      ![
-        "lead",
-        "qualified",
-        "proposition",
-        "negotiation",
-        "won",
-        "lost",
-      ].includes(newStatus)
-    ) {
-      console.error(`Statut invalide: ${newStatus}`);
-      return;
-    }
-
-    // Convertir le statut en type valide
-    const validStatus = newStatus as
-      | "lead"
-      | "qualified"
-      | "proposition"
-      | "negotiation"
-      | "won"
-      | "lost";
-
-    try {
-      // Mise à jour optimiste de l'état local
-      setOpportunities((prevOpportunities) =>
-        prevOpportunities.map((o) =>
-          o._id === opportunityId ? { ...o, status: validStatus } : o
-        )
-      );
-
-      // Appel API pour mettre à jour le statut
-      await updateOpportunity(opportunityId, { status: validStatus });
-      console.log(
-        `Opportunité ${opportunityId} mise à jour avec statut: ${validStatus}`
-      );
-
-      // Vous pouvez ajouter un retour visuel du succès si nécessaire
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour du statut:", error);
-
-      // Afficher un message d'erreur à l'utilisateur
-      setError(
-        "Échec de la mise à jour du statut. Réessayez ou rafraîchissez la page."
-      );
-
-      // Rollback en cas d'erreur
-      try {
-        const response = await getOpportunitiesByClient(clientId);
-
-        // Utiliser le même traitement que dans fetchOpportunities
-        let refreshedOpportunities: Opportunity[] = [];
-
-        if (Array.isArray(response)) {
-          refreshedOpportunities = response;
-        } else if (
-          response &&
-          typeof response === "object" &&
-          "data" in response
-        ) {
-          refreshedOpportunities = response.data || [];
-        }
-
-        setOpportunities(refreshedOpportunities);
-      } catch (refreshError) {
-        console.error(
-          "Erreur lors du rafraîchissement des opportunités:",
-          refreshError
-        );
-      }
-    }
-  };
   if (isLoading || !user) {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
-
-  // Déterminer le préfixe de route pour les liens de navigation
-  const routePrefix = user?.role === "admin" ? "admin" : "manager";
 
   if (error) {
     return (
@@ -268,22 +116,14 @@ const OpportunityManagement: React.FC<OpportunityManagementProps> = ({
             </button>
           </div>
           <ActionButton
-            onClick={() =>
-              router.push(
-                `/dashboard/${routePrefix}/manage/company/clients/${companyId}`
-              )
-            }
+            onClick={navigateToClientsList}
             variant="secondary"
             size="medium"
           >
             Retour aux clients
           </ActionButton>
           <ActionButton
-            onClick={() =>
-              router.push(
-                `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${clientId}/add`
-              )
-            }
+            onClick={navigateToAddOpportunity}
             variant="primary"
             size="large"
           >

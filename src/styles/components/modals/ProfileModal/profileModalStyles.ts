@@ -1,8 +1,6 @@
-import { CSSProperties } from "react";
-
-export const profileModalStyles: Record<string, CSSProperties> = {
+export const profileModalStyles = {
   overlay: {
-    position: "fixed",
+    position: "fixed" as "fixed",
     top: 0,
     left: 0,
     right: 0,
@@ -11,12 +9,12 @@ export const profileModalStyles: Record<string, CSSProperties> = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    zIndex: 999,
+    zIndex: "var(--z-index-top)",
   },
 
   modalContainer: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: "20px",
+    backgroundColor: "var(--color-white)",
+    borderRadius: "var(--border-big-radius)",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
     width: "100%",
     maxWidth: "1200px",
@@ -29,15 +27,15 @@ export const profileModalStyles: Record<string, CSSProperties> = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "16px 20px",
-    borderBottomWidth: "1px",
-    borderBottomStyle: "solid",
-    borderBottomColor: "#E5E7EB",
+    borderBottomWidth: "var(--border-width)",
+    borderBottomStyle: "solid" as "solid",
+    borderBottomColor: "var(--table-border)",
   },
 
   modalTitle: {
-    fontSize: "25px",
-    fontFamily: '"Lexend-Bold", sans-serif',
-    color: "#1F2937",
+    fontSize: "var(--font-size-big)",
+    fontFamily: "var(--font-second-bold)",
+    color: "var(--color-text)",
     margin: 10,
   },
 
@@ -45,7 +43,7 @@ export const profileModalStyles: Record<string, CSSProperties> = {
     backgroundColor: "transparent",
     borderWidth: 0,
     cursor: "pointer",
-    borderRadius: "50%",
+    borderRadius: "var(--border-circle-radius)",
     padding: "6px",
     display: "flex",
     alignItems: "center",
@@ -53,7 +51,7 @@ export const profileModalStyles: Record<string, CSSProperties> = {
   },
 
   closeButtonHover: {
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "var(--color-grey-100)",
   },
 
   contentContainer: {
@@ -64,7 +62,7 @@ export const profileModalStyles: Record<string, CSSProperties> = {
   tabButton: {
     width: "100%",
     padding: "14px 16px",
-    textAlign: "left",
+    textAlign: "left" as "left",
     backgroundColor: "transparent",
     borderTopWidth: 0,
     borderRightWidth: 0,
@@ -73,57 +71,57 @@ export const profileModalStyles: Record<string, CSSProperties> = {
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
-    transition: "background-color 0.2s",
+    transition: "var(--animation-transition)",
   },
 
   tabButtonActive: {
-    backgroundColor: "#EBF5FF",
+    backgroundColor: "var(--table-row-selected-bg)",
     borderLeftWidth: "3px",
-    borderLeftStyle: "solid",
-    borderLeftColor: "#3B82F6",
+    borderLeftStyle: "solid" as "solid",
+    borderLeftColor: "var(--color-blue)",
   },
 
   mainContent: {
     width: "67%",
-    padding: "24px 30px",
-    overflowY: "auto",
+    padding: "var(--spacing-big) 30px",
+    overflowY: "auto" as "auto",
   },
 
   inputField: {
     width: "85%",
     padding: "10px 12px",
-    borderWidth: "1px",
+    borderWidth: "var(--border-width)",
     borderStyle: "solid",
-    borderColor: "#D1D5DB",
-    borderRadius: "6px",
-    fontSize: "14px",
-    transition: "border-color 0.2s",
+    borderColor: "var(--color-grey-400)",
+    borderRadius: "var(--border-small-radius)",
+    fontSize: "var(--font-size-small)",
+    transition: "var(--animation-transition)",
     outline: "none",
   },
 
   buttonPrimary: {
-    backgroundColor: "#3B82F6",
-    color: "#FFFFFF",
+    backgroundColor: "var(--color-blue)",
+    color: "var(--color-white)",
     borderTopWidth: 0,
     borderRightWidth: 0,
     borderBottomWidth: 0,
     borderLeftWidth: 0,
-    borderRadius: "6px",
+    borderRadius: "var(--border-small-radius)",
     padding: "12px 20px",
-    fontSize: "14px",
-    fontWeight: 500,
+    fontSize: "var(--font-size-small)",
+    fontWeight: "var(--font-weight-medium)",
     cursor: "pointer",
-    transition: "background-color 0.2s",
+    transition: "var(--animation-transition)",
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
     minWidth: "140px",
   },
 
   sidebar: {
     width: "33%",
-    borderRightWidth: "1px",
-    borderRightStyle: "solid",
-    borderRightColor: "#E5E7EB",
-    backgroundColor: "#F9FAFB",
+    borderRightWidth: "var(--border-width)",
+    borderRightStyle: "solid" as "solid",
+    borderRightColor: "var(--table-border)",
+    backgroundColor: "var(--color-grey-100)",
   },
 
   tabIconContainer: {
@@ -136,9 +134,9 @@ export const profileModalStyles: Record<string, CSSProperties> = {
   },
 
   h3: {
-    fontFamily: '"Lexend-Regular", sans-serif',
-    fontSize: "15px",
-    color: "#374151",
+    fontFamily: "var(--font-second-regular)",
+    fontSize: "var(--font-size-normal)",
+    color: "var(--color-text)",
   },
 
   profileHeader: {
@@ -150,58 +148,58 @@ export const profileModalStyles: Record<string, CSSProperties> = {
   avatar: {
     width: "88px",
     height: "88px",
-    borderRadius: "50%",
-    backgroundColor: "#3B82F6",
-    color: "#FFFFFF",
+    borderRadius: "var(--border-circle-radius)",
+    backgroundColor: "var(--color-blue)",
+    color: "var(--color-white)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontSize: "28px",
-    fontFamily: '"Lexend-Bold", sans-serif',
-    marginRight: "24px",
+    fontFamily: "var(--font-second-bold)",
+    marginRight: "var(--spacing-big)",
     boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
   },
 
   profileInfo: {
-    display: "flex",
-    flexDirection: "column",
+    display: "flex" as "flex",
+    flexDirection: "column" as "column",
   },
 
   h2: {
-    fontSize: "22px",
-    fontFamily: '"Lexend-Bold", sans-serif',
-    color: "#1F2937",
+    fontSize: "var(--font-size-big)",
+    fontFamily: "var(--font-second-bold)",
+    color: "var(--color-text)",
     margin: "0 0 6px 0",
   },
 
   roleBadge: {
     display: "inline-block",
-    backgroundColor: "#DBEAFE",
-    color: "#2563EB",
+    backgroundColor: "var(--table-row-selected-bg)",
+    color: "var(--color-blue)",
     padding: "4px 10px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    fontFamily: '"Lexend-Bold", sans-serif',
+    borderRadius: "var(--border-small-radius)",
+    fontSize: "var(--font-size-small-small)",
+    fontFamily: "var(--font-second-bold)",
   },
 
   formField: {
     marginTop: "15px",
-    marginBottom: "24px",
+    marginBottom: "var(--spacing-big)",
   },
 
   fieldLabel: {
     display: "block",
-    fontSize: "13px",
-    color: "#6B7280",
+    fontSize: "var(--font-size-small-small)",
+    color: "var(--color-grey-600)",
     marginBottom: "6px",
-    fontFamily: '"Lexend-SemiBold", sans-serif',
+    fontFamily: "var(--font-second-bold)",
   },
 
   fieldValue: {
-    fontSize: "15px",
-    color: "#1F2937",
+    fontSize: "var(--font-size-normal)",
+    color: "var(--color-text)",
     padding: "4px 0",
-    fontFamily: '"Lexend-Regular", sans-serif',
+    fontFamily: "var(--font-second-regular)",
   },
 
   languageContainer: {
@@ -213,59 +211,59 @@ export const profileModalStyles: Record<string, CSSProperties> = {
 
   select: {
     padding: "10px 12px",
-    borderWidth: "1px",
+    borderWidth: "var(--border-width)",
     borderStyle: "solid",
-    borderColor: "#D1D5DB",
-    borderRadius: "6px",
+    borderColor: "var(--color-grey-400)",
+    borderRadius: "var(--border-small-radius)",
     marginRight: "10px",
-    fontSize: "14px",
+    fontSize: "var(--font-size-small)",
     minWidth: "150px",
     outline: "none",
   },
 
   button: {
-    backgroundColor: "#3B82F6",
-    color: "#FFFFFF",
+    backgroundColor: "var(--color-blue)",
+    color: "var(--color-white)",
     borderTopWidth: 0,
     borderRightWidth: 0,
     borderBottomWidth: 0,
     borderLeftWidth: 0,
-    borderRadius: "6px",
-    padding: "8px 16px",
-    fontSize: "14px",
-    fontFamily: '"Lexend-Regular", sans-serif',
+    borderRadius: "var(--border-small-radius)",
+    padding: "10px 20px",
+    fontSize: "var(--font-size-small)",
+    fontFamily: "var(--font-second-regular)",
     cursor: "pointer",
     marginLeft: "8px",
-    transition: "background-color 0.2s",
+    transition: "var(--animation-transition)",
   },
 
   p: {
-    fontSize: "13px",
-    color: "#6B7280",
-    fontFamily: '"Lexend-Regular", sans-serif',
+    fontSize: "var(--font-size-small-small)",
+    color: "var(--color-grey-600)",
+    fontFamily: "var(--font-second-regular)",
   },
 
   info: {
     marginTop: "30px",
     padding: "12px",
-    backgroundColor: "#F3F4F6",
-    borderRadius: "4px",
+    backgroundColor: "var(--color-grey-100)",
+    borderRadius: "var(--border-small-radius)",
   },
 
   error: {
-    backgroundColor: "#FEE2E2",
-    color: "#B91C1C",
+    backgroundColor: "var(--color-error-light)",
+    color: "var(--color-error-dark)",
     padding: "10px 12px",
-    borderRadius: "4px",
-    marginBottom: "16px",
+    borderRadius: "var(--border-small-radius)",
+    marginBottom: "var(--spacing-normal)",
   },
 
   sucess: {
-    backgroundColor: "#DCFCE7",
-    color: "#166534",
+    backgroundColor: "var(--color-success-light)",
+    color: "var(--color-success-dark)",
     padding: "10px 12px",
-    borderRadius: "4px",
-    marginBottom: "16px",
+    borderRadius: "var(--border-small-radius)",
+    marginBottom: "var(--spacing-normal)",
   },
 
   errorStateModalContainer: {
@@ -281,28 +279,28 @@ export const profileModalStyles: Record<string, CSSProperties> = {
   },
 
   errorStateBox: {
-    padding: "20px",
-    backgroundColor: "#FEF2F2",
-    borderRadius: "8px",
+    padding: "var(--spacing-normal)",
+    backgroundColor: "var(--color-error-light)",
+    borderRadius: "var(--border-radius)",
     maxWidth: "400px",
-    textAlign: "center",
+    textAlign: "center" as "center",
   },
 
   errorStateTitle: {
-    color: "#B91C1C",
+    color: "var(--color-error-dark)",
     marginBottom: "12px",
   },
 
   errorStateText: {
-    marginBottom: "16px",
+    marginBottom: "var(--spacing-normal)",
   },
 
   errorStateButton: {
-    backgroundColor: "#3B82F6",
-    color: "white",
+    backgroundColor: "var(--color-blue)",
+    color: "var(--color-white)",
     borderWidth: 0,
-    padding: "8px 16px",
-    borderRadius: "4px",
+    padding: "10px 20px",
+    borderRadius: "var(--border-small-radius)",
     cursor: "pointer",
   },
 };

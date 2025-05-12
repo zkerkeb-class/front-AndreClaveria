@@ -1,6 +1,6 @@
 // /components/forms/opportunities/OpportunityValueSection.tsx
 import React from "react";
-import { styles } from "@/styles/components/forms/OpportunityFormStyles";
+import { opportunityFormStyles as styles } from "@/styles/components/forms/OpportunityFormStyles";
 
 interface OpportunityValueSectionProps {
   value: number;

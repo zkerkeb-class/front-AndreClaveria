@@ -1,6 +1,6 @@
 // /components/forms/opportunities/OpportunityAssignmentSection.tsx
 import React from "react";
-import { styles } from "@/styles/components/forms/OpportunityFormStyles";
+import { opportunityFormStyles as styles } from "@/styles/components/forms/OpportunityFormStyles";
 import { User } from "@/services/user.service";
 
 interface OpportunityAssignmentSectionProps {

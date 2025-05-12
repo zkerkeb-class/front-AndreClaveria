@@ -1,100 +1,25 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { createUser, UpdateUserRequest } from "@/services/user.service";
+import { useRoleCheck } from "@/hooks/useRoleCheck";
+import { useCreateUser } from "@/hooks/useCreateUser";
 
 const CreateUser: React.FC = () => {
   const router = useRouter();
-  const { user, isLoading, setLoadingWithMessage } = useAuth();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    role: "user",
-    phoneNumber: "",
-    active: true,
+  const { user, isLoading } = useAuth();
+
+  // Vérification du rôle admin
+  const hasAdminAccess = useRoleCheck({
+    isLoading,
+    user,
+    requiredRole: "admin",
+    redirectPath: "/dashboard",
   });
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Vérification du rôle admin
-    if (!isLoading && user && user.role !== "admin") {
-      router.push("/dashboard");
-    }
-  }, [user, isLoading, router]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target as HTMLInputElement;
-
-    if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    // Validation basique
-    if (!formData.firstName || !formData.lastName || !formData.email) {
-      setError("Veuillez remplir tous les champs obligatoires");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Les mots de passe ne correspondent pas");
-      return;
-    }
-
-    try {
-      setLoadingWithMessage(true, "Création du compte utilisateur...");
-
-      const userData: UpdateUserRequest = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-        phoneNumber: formData.phoneNumber,
-        active: formData.active,
-      };
-
-      const newUser = await createUser(userData);
-
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        role: "user",
-        phoneNumber: "",
-        active: true,
-      });
-
-      setTimeout(() => {
-        router.push("/dashboard/admin/manage/users");
-      }, 2000);
-    } catch (err: any) {
-      console.error("Erreur lors de la création de l'utilisateur:", err);
-      setError(
-        err.message ||
-          "Une erreur est survenue lors de la création de l'utilisateur"
-      );
-    } finally {
-      setLoadingWithMessage(false);
-    }
-  };
+  // Utilisation du hook pour gérer la création d'utilisateur
+  const { formData, error, success, handleChange, handleSubmit } =
+    useCreateUser();
 
   if (isLoading || !user) {
     return null; // Le LoadingOverlay du AuthContext s'affichera

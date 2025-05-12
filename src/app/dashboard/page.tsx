@@ -1,30 +1,23 @@
 "use client";
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRoleRedirect } from "@/hooks/useRoleRedirect";
 import { dashboardStyles } from "@/styles/pages/dashboard/dashboardStyles";
 
 const Dashboard: React.FC = () => {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
 
-  // Redirection en fonction du rôle
-  useEffect(() => {
-    if (!isLoading && user) {
-      // Rediriger vers la page spécifique au rôle
-      switch (user.role) {
-        case "admin":
-          router.push("/dashboard/admin");
-          break;
-        case "manager":
-          router.push("/dashboard/manager");
-          break;
-        default:
-          router.push("/dashboard/user");
-          break;
-      }
-    }
-  }, [user, isLoading, router]);
+  // Configuration de la redirection basée sur le rôle
+  useRoleRedirect({
+    isLoading,
+    user,
+    roleRedirects: {
+      admin: "/dashboard/admin",
+      manager: "/dashboard/manager",
+      default: "/dashboard/user",
+    },
+    defaultRedirect: "/dashboard/user",
+  });
 
   if (isLoading) {
     return null;

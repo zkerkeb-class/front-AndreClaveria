@@ -1,111 +1,161 @@
 "use client";
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
 
-const ManagerDashboard: React.FC = () => {
-  const router = useRouter();
-  const { user, isLoading } = useAuth();
+import { dashboardStyles } from "@/styles/pages/dashboard/manager/dashboardStyles";
+import { useManagerDashboard } from "@/hooks/useManagerDashboard";
+import {
+  FaBuilding,
+  FaUsers,
+  FaUser,
+  FaEnvelope,
+  FaPhone,
+  FaPlusCircle,
+} from "react-icons/fa";
 
-  useEffect(() => {
-    // Vérification du rôle manager ou admin
-    if (
-      !isLoading &&
-      user &&
-      user.role !== "manager" &&
-      user.role !== "admin"
-    ) {
-      // Redirection si l'utilisateur n'est ni manager ni admin
-      router.push("/dashboard");
-    }
-  }, [user, isLoading, router]);
+export default function ManagerDashboard() {
+  // Utilisation du hook personnalisé pour gérer la logique du tableau de bord
+  const { dashboardData, loading, error, handleCompanyAction, navigateToTeam } =
+    useManagerDashboard();
 
-  if (isLoading || !user) {
-    return null; // Le LoadingOverlay du AuthContext s'affichera
+  if (loading) {
+    return (
+      <div style={dashboardStyles.loadingSpinner}>
+        Chargement de vos informations...
+      </div>
+    );
   }
 
+  if (error) {
+    return <div style={dashboardStyles.errorMessage}>{error}</div>;
+  }
+
+  if (!dashboardData) {
+    return (
+      <div style={dashboardStyles.errorMessage}>Aucune donnée disponible</div>
+    );
+  }
+
+  const { user, teams, company } = dashboardData;
+
   return (
-    <div>
-      <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>
-        Tableau de bord Manager
-      </h1>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: "20px",
-        }}
-      >
-        <div
-          style={{
-            padding: "20px",
-            backgroundColor: "#fff",
-            borderRadius: "8px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2 style={{ fontSize: "18px", marginBottom: "15px" }}>
-            Performance commerciale
+    <div style={dashboardStyles.container}>
+      <div style={dashboardStyles.section}>
+        <h2 style={dashboardStyles.sectionTitle}>
+          <FaUser style={dashboardStyles.sectionIcon} />
+          Profil Utilisateur
+        </h2>
+        <div style={dashboardStyles.userInfoCard}>
+          <div style={dashboardStyles.avatar}>
+            {user.firstName.charAt(0)}
+            {user.lastName.charAt(0)}
+          </div>
+          <h2 style={dashboardStyles.userName}>
+            {user.firstName} {user.lastName}
           </h2>
-          <p>
-            Visualisez les indicateurs de performance de votre équipe
-            commerciale.
-          </p>
-        </div>
-
-        <div
-          style={{
-            padding: "20px",
-            backgroundColor: "#fff",
-            borderRadius: "8px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2 style={{ fontSize: "18px", marginBottom: "15px" }}>
-            Analyse des ventes
-          </h2>
-          <p>
-            Consultez les rapports détaillés sur les ventes et les tendances.
-          </p>
-        </div>
-
-        <div
-          style={{
-            padding: "20px",
-            backgroundColor: "#fff",
-            borderRadius: "8px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2 style={{ fontSize: "18px", marginBottom: "15px" }}>
-            Statistiques d'équipe
-          </h2>
-          <p>
-            Suivez les performances individuelles et collectives de votre
-            équipe.
-          </p>
-        </div>
-
-        <div
-          style={{
-            padding: "20px",
-            backgroundColor: "#fff",
-            borderRadius: "8px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2 style={{ fontSize: "18px", marginBottom: "15px" }}>
-            Objectifs et prévisions
-          </h2>
-          <p>
-            Définissez et suivez les objectifs commerciaux et les prévisions de
-            vente.
-          </p>
+          <div style={dashboardStyles.infoItem}>
+            <FaEnvelope style={dashboardStyles.infoIcon} />
+            <span>{user.email}</span>
+          </div>
+          <div style={dashboardStyles.infoItem}>
+            <FaUser style={dashboardStyles.infoIcon} />
+            <span>Rôle: {user.role}</span>
+          </div>
         </div>
       </div>
+
+      <div style={dashboardStyles.companySection}>
+        <h2 style={dashboardStyles.sectionTitle}>
+          <FaBuilding style={dashboardStyles.sectionIcon} />
+          {company ? "Votre Entreprise" : "Aucune Entreprise"}
+        </h2>
+
+        {company ? (
+          <>
+            <button
+              onClick={handleCompanyAction}
+              style={dashboardStyles.manageCompanyBtn}
+            >
+              <FaBuilding style={dashboardStyles.btnIcon} />
+              Gérer l'entreprise
+            </button>
+            <div style={dashboardStyles.companyCard}>
+              <h2 style={dashboardStyles.companyTitle}>{company.name}</h2>
+              {company.description && (
+                <p style={dashboardStyles.companyDescription}>
+                  {company.description}
+                </p>
+              )}
+
+              <div style={dashboardStyles.companyDetails}>
+                {company.address && (
+                  <div style={dashboardStyles.infoItem}>
+                    <strong>Adresse:</strong> {company.address.city}
+                  </div>
+                )}
+                {company.email && (
+                  <div style={dashboardStyles.infoItem}>
+                    <FaEnvelope style={dashboardStyles.infoIcon} />
+                    <span>{company.email}</span>
+                  </div>
+                )}
+                {company.phone && (
+                  <div style={dashboardStyles.infoItem}>
+                    <FaPhone style={dashboardStyles.infoIcon} />
+                    <span>{company.phone}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>Vous n'avez pas encore créé d'entreprise pour votre compte.</p>
+            <button
+              onClick={handleCompanyAction}
+              style={dashboardStyles.createCompanyBtn}
+            >
+              <FaPlusCircle style={dashboardStyles.btnIcon} />
+              Créer une entreprise
+            </button>
+          </>
+        )}
+      </div>
+
+      {teams.length > 0 && (
+        <div style={dashboardStyles.section}>
+          <h2 style={dashboardStyles.sectionTitle}>
+            <FaUsers style={dashboardStyles.sectionIcon} />
+            Vos Équipes
+          </h2>
+          <div style={dashboardStyles.teamGrid}>
+            {teams.map((team) => (
+              <div key={team._id} style={dashboardStyles.teamCard}>
+                <h3 style={dashboardStyles.teamTitle}>{team.name}</h3>
+                {team.description && (
+                  <p style={dashboardStyles.teamDescription}>
+                    {team.description}
+                  </p>
+                )}
+                <div style={dashboardStyles.teamMeta}>
+                  <div style={dashboardStyles.infoItem}>
+                    <strong>Nombre de membres:</strong> {team.members.length}
+                  </div>
+                  {team.leader === user._id && (
+                    <div style={dashboardStyles.leaderBadge}>
+                      Vous êtes le leader de cette équipe
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => navigateToTeam(team._id)}
+                  style={dashboardStyles.viewDetailsBtn}
+                >
+                  Voir les détails
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default ManagerDashboard;
+}

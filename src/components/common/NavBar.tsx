@@ -7,6 +7,7 @@ import { dashboardStyles } from "@/styles/pages/dashboard/dashboardStyles";
 import { CSSProperties } from "react";
 import ProfileModal from "@/components/modals/ProfileModal/index";
 import { User } from "@/services/user.service";
+import { useTheme } from "@/app/dashboard/layout"; // Importez le contexte de thème
 
 interface NavBarProps {
   user: {
@@ -25,6 +26,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
   const { logout, user: authUser } = useAuth();
   const { hoveredIcon, setHoveredIcon } = useNavbar();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const { isDarkMode, toggleTheme } = useTheme(); // Utilisez le contexte de thème
 
   const user = authUser || initialUser;
 
@@ -47,6 +49,14 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
     setLocalUserData(updatedUser);
   };
 
+  // Style fixe de la barre latérale - ne change pas avec le thème
+  const sidebarStyle: CSSProperties = {
+    ...dashboardStyles.sidebar,
+    backgroundColor: "#1F2937", // Couleur fixe pour la barre latérale
+  };
+
+  // Styles pour les menus de navigation
+  // Ces styles peuvent changer en fonction du thème dark/light
   const getDashboardNavStyle = (): CSSProperties => ({
     ...dashboardStyles.navigation,
     ...(hoveredIcon === 0
@@ -75,16 +85,26 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
       : dashboardStyles.navigationCalendar),
   });
 
+  // Style des éléments de navigation avec thème
+  const navItemStyle = (isActive: boolean): CSSProperties => ({
+    ...dashboardStyles.navItem,
+    ...(isActive ? dashboardStyles.navItemActive : {}),
+  });
+
+  // Style fixe pour les boutons d'icône - ne change pas avec le thème
+  const iconButtonStyle = (active: boolean): CSSProperties => ({
+    ...dashboardStyles.iconButton,
+    ...(active ? dashboardStyles.iconButtonActive : {}),
+    color: "#FFFFFF", // Couleur de texte fixe pour les icônes
+  });
+
   const renderNavItems = () => {
     const role = localUserData?.role || "user";
 
     const commonNavItems = (
       <>
         <div
-          style={{
-            ...dashboardStyles.iconButton,
-            ...(hoveredIcon === 0 ? dashboardStyles.iconButtonActive : {}),
-          }}
+          style={iconButtonStyle(hoveredIcon === 0)}
           onMouseEnter={() => setHoveredIcon(0)}
         >
           <svg
@@ -111,10 +131,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
     const adminItems = (
       <>
         <div
-          style={{
-            ...dashboardStyles.iconButton,
-            ...(hoveredIcon === 10 ? dashboardStyles.iconButtonActive : {}),
-          }}
+          style={iconButtonStyle(hoveredIcon === 10)}
           onMouseEnter={() => setHoveredIcon(10)}
         >
           <svg
@@ -146,10 +163,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
     const managerItems = (
       <>
         <div
-          style={{
-            ...dashboardStyles.iconButton,
-            ...(hoveredIcon === 11 ? dashboardStyles.iconButtonActive : {}),
-          }}
+          style={iconButtonStyle(hoveredIcon === 11)}
           onMouseEnter={() => setHoveredIcon(11)}
         >
           <svg
@@ -186,7 +200,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
 
   return (
     <>
-      <div style={dashboardStyles.sidebar}>
+      <div style={sidebarStyle}>
         <div style={dashboardStyles.logoContainer}>
           <Image
             src="/img/logo/logo_crew.png"
@@ -200,10 +214,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         {renderNavItems()}
 
         <div
-          style={{
-            ...dashboardStyles.iconButton,
-            ...(hoveredIcon === 1 ? dashboardStyles.iconButtonActive : {}),
-          }}
+          style={iconButtonStyle(hoveredIcon === 1)}
           onMouseEnter={() => setHoveredIcon(1)}
         >
           <svg
@@ -223,10 +234,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         </div>
 
         <div
-          style={{
-            ...dashboardStyles.iconButton,
-            ...(hoveredIcon === 2 ? dashboardStyles.iconButtonActive : {}),
-          }}
+          style={iconButtonStyle(hoveredIcon === 2)}
           onMouseEnter={() => setHoveredIcon(2)}
         >
           <svg
@@ -247,10 +255,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         </div>
 
         <div
-          style={{
-            ...dashboardStyles.iconButton,
-            ...(hoveredIcon === 3 ? dashboardStyles.iconButtonActive : {}),
-          }}
+          style={iconButtonStyle(hoveredIcon === 3)}
           onMouseEnter={() => setHoveredIcon(3)}
         >
           <svg
@@ -275,10 +280,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         <div style={dashboardStyles.spacer}></div>
 
         <div
-          style={{
-            ...dashboardStyles.iconButton,
-            ...(isProfileModalOpen ? dashboardStyles.iconButtonActive : {}),
-          }}
+          style={iconButtonStyle(isProfileModalOpen)}
           onClick={openProfileModal}
         >
           <svg
@@ -298,26 +300,58 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
           </svg>
         </div>
 
-        <div style={dashboardStyles.iconButton}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={dashboardStyles.svgIcon}
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
+        {/* Bouton de bascule thème (soleil/lune) */}
+        <div
+          style={iconButtonStyle(false)}
+          onClick={toggleTheme}
+          title={
+            isDarkMode ? "Passer au thème clair" : "Passer au thème sombre"
+          }
+        >
+          {isDarkMode ? (
+            // Icône de soleil pour le thème sombre
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={dashboardStyles.svgIcon}
+            >
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          ) : (
+            // Icône de lune pour le thème clair
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={dashboardStyles.svgIcon}
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          )}
         </div>
 
-        <div style={dashboardStyles.iconButton} onClick={handleLogout}>
+        <div style={iconButtonStyle(false)} onClick={handleLogout}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="28"
@@ -330,10 +364,9 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
             strokeLinejoin="round"
             style={dashboardStyles.svgIcon}
           >
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-            <line x1="9" y1="9" x2="9.01" y2="9"></line>
-            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
           </svg>
         </div>
       </div>
@@ -342,39 +375,32 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         style={getDashboardNavStyle()}
         onMouseLeave={() => setHoveredIcon(null)}
       >
-        <div
-          style={{
-            ...dashboardStyles.navItem,
-            ...dashboardStyles.navItemActive,
-          }}
-        >
-          Client
-        </div>
-        <div style={dashboardStyles.navItem}>Contact</div>
-        <div style={dashboardStyles.navItem}>Opportunité</div>
-        <div style={dashboardStyles.navItem}>Deals</div>
+        <div style={navItemStyle(true)}>Client</div>
+        <div style={navItemStyle(false)}>Contact</div>
+        <div style={navItemStyle(false)}>Opportunité</div>
+        <div style={navItemStyle(false)}>Deals</div>
       </div>
 
       {/* Menu Téléphone */}
       <div style={getPhoneNavStyle()} onMouseLeave={() => setHoveredIcon(null)}>
-        <div style={dashboardStyles.navItem}>Appels récents</div>
-        <div style={dashboardStyles.navItem}>Contacts favoris</div>
-        <div style={dashboardStyles.navItem}>Programmer un appel</div>
+        <div style={navItemStyle(false)}>Appels récents</div>
+        <div style={navItemStyle(false)}>Contacts favoris</div>
+        <div style={navItemStyle(false)}>Programmer un appel</div>
       </div>
 
       <div style={getEmailNavStyle()} onMouseLeave={() => setHoveredIcon(null)}>
-        <div style={dashboardStyles.navItem}>Boîte de réception</div>
-        <div style={dashboardStyles.navItem}>Envoyés</div>
-        <div style={dashboardStyles.navItem}>Brouillons</div>
+        <div style={navItemStyle(false)}>Boîte de réception</div>
+        <div style={navItemStyle(false)}>Envoyés</div>
+        <div style={navItemStyle(false)}>Brouillons</div>
       </div>
 
       <div
         style={getCalendarNavStyle()}
         onMouseLeave={() => setHoveredIcon(null)}
       >
-        <div style={dashboardStyles.navItem}>Agenda</div>
-        <div style={dashboardStyles.navItem}>Rendez-vous</div>
-        <div style={dashboardStyles.navItem}>Événements</div>
+        <div style={navItemStyle(false)}>Agenda</div>
+        <div style={navItemStyle(false)}>Rendez-vous</div>
+        <div style={navItemStyle(false)}>Événements</div>
       </div>
 
       {localUserData?.role === "admin" && (
@@ -390,10 +416,10 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
           }}
           onMouseLeave={() => setHoveredIcon(null)}
         >
-          <div style={dashboardStyles.navItem}>Gestion des utilisateurs</div>
-          <div style={dashboardStyles.navItem}>Paramètres système</div>
-          <div style={dashboardStyles.navItem}>Logs d'activité</div>
-          <div style={dashboardStyles.navItem}>Configuration CRM</div>
+          <div style={navItemStyle(false)}>Gestion des utilisateurs</div>
+          <div style={navItemStyle(false)}>Paramètres système</div>
+          <div style={navItemStyle(false)}>Logs d'activité</div>
+          <div style={navItemStyle(false)}>Configuration CRM</div>
         </div>
       )}
 
@@ -411,10 +437,10 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
           }}
           onMouseLeave={() => setHoveredIcon(null)}
         >
-          <div style={dashboardStyles.navItem}>dashboardStyles de bord</div>
-          <div style={dashboardStyles.navItem}>Performance commerciale</div>
-          <div style={dashboardStyles.navItem}>Analyse des ventes</div>
-          <div style={dashboardStyles.navItem}>Statistiques d'équipe</div>
+          <div style={navItemStyle(false)}>Tableau de bord</div>
+          <div style={navItemStyle(false)}>Performance commerciale</div>
+          <div style={navItemStyle(false)}>Analyse des ventes</div>
+          <div style={navItemStyle(false)}>Statistiques d'équipe</div>
         </div>
       )}
 

@@ -1,66 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEmailVerification } from "@/hooks/useEmailVerification";
 import { confirmEmailStyles as styles } from "@/styles/pages/confirm-email/confirmEmailStyles";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_AUTH_API_URL || "http://localhost:3002/api/auth";
 
 const ConfirmEmailPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
-  );
-  const [message, setMessage] = useState("Vérification de votre email...");
+  const token = searchParams.get("token");
 
-  useEffect(() => {
-    const token = searchParams.get("token");
+  // Utilisation du hook personnalisé pour gérer la vérification
+  const { status, message } = useEmailVerification({
+    token,
+    redirectDelay: 3000,
+    redirectUrl: "/getting-started",
+  });
 
-    if (!token) {
-      setStatus("error");
-      setMessage("Token de confirmation manquant.");
-      return;
-    }
-
-    const confirmEmail = async () => {
-      try {
-        const response = await fetch(`${API_URL}/verify-email`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token }),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          setStatus("success");
-          setMessage("Votre email a été vérifié avec succès!");
-          // Rediriger vers getting-started après 3 secondes
-          setTimeout(() => {
-            router.push("/getting-started");
-          }, 3000);
-        } else {
-          setStatus("error");
-          setMessage(
-            data.message || "Une erreur est survenue lors de la vérification."
-          );
-        }
-      } catch (error) {
-        console.error("Erreur lors de la vérification:", error);
-        setStatus("error");
-        setMessage(
-          "Une erreur est survenue lors de la vérification de votre email."
-        );
-      }
-    };
-
-    confirmEmail();
-  }, [searchParams, router]);
-
+  // Calcul du style de l'en-tête en fonction du statut
   const getHeadingStyle = () => {
     if (status === "success") return styles.headingSuccess;
     if (status === "error") return styles.headingError;

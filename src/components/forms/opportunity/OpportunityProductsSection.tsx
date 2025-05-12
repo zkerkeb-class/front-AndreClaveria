@@ -1,7 +1,7 @@
 // /components/forms/opportunities/OpportunityProductsSection.tsx
 import React from "react";
-import { styles } from "@/styles/components/forms/OpportunityFormStyles";
-import { ProductFormData } from "./OpportunityForm";
+import { opportunityFormStyles as styles } from "@/styles/components/forms/OpportunityFormStyles";
+import { ProductFormData } from "@/hooks/useOpportunityForm";
 
 interface OpportunityProductsSectionProps {
   products: ProductFormData[];

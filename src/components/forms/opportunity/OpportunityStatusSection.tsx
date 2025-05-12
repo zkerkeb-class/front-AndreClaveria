@@ -1,6 +1,6 @@
 // /components/forms/opportunities/OpportunityStatusSection.tsx
 import React from "react";
-import { styles } from "@/styles/components/forms/OpportunityFormStyles";
+import { opportunityFormStyles as styles } from "@/styles/components/forms/OpportunityFormStyles";
 
 interface OpportunityStatusSectionProps {
   status: "lead" | "qualified" | "proposition" | "negotiation" | "won" | "lost";

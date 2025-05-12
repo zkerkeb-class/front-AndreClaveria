@@ -1,6 +1,6 @@
 // /components/forms/opportunities/OpportunityContactsSection.tsx
 import React, { useState } from "react";
-import { styles } from "@/styles/components/forms/OpportunityFormStyles";
+import { opportunityFormStyles as styles } from "@/styles/components/forms/OpportunityFormStyles";
 import { Contact } from "@/services/contact.service";
 
 interface OpportunityContactsSectionProps {

@@ -19,33 +19,33 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   // Définir les couleurs en fonction du variant
   const variantStyles = {
     primary: {
-      backgroundColor: "#4c84ff",
-      color: "white",
+      backgroundColor: "var(--color-blue)",
+      color: "var(--color-neutral)",
       border: "none",
     },
     secondary: {
-      backgroundColor: "#f5f5f5",
-      color: "#333",
-      border: "1px solid #ddd",
+      backgroundColor: "var(--color-neutral)",
+      color: "var(--color-black)",
+      border: `var(--border-width) solid var(--color-grey-400)`,
     },
     success: {
-      backgroundColor: "#e6f7e6",
-      color: "#2e7d32",
+      backgroundColor: "var(--color-success-light)",
+      color: "var(--color-success-dark)",
       border: "none",
     },
     danger: {
-      backgroundColor: "#ffebee",
-      color: "#d32f2f",
+      backgroundColor: "var(--color-error-light)",
+      color: "var(--color-error-dark)",
       border: "none",
     },
     warning: {
-      backgroundColor: "#fff8e1",
-      color: "#ff8f00",
+      backgroundColor: "var(--color-warning)",
+      color: "var(--color-text)",
       border: "none",
     },
     info: {
-      backgroundColor: "#e3f2fd",
-      color: "#0277bd",
+      backgroundColor: "var(--table-row-selected-bg)",
+      color: "var(--color-blue)",
       border: "none",
     },
   };
@@ -53,26 +53,26 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   // Définir la taille du bouton
   const sizeStyles = {
     small: {
-      padding: "4px 8px",
-      fontSize: "12px",
+      padding: "4px 12px",
+      fontSize: "var(--font-size-small-small)",
     },
     medium: {
-      padding: "6px 12px",
-      fontSize: "14px",
+      padding: "6px 16px",
+      fontSize: "var(--font-size-small)",
     },
     large: {
-      padding: "10px 16px",
-      fontSize: "16px",
+      padding: "10px 20px",
+      fontSize: "var(--font-size-normal)",
     },
   };
 
   const buttonStyle = {
     ...variantStyles[variant],
     ...sizeStyles[size],
-    borderRadius: "4px",
+    borderRadius: "var(--border-small-radius)",
     cursor: disabled ? "not-allowed" : "pointer",
-    opacity: disabled ? 0.7 : 1,
-    fontWeight: 500,
+    opacity: disabled ? "var(--opacity-less)" : 1,
+    fontWeight: "var(--font-weight-medium)",
   };
 
   return (

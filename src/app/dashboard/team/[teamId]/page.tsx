@@ -1,11 +1,9 @@
 // dashboard/team/[teamId]/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { getTeamById, Team } from "@/services/team.service";
-import { getClientsByTeam, Client } from "@/services/client.service";
-import { getUserById, User } from "@/services/user.service";
+import { useParams } from "next/navigation";
+import { useTeamDetail } from "@/hooks/useTeamDetail";
+import { teamDetailStyles } from "@/styles/pages/dashboard/team/teamDetailStyles";
 
 import {
   FaUsers,
@@ -15,323 +13,22 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 
-const teamDetailStyles = {
-  container: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "2rem",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "2rem",
-  },
-  backButton: {
-    padding: "0.5rem 1rem",
-    backgroundColor: "#f0f0f0",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-  },
-  title: {
-    fontSize: "2rem",
-    color: "#333",
-    marginBottom: "0.5rem",
-  },
-  description: {
-    color: "#666",
-    marginBottom: "2rem",
-  },
-  section: {
-    marginBottom: "2.5rem",
-  },
-  sectionTitle: {
-    fontSize: "1.5rem",
-    color: "#333",
-    marginBottom: "1.2rem",
-    display: "flex",
-    alignItems: "center",
-    borderBottom: "1px solid #eaeaea",
-    paddingBottom: "0.75rem",
-  },
-  sectionIcon: {
-    marginRight: "0.75rem",
-    color: "#4361ee",
-  },
-  infoCard: {
-    background: "#fff",
-    borderRadius: "10px",
-    padding: "1.5rem",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    marginBottom: "1.5rem",
-  },
-  infoGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-    gap: "1.5rem",
-  },
-  membersList: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "1rem",
-  },
-  memberItem: {
-    display: "flex",
-    alignItems: "center",
-    padding: "1rem",
-    borderRadius: "8px",
-    backgroundColor: "#f9f9f9",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-  },
-  avatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "#4361ee",
-    color: "white",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "bold",
-    marginRight: "1rem",
-  },
-  memberInfo: {
-    flexGrow: 1,
-  },
-  memberName: {
-    fontWeight: "bold",
-    color: "#333",
-  },
-  memberRole: {
-    fontSize: "0.875rem",
-    color: "#666",
-  },
-  leaderBadge: {
-    backgroundColor: "#4361ee",
-    color: "white",
-    padding: "0.25rem 0.5rem",
-    borderRadius: "4px",
-    fontSize: "0.75rem",
-    marginLeft: "auto",
-  },
-  clientsGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-    gap: "1.5rem",
-  },
-  clientCard: {
-    background: "#fff",
-    borderRadius: "10px",
-    padding: "1.5rem",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    display: "flex",
-    flexDirection: "column" as const,
-    height: "100%",
-  },
-  clientHeader: {
-    display: "flex",
-    alignItems: "center",
-    marginBottom: "1rem",
-  },
-  clientLogo: {
-    width: "48px",
-    height: "48px",
-    borderRadius: "8px",
-    backgroundColor: "#f0f0f0",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: "1rem",
-  },
-  clientName: {
-    fontWeight: "bold",
-    fontSize: "1.25rem",
-    color: "#333",
-  },
-  clientDescription: {
-    color: "#666",
-    marginBottom: "1rem",
-    flexGrow: 1,
-  },
-  clientDetails: {
-    marginTop: "auto",
-  },
-  clientMeta: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    marginBottom: "0.5rem",
-    color: "#666",
-    fontSize: "0.875rem",
-  },
-  goodForCustomerBar: {
-    width: "100%",
-    height: "8px",
-    backgroundColor: "#e0e0e0",
-    borderRadius: "4px",
-    marginTop: "0.5rem",
-    overflow: "hidden",
-  },
-  goodForCustomerFill: {
-    height: "100%",
-    backgroundColor: "#4361ee",
-    borderRadius: "4px",
-  },
-  viewDetailBtn: {
-    width: "100%",
-    padding: "0.75rem",
-    backgroundColor: "#4361ee",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-    marginTop: "1rem",
-    fontWeight: "medium",
-  },
-  loadingSpinner: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "50vh",
-    fontSize: "1.2rem",
-    color: "#4361ee",
-  },
-  errorMessage: {
-    background: "#f8d7da",
-    color: "#721c24",
-    padding: "1rem",
-    borderRadius: "5px",
-    margin: "2rem auto",
-    maxWidth: "800px",
-    textAlign: "center" as const,
-  },
-};
-
 export default function TeamDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const [team, setTeam] = useState<Team | null>(null);
-  const [clients, setClients] = useState<Client[]>([]);
-  const [members, setMembers] = useState<{ [key: string]: User }>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const teamId = params.teamId as string;
 
-  useEffect(() => {
-    const loadTeamData = async () => {
-      try {
-        setLoading(true);
-        console.log("Chargement des données pour l'équipe:", teamId);
-
-        // Charger les données de l'équipe
-        const teamData = await getTeamById(teamId);
-        console.log("Données de l'équipe reçues:", teamData);
-        setTeam(teamData);
-
-        // Charger les informations des membres
-        if (teamData.members && Array.isArray(teamData.members)) {
-          const memberMap: { [key: string]: User } = {};
-          const memberPromises = teamData.members.map(async (memberId) => {
-            const id = typeof memberId === "string" ? memberId : memberId._id;
-            try {
-              const userData = await getUserById(id);
-              memberMap[id] = userData;
-            } catch (error) {
-              console.error(
-                `Erreur lors de la récupération de l'utilisateur ${id}:`,
-                error
-              );
-            }
-          });
-
-          // Ajouter un appel supplémentaire pour le leader si nécessaire
-          if (
-            teamData.leader &&
-            typeof teamData.leader === "string" &&
-            !memberMap[teamData.leader]
-          ) {
-            memberPromises.push(
-              (async () => {
-                try {
-                  const leaderData = await getUserById(
-                    teamData.leader as string
-                  );
-                  memberMap[teamData.leader as string] = leaderData;
-                } catch (error) {
-                  console.error(
-                    `Erreur lors de la récupération du leader ${teamData.leader}:`,
-                    error
-                  );
-                }
-              })()
-            );
-          }
-
-          // Attendre que tous les appels API soient terminés
-          await Promise.all(memberPromises);
-          setMembers(memberMap);
-        }
-
-        // Récupérer les clients associés à cette équipe
-        const clientsData = await getClientsByTeam(teamId);
-        console.log("Clients associés reçus:", clientsData);
-
-        // Extraire les données selon le format de réponse
-        if (
-          clientsData &&
-          clientsData.success &&
-          Array.isArray(clientsData.data)
-        ) {
-          setClients(clientsData.data);
-        } else if (Array.isArray(clientsData)) {
-          setClients(clientsData);
-        } else if (clientsData && typeof clientsData === "object") {
-          // Chercher une propriété qui contient un tableau
-          const possibleArrayProps = Object.keys(clientsData).find((key) =>
-            Array.isArray(clientsData[key])
-          );
-          if (possibleArrayProps) {
-            setClients(clientsData[possibleArrayProps]);
-          } else {
-            setClients([]);
-          }
-        } else {
-          setClients([]);
-        }
-      } catch (err: any) {
-        console.error("Error loading team data:", err);
-        setError(
-          `Impossible de charger les données de l'équipe: ${err.message}`
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (teamId) {
-      loadTeamData();
-    }
-  }, [teamId]);
-
-  // Formater une date en français
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleDateString("fr-FR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-    } catch (e) {
-      console.error("Erreur de formatage de date:", e);
-      return dateString;
-    }
-  };
+  // Utilisation du hook personnalisé pour gérer la logique de la page de détail d'équipe
+  const {
+    team,
+    clients,
+    members,
+    loading,
+    error,
+    formatDate,
+    getScoreColor,
+    navigateBack,
+    navigateToClientDetail,
+  } = useTeamDetail({ teamId });
 
   if (loading) {
     return (
@@ -352,10 +49,7 @@ export default function TeamDetailPage() {
   return (
     <div style={teamDetailStyles.container}>
       <div style={teamDetailStyles.header}>
-        <button
-          style={teamDetailStyles.backButton}
-          onClick={() => router.back()}
-        >
+        <button style={teamDetailStyles.backButton} onClick={navigateBack}>
           <FaArrowLeft /> Retour
         </button>
       </div>
@@ -521,9 +215,7 @@ export default function TeamDetailPage() {
 
                   <button
                     style={teamDetailStyles.viewDetailBtn}
-                    onClick={() =>
-                      router.push(`/dashboard/client/${client._id}`)
-                    }
+                    onClick={() => navigateToClientDetail(client._id)}
                   >
                     Voir les détails
                   </button>
@@ -537,13 +229,4 @@ export default function TeamDetailPage() {
       </div>
     </div>
   );
-}
-
-// Fonction pour déterminer la couleur du score client
-function getScoreColor(score: number): string {
-  if (score < 30) return "#ef4444"; // Rouge
-  if (score < 50) return "#f97316"; // Orange
-  if (score < 70) return "#facc15"; // Jaune
-  if (score < 90) return "#84cc16"; // Vert clair
-  return "#22c55e"; // Vert
 }

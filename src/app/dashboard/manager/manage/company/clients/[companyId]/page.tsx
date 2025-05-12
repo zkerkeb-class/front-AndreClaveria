@@ -1,9 +1,10 @@
 "use client";
-import React, { useEffect, useState, use } from "react";
+import React, { use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { getClientsByCompany, Client } from "@/services/client.service";
-import { getCompanyById, Company } from "@/services/company.service";
+import { useRoleCheck } from "@/hooks/useRoleCheck";
+import { useClient } from "@/hooks/useClient";
+import { useCompany } from "@/hooks/useCompany";
 import ClientTable from "@/components/clients/ClientTable";
 import ActionButton from "@/components/common/ActionButton";
 
@@ -14,86 +15,50 @@ interface ClientManagementProps {
 }
 
 const ClientManagement: React.FC<ClientManagementProps> = ({ params }) => {
+  // Récupération du companyId à partir des paramètres
   const unwrappedParams = use(params);
   const companyId = unwrappedParams.companyId;
+
   const router = useRouter();
-  const { user, isLoading, setLoadingWithMessage } = useAuth();
-  const [clients, setClients] = useState<Client[]>([]);
-  const [company, setCompany] = useState<Company | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoadingClients, setIsLoadingClients] = useState(false);
+  const { user, isLoading } = useAuth();
 
-  useEffect(() => {
-    // Vérification du rôle admin ou manager
-    if (!isLoading && user && !["admin", "manager"].includes(user.role)) {
-      router.push("/dashboard");
-    }
-  }, [user, isLoading, router]);
+  // Vérification des droits d'accès (admin ou manager)
+  const hasAccess = useRoleCheck({
+    isLoading,
+    user,
+    requiredRole: ["admin", "manager"],
+    redirectPath: "/dashboard",
+  });
 
-  useEffect(() => {
-    const fetchCompanyDetails = async () => {
-      try {
-        const companyData = await getCompanyById(companyId);
-        setCompany(companyData);
-      } catch (err: any) {
-        console.error("Erreur lors de la récupération de l'entreprise:", err);
-        setError("Impossible de charger les détails de l'entreprise.");
-      }
-    };
+  // Récupération des détails de l'entreprise
+  const {
+    company,
+    isLoading: isLoadingCompany,
+    error: companyError,
+  } = useCompany({ companyId });
 
-    const fetchClients = async () => {
-      setIsLoadingClients(true);
-      try {
-        console.log("Début de la récupération des clients");
-        const clientsData = await getClientsByCompany(companyId);
-        console.log("Clients récupérés:", clientsData);
-
-        // Vérifier que clientsData est bien un tableau
-        if (Array.isArray(clientsData)) {
-          setClients(clientsData);
-        } else {
-          console.error(
-            "Les données reçues ne sont pas un tableau:",
-            clientsData
-          );
-          setClients([]); // Initialiser avec un tableau vide
-          setError(
-            "Format de données incorrect. Veuillez contacter l'administrateur."
-          );
-        }
-      } catch (err: any) {
-        console.error("Erreur lors de la récupération des clients:", err);
-        setError(
-          err.message ||
-            "Impossible de charger les clients. Veuillez réessayer."
-        );
-        setClients([]); // Initialiser avec un tableau vide en cas d'erreur
-      } finally {
-        setIsLoadingClients(false);
-      }
-    };
-    if (user && ["admin", "manager"].includes(user.role)) {
-      fetchCompanyDetails();
-      fetchClients();
-    }
-  }, [companyId, user]);
+  // Récupération des clients de l'entreprise
+  const {
+    clients,
+    isLoading: isLoadingClients,
+    error: clientsError,
+    updateClientData,
+  } = useClient({ companyId });
 
   // Gestionnaire pour le changement de statut d'un client
   const handleStatusChange = (clientId: string, newStatus: boolean) => {
-    setClients((prevClients) =>
-      prevClients.map((c) =>
-        c._id === clientId ? { ...c, isActive: newStatus } : c
-      )
-    );
+    updateClientData(clientId, { isActive: newStatus });
   };
 
-  if (isLoading || !user) {
+  if (isLoading || isLoadingCompany || !hasAccess) {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
 
   // Déterminer le préfixe de route pour les liens de navigation
   const routePrefix = user?.role === "admin" ? "admin" : "manager";
 
+  // Affichage des erreurs
+  const error = companyError || clientsError;
   if (error) {
     return (
       <div style={{ padding: "20px", color: "#d32f2f" }}>

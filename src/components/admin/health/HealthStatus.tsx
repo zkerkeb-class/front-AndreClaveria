@@ -1,31 +1,21 @@
-import React, { useEffect, useState, CSSProperties } from "react";
-import { healthStyles } from "@/styles/components/admin/health/healthStyles"; // Importation des styles
-import { useServicesHealth } from "@/services/health.service"; // Importation de notre hook personnalisé
+// src/components/admin/health/HealthStatus.tsx
+import React, { useState, CSSProperties } from "react";
+import { healthStyles } from "@/styles/components/admin/health/healthStyles";
+import { useServicesHealth } from "@/services/health.service";
+import { useSpinAnimation } from "@/hooks/useCssAnimation";
 
 const HealthStatus: React.FC = () => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
-  // Utiliser notre hook personnalisé amélioré
+  // Utilisation du hook pour injecter l'animation spin
+  useSpinAnimation();
+
+  // Utilisation du hook personnalisé pour la logique de services
   const { services, loading, error, lastUpdated, refreshServices, stats } =
     useServicesHealth(30000); // Rafraîchissement toutes les 30 secondes
 
-  // Ajout de l'animation spin
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.innerHTML = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
-
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
-  const getStatusLabel = (status: "up" | "down") => {
+  // Fonctions utilitaires
+  const getStatusLabel = (status: "up" | "down"): string => {
     return status === "up" ? "Opérationnel" : "Indisponible";
   };
 
@@ -33,8 +23,7 @@ const HealthStatus: React.FC = () => {
     return status === "up" ? healthStyles.statusUp : healthStyles.statusDown;
   };
 
-  // Format du temps de réponse
-  const formatResponseTime = (time?: number) => {
+  const formatResponseTime = (time?: number): string => {
     if (!time) return "N/A";
     return `${time} ms`;
   };
@@ -70,37 +59,13 @@ const HealthStatus: React.FC = () => {
 
       <div style={healthStyles.statusOverview as CSSProperties}>
         <div style={healthStyles.overviewCard as CSSProperties}>
-          <h2
-            style={{
-              fontSize: "18px",
-              fontFamily: '"Lexend-Bold", sans-serif',
-              color: "#1F2937",
-              marginTop: 0,
-              marginBottom: "12px",
-            }}
-          >
-            Vue d'ensemble
-          </h2>
-          <p
-            style={{
-              fontSize: "15px",
-              fontFamily: '"Lexend-Regular", sans-serif',
-              margin: "8px 0",
-            }}
-          >
+          <h2>Vue d'ensemble</h2>
+          <p>
             {stats.isAllOperational
               ? "✅ Tous les services sont opérationnels"
               : `⚠️ ${stats.downServicesCount} service(s) indisponible(s)`}
           </p>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontSize: "13px",
-              color: "#6B7280",
-              marginTop: "12px",
-            }}
-          >
+          <div style={healthStyles.reply as CSSProperties}>
             <p style={healthStyles.lastUpdated as CSSProperties}>
               Dernière vérification: {lastUpdated}
             </p>
@@ -121,16 +86,7 @@ const HealthStatus: React.FC = () => {
             }}
           >
             <div style={healthStyles.serviceHeader as CSSProperties}>
-              <h3
-                style={{
-                  fontSize: "16px",
-                  fontFamily: '"Lexend-SemiBold", sans-serif',
-                  color: "#1F2937",
-                  margin: 0,
-                }}
-              >
-                {service.name}
-              </h3>
+              <h3>{service.name}</h3>
               <span
                 style={{
                   ...(healthStyles.statusBadge as CSSProperties),
@@ -149,29 +105,12 @@ const HealthStatus: React.FC = () => {
                   </p>
                 </div>
               )}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginTop: "8px",
-                }}
-              >
+              <div style={healthStyles.reply}>
                 <p style={healthStyles.timestamp as CSSProperties}>
                   Dernière vérification:{" "}
                   {new Date(service.lastChecked).toLocaleString()}
                 </p>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    backgroundColor: "#F3F4F6",
-                    padding: "2px 6px",
-                    borderRadius: "4px",
-                    color: "#4B5563",
-                  }}
-                >
-                  {formatResponseTime(service.responseTime)}
-                </span>
+                <span>{formatResponseTime(service.responseTime)}</span>
               </div>
             </div>
           </div>
@@ -181,15 +120,7 @@ const HealthStatus: React.FC = () => {
       {loading && services.length === 0 && (
         <div style={healthStyles.loadingContainer as CSSProperties}>
           <div style={healthStyles.loadingSpinner as CSSProperties}></div>
-          <p
-            style={{
-              fontSize: "14px",
-              fontFamily: '"Lexend-Regular", sans-serif',
-              color: "#6B7280",
-            }}
-          >
-            Chargement des statuts des services...
-          </p>
+          <p>Chargement des statuts des services...</p>
         </div>
       )}
     </div>

@@ -1,13 +1,8 @@
 // /dashboard/user/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { fetchUserDashboard } from "@/services/dashboard.service";
-import { Team } from "@/services/team.service";
-import { User } from "@/services/user.service";
-import { Company } from "@/services/company.service";
-
+import { useUserDashboard } from "@/hooks/useUserDashboard";
+import { dashboardStyles } from "@/styles/pages/dashboard/user/userDashboardStyles";
 import {
   FaBuilding,
   FaUsers,
@@ -16,175 +11,9 @@ import {
   FaPhone,
 } from "react-icons/fa";
 
-interface DashboardData {
-  user: User;
-  teams: Team[];
-  company: Company | null;
-}
-
-const dashboardStyles = {
-  container: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "2rem",
-  },
-  section: {
-    marginBottom: "2.5rem",
-  },
-  sectionTitle: {
-    fontSize: "1.5rem",
-    color: "#333",
-    marginBottom: "1.2rem",
-    display: "flex",
-    alignItems: "center",
-    borderBottom: "1px solid #eaeaea",
-    paddingBottom: "0.75rem",
-  },
-  sectionIcon: {
-    marginRight: "0.75rem",
-    color: "#4361ee",
-  },
-  userInfoCard: {
-    background: "#fff",
-    borderRadius: "10px",
-    padding: "1.5rem",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-  },
-  avatar: {
-    width: "100px",
-    height: "100px",
-    borderRadius: "50%",
-    background: "#4361ee",
-    color: "white",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "2.5rem",
-    fontWeight: "bold",
-  },
-  userName: {
-    margin: "1rem 0",
-    color: "#2b2d42",
-  },
-  infoItem: {
-    display: "flex",
-    alignItems: "center",
-    margin: "0.5rem 0",
-  },
-  infoIcon: {
-    marginRight: "0.5rem",
-    color: "#4361ee",
-  },
-  companyCard: {
-    background: "#fff",
-    borderRadius: "10px",
-    padding: "1.5rem",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  },
-  companyTitle: {
-    color: "#2b2d42",
-    marginBottom: "1rem",
-  },
-  companyDescription: {
-    color: "#666",
-    marginBottom: "1.5rem",
-  },
-  companyDetails: {
-    marginTop: "1rem",
-    borderTop: "1px solid #eaeaea",
-    paddingTop: "1rem",
-  },
-  teamGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-    gap: "1.5rem",
-  },
-  teamCard: {
-    background: "#fff",
-    borderRadius: "10px",
-    padding: "1.5rem",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    display: "flex",
-    flexDirection: "column" as const,
-  },
-  teamTitle: {
-    color: "#2b2d42",
-    marginBottom: "0.75rem",
-  },
-  teamDescription: {
-    color: "#666",
-    marginBottom: "1rem",
-    flexGrow: 1,
-  },
-  teamMeta: {
-    margin: "1rem 0",
-  },
-  leaderBadge: {
-    background: "#4361ee",
-    color: "white",
-    padding: "0.5rem",
-    borderRadius: "5px",
-    marginTop: "0.75rem",
-    fontSize: "0.9rem",
-    textAlign: "center" as const,
-  },
-  viewDetailsBtn: {
-    background: "#4361ee",
-    color: "white",
-    border: "none",
-    padding: "0.75rem 1rem",
-    borderRadius: "5px",
-    cursor: "pointer",
-    fontWeight: 500,
-    marginTop: "auto",
-    transition: "background 0.2s",
-  },
-  loadingSpinner: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "50vh",
-    fontSize: "1.2rem",
-    color: "#4361ee",
-  },
-  errorMessage: {
-    background: "#f8d7da",
-    color: "#721c24",
-    padding: "1rem",
-    borderRadius: "5px",
-    margin: "2rem auto",
-    maxWidth: "800px",
-    textAlign: "center" as const,
-  },
-};
-
 export default function UserDashboard() {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    const loadDashboard = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchUserDashboard();
-        setDashboardData(data);
-      } catch (err) {
-        console.error("Error loading dashboard:", err);
-        setError("Impossible de charger les données du tableau de bord");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadDashboard();
-  }, []);
+  // Utilisation du hook personnalisé pour gérer la logique du tableau de bord
+  const { dashboardData, loading, error, navigateToTeam } = useUserDashboard();
 
   if (loading) {
     return (
@@ -295,7 +124,7 @@ export default function UserDashboard() {
                   )}
                 </div>
                 <button
-                  onClick={() => router.push(`/dashboard/team/${team._id}`)}
+                  onClick={() => navigateToTeam(team._id)}
                   style={dashboardStyles.viewDetailsBtn}
                 >
                   Voir les détails

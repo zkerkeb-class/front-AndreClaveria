@@ -181,13 +181,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Fonction de déconnexion
+  // Fonction de déconnexion modifiée pour gérer le thème
   const logout = () => {
     setLoadingWithMessage(true, "Déconnexion en cours...");
+
+    // 1. Réinitialiser d'abord le thème à "light" avant de supprimer les données
+    document.documentElement.setAttribute("data-theme", "light");
+
+    // 2. Ensuite appeler logoutService qui supprime les données du localStorage
     logoutService();
+
+    // 3. Réinitialiser l'état local
     setToken(null);
     setUser(null);
+
+    // 4. Enfin, rediriger vers la page d'authentification
     router.push("/auth");
+
     setIsLoading(false);
   };
 
