@@ -18,6 +18,8 @@ interface UseManagerDashboardReturn {
   error: string | null;
   handleCompanyAction: () => void;
   navigateToTeam: (teamId: string) => void;
+  handleTeamAction: (companyId: string) => void;
+  refreshDashboard: () => Promise<void>;
 }
 
 export const useManagerDashboard = (): UseManagerDashboardReturn => {
@@ -28,23 +30,28 @@ export const useManagerDashboard = (): UseManagerDashboardReturn => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  const loadDashboard = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchUserDashboard();
+      setDashboardData(data);
+    } catch (err) {
+      console.error("Error loading dashboard:", err);
+      setError("Impossible de charger les données du tableau de bord");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Chargement des données du tableau de bord
   useEffect(() => {
-    const loadDashboard = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchUserDashboard();
-        setDashboardData(data);
-      } catch (err) {
-        console.error("Error loading dashboard:", err);
-        setError("Impossible de charger les données du tableau de bord");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadDashboard();
   }, []);
+
+  // Fonction pour rafraîchir manuellement les données du dashboard
+  const refreshDashboard = async () => {
+    await loadDashboard();
+  };
 
   // Gestion de l'action sur l'entreprise (créer ou gérer)
   const handleCompanyAction = () => {
@@ -60,11 +67,17 @@ export const useManagerDashboard = (): UseManagerDashboardReturn => {
     router.push(`/dashboard/team/${teamId}`);
   };
 
+  const handleTeamAction = (companyId: string) => {
+    router.push(`/dashboard/manager/manage/company/teams/${companyId}`);
+  };
+
   return {
     dashboardData,
     loading,
     error,
     handleCompanyAction,
+    handleTeamAction,
     navigateToTeam,
+    refreshDashboard,
   };
 };

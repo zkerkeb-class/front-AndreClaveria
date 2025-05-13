@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRoleCheck } from "@/hooks/useRoleCheck";
 import { useUser } from "@/hooks/useUser";
-import UserTable from "@/components/admin/users/UserTable";
+import UsersTable from "@/components/admin/users/UserTable"; // Changé pour utiliser le composant factoriséÛ
 import ActionButton from "@/components/common/ActionButton";
 
 const UserManagement: React.FC = () => {
@@ -30,6 +30,18 @@ const UserManagement: React.FC = () => {
   // Gestionnaire pour le changement de statut d'un utilisateur
   const handleStatusChange = (userId: string, newStatus: boolean) => {
     updateUserData(userId, { active: newStatus });
+  };
+
+  // Fonction de navigation vers les détails de l'utilisateur
+  const navigateToUserDetails = (userId: string) => {
+    router.push(`/dashboard/user/${userId}`);
+  };
+
+  // Fonction de navigation vers la gestion des utilisateurs (peut être utilisée pour la pagination ou les filtres)
+  const navigateToUserManagement = () => {
+    // Cette fonction peut être utilisée pour rafraîchir la page ou appliquer des filtres
+    // Pour l'instant, c'est un placeholder
+    router.refresh();
   };
 
   if (isLoading || !hasAccess) {
@@ -72,11 +84,17 @@ const UserManagement: React.FC = () => {
         </ActionButton>
       </div>
 
-      <UserTable
-        users={users}
-        isLoading={isLoadingUsers}
-        onStatusChange={handleStatusChange}
-      />
+      {/* Utilisation du composant UsersTable factorisé */}
+      <div>
+        <UsersTable
+          users={users}
+          navigateToUserDetails={navigateToUserDetails}
+          navigateToUserManagement={navigateToUserManagement}
+          showViewMore={false} // Désactivé car nous montrons tous les utilisateurs
+          searchEnabled={true} // Activer la recherche
+          maxDisplayed={Infinity} // Afficher tous les utilisateurs
+        />
+      </div>
     </div>
   );
 };

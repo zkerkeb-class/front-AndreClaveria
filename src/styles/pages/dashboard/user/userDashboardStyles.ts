@@ -117,6 +117,9 @@ export const dashboardStyles = {
     fontWeight: "var(--font-weight-medium)",
     marginTop: "auto",
     transition: "var(--animation-transition)",
+    "&:hover": {
+      background: "var(--color-blue-dark)",
+    },
   },
   loadingSpinner: {
     display: "flex",
@@ -134,5 +137,23 @@ export const dashboardStyles = {
     margin: "var(--spacing-big) auto",
     maxWidth: "800px",
     textAlign: "center" as const,
+  },
+  noCompanyMessage: {
+    background: "var(--color-info-light)",
+    color: "var(--color-info-dark)",
+    padding: "1.5rem",
+    borderRadius: "var(--border-radius)",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "column" as const,
+    textAlign: "center" as const,
+    fontSize: "1.1rem",
+  },
+  noCompanyIcon: {
+    fontSize: "2.5rem",
+    marginBottom: "1rem",
+    color: "var(--color-info)",
   },
 };

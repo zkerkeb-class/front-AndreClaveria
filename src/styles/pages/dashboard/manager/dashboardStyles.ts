@@ -117,6 +117,9 @@ export const dashboardStyles = {
     fontWeight: "var(--font-weight-medium)",
     marginTop: "auto",
     transition: "var(--animation-transition)",
+    "&:hover": {
+      background: "var(--color-blue-dark)",
+    },
   },
   createCompanyBtn: {
     background: "var(--color-green)", // Couleur verte pour "créer"
@@ -126,12 +129,14 @@ export const dashboardStyles = {
     borderRadius: "var(--border-small-radius)",
     cursor: "pointer",
     fontWeight: "var(--font-weight-medium)",
-    marginTop: "1.5rem",
-    marginBottom: "1.5rem",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     transition: "var(--animation-transition)",
+    minWidth: "200px",
+    "&:hover": {
+      background: "var(--color-green-dark)",
+    },
   },
   manageCompanyBtn: {
     background: "var(--color-blue)", // Couleur bleue pour "gérer"
@@ -141,12 +146,31 @@ export const dashboardStyles = {
     borderRadius: "var(--border-small-radius)",
     cursor: "pointer",
     fontWeight: "var(--font-weight-medium)",
-    marginTop: "1.5rem",
-    marginBottom: "1.5rem",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     transition: "var(--animation-transition)",
+    minWidth: "200px",
+    "&:hover": {
+      background: "var(--color-blue-dark)",
+    },
+  },
+  manageTeamsBtn: {
+    background: "var(--color-orange)", // Couleur orange pour "gérer les équipes"
+    color: "var(--color-white)",
+    border: "none",
+    padding: "0.75rem 1rem",
+    borderRadius: "var(--border-small-radius)",
+    cursor: "pointer",
+    fontWeight: "var(--font-weight-medium)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "var(--animation-transition)",
+    minWidth: "200px",
+    "&:hover": {
+      background: "var(--color-orange-dark)",
+    },
   },
   btnIcon: {
     marginRight: "0.5rem",
@@ -168,7 +192,24 @@ export const dashboardStyles = {
     maxWidth: "800px",
     textAlign: "center" as const,
   },
-  companySection: {
-    marginBottom: "2.5rem",
+  actionsContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: "1.5rem",
+  },
+  noCompanyText: {
+    color: "var(--color-grey-600)",
+    fontSize: "1.1rem",
+    textAlign: "center" as const,
+    margin: "1rem 0",
+  },
+  noTeamsText: {
+    color: "var(--color-grey-600)",
+    fontSize: "1.1rem",
+    textAlign: "center" as const,
+    padding: "1.5rem",
+    background: "var(--color-grey-100)",
+    borderRadius: "var(--border-radius)",
   },
 };

@@ -1,52 +1,43 @@
 import React, { useState } from "react";
 import { adminDashboardStyles as styles } from "@/styles/pages/dashboard/admin/adminDashboardStyles";
-import { FaSearch, FaEye, FaEllipsisH, FaUserShield } from "react-icons/fa";
+import { FaSearch, FaEye, FaEllipsisH, FaUserTie } from "react-icons/fa";
 import ActionButton from "@/components/common/ActionButton";
 
-interface UsersTableProps {
-  users: any[];
+interface CompaniesTableProps {
+  companies: any[];
   maxDisplayed?: number;
-  navigateToUserDetails: (userId: string) => void;
-  navigateToUserManagement: () => void;
+  navigateToCompanyDetails: (companyId: string) => void;
+  navigateToCompanyManagement: () => void;
   showViewMore?: boolean;
   searchEnabled?: boolean;
 }
 
-const UsersTable: React.FC<UsersTableProps> = ({
-  users,
+const CompaniesTable: React.FC<CompaniesTableProps> = ({
+  companies,
   maxDisplayed = Infinity,
-  navigateToUserDetails,
-  navigateToUserManagement,
+  navigateToCompanyDetails,
+  navigateToCompanyManagement,
   showViewMore = false,
   searchEnabled = true,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filtrer les utilisateurs en fonction de la recherche
-  const filteredUsers = searchQuery
-    ? users.filter(
-        (user) =>
-          user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.role.toLowerCase().includes(searchQuery.toLowerCase())
+  // Filtrer les entreprises en fonction de la recherche
+  const filteredCompanies = searchQuery
+    ? companies.filter(
+        (company) =>
+          company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (company.industry &&
+            company.industry
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase())) ||
+          (company.owner &&
+            company.owner.toLowerCase().includes(searchQuery.toLowerCase()))
       )
-    : users;
+    : companies;
 
-  // Limiter le nombre d'utilisateurs affichés
-  const displayedUsers = filteredUsers.slice(0, maxDisplayed);
-
-  // Fonction pour obtenir la couleur du badge en fonction du rôle
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "var(--color-red)"; // Rouge
-      case "manager":
-        return "var(--color-blue)"; // Bleu
-      default:
-        return "var(--color-green)"; // Vert
-    }
-  };
+  // Limiter le nombre d'entreprises affichées
+  const displayedCompanies = filteredCompanies.slice(0, maxDisplayed);
 
   return (
     <>
@@ -55,7 +46,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
           <FaSearch style={styles.searchIcon} />
           <input
             type="text"
-            placeholder="Rechercher un utilisateur..."
+            placeholder="Rechercher une entreprise..."
             style={styles.searchInput}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -63,11 +54,11 @@ const UsersTable: React.FC<UsersTableProps> = ({
         </div>
       )}
 
-      {filteredUsers.length === 0 ? (
+      {filteredCompanies.length === 0 ? (
         <div style={styles.emptyState}>
           <p>
-            Aucun utilisateur{" "}
-            {searchQuery ? "trouvé" : "enregistré dans le système"}.
+            Aucune entreprise{" "}
+            {searchQuery ? "trouvée" : "enregistrée dans le système"}.
           </p>
         </div>
       ) : (
@@ -75,42 +66,45 @@ const UsersTable: React.FC<UsersTableProps> = ({
           <thead>
             <tr>
               <th style={styles.tableHeader}>Nom</th>
-              <th style={styles.tableHeader}>Email</th>
-              <th style={styles.tableHeader}>Rôle</th>
+              <th style={styles.tableHeader}>Secteur</th>
+              <th style={styles.tableHeader}>Propriétaire</th>
               <th style={styles.tableHeader}>Statut</th>
               <th style={styles.tableHeader}>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {displayedUsers.map((user) => (
-              <tr key={user._id} style={styles.tableRow}>
+            {displayedCompanies.map((company) => (
+              <tr key={company._id} style={styles.tableRow}>
+                <td style={styles.tableCell}>{company.name}</td>
                 <td style={styles.tableCell}>
-                  {user.firstName} {user.lastName}
+                  {company.industry || "Non spécifié"}
                 </td>
-                <td style={styles.tableCell}>{user.email}</td>
                 <td style={styles.tableCell}>
-                  <span
-                    style={{
-                      ...styles.roleBadge,
-                      backgroundColor: getRoleBadgeColor(user.role),
-                    }}
-                  >
-                    {user.role}
+                  <span style={{ display: "flex", alignItems: "center" }}>
+                    <FaUserTie
+                      style={{
+                        marginRight: "5px",
+                        color: "var(--color-blue)",
+                      }}
+                    />
+                    {company.owner ? company.owner : "Non assigné"}
                   </span>
                 </td>
                 <td style={styles.tableCell}>
                   <span
                     style={{
                       ...styles.statusBadge,
-                      backgroundColor: user.active ? "#4caf50" : "#f44336",
+                      backgroundColor: company.isActive
+                        ? "var(--color-green)"
+                        : "var(--color-warning)",
                     }}
                   >
-                    {user.active ? "Actif" : "Inactif"}
+                    {company.isActive ? "Actif" : "Inactif"}
                   </span>
                 </td>
                 <td style={styles.tableCellActions}>
                   <ActionButton
-                    onClick={() => navigateToUserDetails(user._id)}
+                    onClick={() => navigateToCompanyDetails(company._id)}
                     variant="secondary"
                     size="small"
                   >
@@ -120,17 +114,17 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 </td>
               </tr>
             ))}
-            {showViewMore && filteredUsers.length > maxDisplayed && (
+            {showViewMore && filteredCompanies.length > maxDisplayed && (
               <tr style={styles.viewMoreRow}>
                 <td colSpan={5} style={styles.viewMoreCell}>
                   <div style={styles.viewMoreContent}>
                     <FaEllipsisH style={{ marginRight: "10px" }} />
                     <span>
-                      Voir {filteredUsers.length - maxDisplayed} autres
-                      utilisateurs
+                      Voir {filteredCompanies.length - maxDisplayed} autres
+                      entreprises
                     </span>
                     <ActionButton
-                      onClick={navigateToUserManagement}
+                      onClick={navigateToCompanyManagement}
                       variant="secondary"
                       size="small"
                     >
@@ -147,4 +141,4 @@ const UsersTable: React.FC<UsersTableProps> = ({
   );
 };
 
-export default UsersTable;
+export default CompaniesTable;

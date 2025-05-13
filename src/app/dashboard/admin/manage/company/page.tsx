@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRoleCheck } from "@/hooks/useRoleCheck";
 import { useCompany } from "@/hooks/useCompany";
-import CompanyTable from "@/components/company/CompanyTable";
+import CompaniesTable from "@/components/admin/company/CompaniesTable"; // Importation du composant factorisé
 import ActionButton from "@/components/common/ActionButton";
 
 const CompanyManagement: React.FC = () => {
@@ -26,6 +26,16 @@ const CompanyManagement: React.FC = () => {
     error,
     updateCompanyData,
   } = useCompany();
+
+  // Fonction de navigation vers les détails d'une entreprise
+  const navigateToCompanyDetails = (companyId: string) => {
+    router.push(`/dashboard/admin/manage/company/${companyId}`);
+  };
+
+  // Fonction de navigation vers la gestion des entreprises (peut être utilisée pour les filtres ou le rafraîchissement)
+  const navigateToCompanyManagement = () => {
+    router.refresh();
+  };
 
   // Gestionnaire pour le changement de statut d'une entreprise
   const handleStatusChange = (companyId: string, newStatus: boolean) => {
@@ -85,11 +95,16 @@ const CompanyManagement: React.FC = () => {
         )}
       </div>
 
-      <CompanyTable
-        companies={companies}
-        isLoading={isLoadingCompanies}
-        onStatusChange={handleStatusChange}
-      />
+      <div>
+        <CompaniesTable
+          companies={companies}
+          navigateToCompanyDetails={navigateToCompanyDetails}
+          navigateToCompanyManagement={navigateToCompanyManagement}
+          showViewMore={false} // Désactivé car nous affichons toutes les entreprises
+          searchEnabled={true} // Activer la recherche
+          maxDisplayed={Infinity} // Afficher toutes les entreprises
+        />
+      </div>
     </div>
   );
 };

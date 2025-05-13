@@ -9,12 +9,20 @@ import {
   FaEnvelope,
   FaPhone,
   FaPlusCircle,
+  FaEdit,
+  FaCog,
 } from "react-icons/fa";
 
 export default function ManagerDashboard() {
   // Utilisation du hook personnalisé pour gérer la logique du tableau de bord
-  const { dashboardData, loading, error, handleCompanyAction, navigateToTeam } =
-    useManagerDashboard();
+  const {
+    dashboardData,
+    loading,
+    error,
+    handleCompanyAction,
+    navigateToTeam,
+    handleTeamAction,
+  } = useManagerDashboard();
 
   if (loading) {
     return (
@@ -62,7 +70,7 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      <div style={dashboardStyles.companySection}>
+      <div style={dashboardStyles.section}>
         <h2 style={dashboardStyles.sectionTitle}>
           <FaBuilding style={dashboardStyles.sectionIcon} />
           {company ? "Votre Entreprise" : "Aucune Entreprise"}
@@ -70,13 +78,15 @@ export default function ManagerDashboard() {
 
         {company ? (
           <>
-            <button
-              onClick={handleCompanyAction}
-              style={dashboardStyles.manageCompanyBtn}
-            >
-              <FaBuilding style={dashboardStyles.btnIcon} />
-              Gérer l'entreprise
-            </button>
+            <div style={dashboardStyles.actionsContainer}>
+              <button
+                onClick={handleCompanyAction}
+                style={dashboardStyles.manageCompanyBtn}
+              >
+                <FaEdit style={dashboardStyles.btnIcon} />
+                Gérer l'entreprise
+              </button>
+            </div>
             <div style={dashboardStyles.companyCard}>
               <h2 style={dashboardStyles.companyTitle}>{company.name}</h2>
               {company.description && (
@@ -108,24 +118,41 @@ export default function ManagerDashboard() {
           </>
         ) : (
           <>
-            <p>Vous n'avez pas encore créé d'entreprise pour votre compte.</p>
-            <button
-              onClick={handleCompanyAction}
-              style={dashboardStyles.createCompanyBtn}
-            >
-              <FaPlusCircle style={dashboardStyles.btnIcon} />
-              Créer une entreprise
-            </button>
+            <p style={dashboardStyles.noCompanyText}>
+              Vous n'avez pas encore créé d'entreprise pour votre compte.
+            </p>
+            <div style={dashboardStyles.actionsContainer}>
+              <button
+                onClick={handleCompanyAction}
+                style={dashboardStyles.createCompanyBtn}
+              >
+                <FaPlusCircle style={dashboardStyles.btnIcon} />
+                Créer une entreprise
+              </button>
+            </div>
           </>
         )}
       </div>
 
-      {teams.length > 0 && (
-        <div style={dashboardStyles.section}>
-          <h2 style={dashboardStyles.sectionTitle}>
-            <FaUsers style={dashboardStyles.sectionIcon} />
-            Vos Équipes
-          </h2>
+      <div style={dashboardStyles.section}>
+        <h2 style={dashboardStyles.sectionTitle}>
+          <FaUsers style={dashboardStyles.sectionIcon} />
+          Vos Équipes
+        </h2>
+
+        {company && (
+          <div style={dashboardStyles.actionsContainer}>
+            <button
+              onClick={() => handleTeamAction(company._id)}
+              style={dashboardStyles.manageTeamsBtn}
+            >
+              <FaCog style={dashboardStyles.btnIcon} />
+              Gérer les équipes
+            </button>
+          </div>
+        )}
+
+        {teams.length > 0 ? (
           <div style={dashboardStyles.teamGrid}>
             {teams.map((team) => (
               <div key={team._id} style={dashboardStyles.teamCard}>
@@ -154,8 +181,14 @@ export default function ManagerDashboard() {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p style={dashboardStyles.noTeamsText}>
+            {company
+              ? "Vous n'avez pas encore créé d'équipes dans votre entreprise."
+              : "Vous devez d'abord créer une entreprise avant de pouvoir gérer des équipes."}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -7,7 +7,8 @@ import { dashboardStyles } from "@/styles/pages/dashboard/dashboardStyles";
 import { CSSProperties } from "react";
 import ProfileModal from "@/components/modals/ProfileModal/index";
 import { User } from "@/services/user.service";
-import { useTheme } from "@/app/dashboard/layout"; // Importez le contexte de thème
+import { useTheme } from "@/app/dashboard/layout";
+import { useNavigation } from "@/hooks/useNavigation";
 
 interface NavBarProps {
   user: {
@@ -26,10 +27,10 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
   const { logout, user: authUser } = useAuth();
   const { hoveredIcon, setHoveredIcon } = useNavbar();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const { isDarkMode, toggleTheme } = useTheme(); // Utilisez le contexte de thème
+  const { isDarkMode, toggleTheme } = useTheme();
+  const navigation = useNavigation();
 
   const user = authUser || initialUser;
-
   const [localUserData, setLocalUserData] = useState(user);
 
   const handleLogout = () => {
@@ -56,7 +57,6 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
   };
 
   // Styles pour les menus de navigation
-  // Ces styles peuvent changer en fonction du thème dark/light
   const getDashboardNavStyle = (): CSSProperties => ({
     ...dashboardStyles.navigation,
     ...(hoveredIcon === 0
@@ -98,6 +98,10 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
     color: "#FFFFFF", // Couleur de texte fixe pour les icônes
   });
 
+  const handleNavItemClick = (route: string) => {
+    navigation.navigateTo(route);
+  };
+
   const renderNavItems = () => {
     const role = localUserData?.role || "user";
 
@@ -106,6 +110,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         <div
           style={iconButtonStyle(hoveredIcon === 0)}
           onMouseEnter={() => setHoveredIcon(0)}
+          onClick={navigation.navigateToDashboard}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -133,6 +138,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         <div
           style={iconButtonStyle(hoveredIcon === 10)}
           onMouseEnter={() => setHoveredIcon(10)}
+          onClick={() => navigation.navigateToAdminSection("userManagement")}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -165,6 +171,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         <div
           style={iconButtonStyle(hoveredIcon === 11)}
           onMouseEnter={() => setHoveredIcon(11)}
+          onClick={() => navigation.navigateToManagerSection("dashboard")}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -201,13 +208,19 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
   return (
     <>
       <div style={sidebarStyle}>
-        <div style={dashboardStyles.logoContainer}>
+        <div
+          style={dashboardStyles.logoContainer}
+          onClick={navigation.navigateToDashboard}
+        >
           <Image
             src="/img/logo/logo_crew.png"
             alt="Logo Crew"
             width={60}
             height={60}
-            style={dashboardStyles.logo}
+            style={{
+              ...dashboardStyles.logo,
+              cursor: "pointer",
+            }}
           />
         </div>
 
@@ -216,6 +229,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         <div
           style={iconButtonStyle(hoveredIcon === 1)}
           onMouseEnter={() => setHoveredIcon(1)}
+          onClick={() => navigation.navigateToPhone()}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -236,6 +250,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         <div
           style={iconButtonStyle(hoveredIcon === 2)}
           onMouseEnter={() => setHoveredIcon(2)}
+          onClick={() => navigation.navigateToEmail()}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -257,6 +272,7 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         <div
           style={iconButtonStyle(hoveredIcon === 3)}
           onMouseEnter={() => setHoveredIcon(3)}
+          onClick={() => navigation.navigateToCalendar()}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -375,32 +391,99 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
         style={getDashboardNavStyle()}
         onMouseLeave={() => setHoveredIcon(null)}
       >
-        <div style={navItemStyle(true)}>Client</div>
-        <div style={navItemStyle(false)}>Contact</div>
-        <div style={navItemStyle(false)}>Opportunité</div>
-        <div style={navItemStyle(false)}>Deals</div>
+        <div
+          style={navItemStyle(true)}
+          onClick={() => handleNavItemClick(`${navigation.baseRoute}/clients`)}
+        >
+          Client
+        </div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => handleNavItemClick(`${navigation.baseRoute}/contacts`)}
+        >
+          Contact
+        </div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() =>
+            handleNavItemClick(`${navigation.baseRoute}/opportunities`)
+          }
+        >
+          Opportunité
+        </div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => handleNavItemClick(`${navigation.baseRoute}/deals`)}
+        >
+          Deals
+        </div>
       </div>
 
       {/* Menu Téléphone */}
       <div style={getPhoneNavStyle()} onMouseLeave={() => setHoveredIcon(null)}>
-        <div style={navItemStyle(false)}>Appels récents</div>
-        <div style={navItemStyle(false)}>Contacts favoris</div>
-        <div style={navItemStyle(false)}>Programmer un appel</div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => navigation.navigateToPhone("recentCalls")}
+        >
+          Appels récents
+        </div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => navigation.navigateToPhone("favorites")}
+        >
+          Contacts favoris
+        </div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => navigation.navigateToPhone("schedule")}
+        >
+          Programmer un appel
+        </div>
       </div>
 
       <div style={getEmailNavStyle()} onMouseLeave={() => setHoveredIcon(null)}>
-        <div style={navItemStyle(false)}>Boîte de réception</div>
-        <div style={navItemStyle(false)}>Envoyés</div>
-        <div style={navItemStyle(false)}>Brouillons</div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => navigation.navigateToEmail("inbox")}
+        >
+          Boîte de réception
+        </div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => navigation.navigateToEmail("sent")}
+        >
+          Envoyés
+        </div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => navigation.navigateToEmail("drafts")}
+        >
+          Brouillons
+        </div>
       </div>
 
       <div
         style={getCalendarNavStyle()}
         onMouseLeave={() => setHoveredIcon(null)}
       >
-        <div style={navItemStyle(false)}>Agenda</div>
-        <div style={navItemStyle(false)}>Rendez-vous</div>
-        <div style={navItemStyle(false)}>Événements</div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => navigation.navigateToCalendar("agenda")}
+        >
+          Agenda
+        </div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => navigation.navigateToCalendar("appointments")}
+        >
+          Rendez-vous
+        </div>
+        <div
+          style={navItemStyle(false)}
+          onClick={() => navigation.navigateToCalendar("events")}
+        >
+          Événements
+        </div>
       </div>
 
       {localUserData?.role === "admin" && (
@@ -416,10 +499,32 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
           }}
           onMouseLeave={() => setHoveredIcon(null)}
         >
-          <div style={navItemStyle(false)}>Gestion des utilisateurs</div>
-          <div style={navItemStyle(false)}>Paramètres système</div>
-          <div style={navItemStyle(false)}>Logs d'activité</div>
-          <div style={navItemStyle(false)}>Configuration CRM</div>
+          <div
+            style={navItemStyle(false)}
+            onClick={() => navigation.navigateToAdminSection("userManagement")}
+          >
+            Gestion des utilisateurs
+          </div>
+          <div
+            style={navItemStyle(false)}
+            onClick={() => navigation.navigateToAdminSection("systemSettings")}
+          >
+            Paramètres système
+          </div>
+          <div
+            style={navItemStyle(false)}
+            onClick={() => navigation.navigateToAdminSection("activityLogs")}
+          >
+            Logs d'activité
+          </div>
+          <div
+            style={navItemStyle(false)}
+            onClick={() =>
+              navigation.navigateToAdminSection("crmConfiguration")
+            }
+          >
+            Configuration CRM
+          </div>
         </div>
       )}
 
@@ -437,10 +542,32 @@ const NavBar: React.FC<NavBarProps> = ({ user: initialUser }) => {
           }}
           onMouseLeave={() => setHoveredIcon(null)}
         >
-          <div style={navItemStyle(false)}>Tableau de bord</div>
-          <div style={navItemStyle(false)}>Performance commerciale</div>
-          <div style={navItemStyle(false)}>Analyse des ventes</div>
-          <div style={navItemStyle(false)}>Statistiques d'équipe</div>
+          <div
+            style={navItemStyle(false)}
+            onClick={() => navigation.navigateToManagerSection("dashboard")}
+          >
+            Tableau de bord
+          </div>
+          <div
+            style={navItemStyle(false)}
+            onClick={() =>
+              navigation.navigateToManagerSection("salesPerformance")
+            }
+          >
+            Performance commerciale
+          </div>
+          <div
+            style={navItemStyle(false)}
+            onClick={() => navigation.navigateToManagerSection("salesAnalysis")}
+          >
+            Analyse des ventes
+          </div>
+          <div
+            style={navItemStyle(false)}
+            onClick={() => navigation.navigateToManagerSection("teamStats")}
+          >
+            Statistiques d'équipe
+          </div>
         </div>
       )}
 

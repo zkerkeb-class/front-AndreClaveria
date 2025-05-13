@@ -1,4 +1,3 @@
-// /dashboard/user/page.tsx
 "use client";
 
 import { useUserDashboard } from "@/hooks/useUserDashboard";
@@ -9,6 +8,7 @@ import {
   FaUser,
   FaEnvelope,
   FaPhone,
+  FaInfoCircle,
 } from "react-icons/fa";
 
 export default function UserDashboard() {
@@ -61,7 +61,7 @@ export default function UserDashboard() {
         </div>
       </div>
 
-      {company && (
+      {company ? (
         <div style={dashboardStyles.section}>
           <h2 style={dashboardStyles.sectionTitle}>
             <FaBuilding style={dashboardStyles.sectionIcon} />
@@ -94,6 +94,17 @@ export default function UserDashboard() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      ) : (
+        <div style={dashboardStyles.section}>
+          <h2 style={dashboardStyles.sectionTitle}>
+            <FaInfoCircle style={dashboardStyles.sectionIcon} />
+            Statut
+          </h2>
+          <div style={dashboardStyles.noCompanyMessage}>
+            <FaInfoCircle style={dashboardStyles.noCompanyIcon} />
+            <p>Attendez que votre Manager vous mette dans une équipe</p>
           </div>
         </div>
       )}
