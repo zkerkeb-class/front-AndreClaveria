@@ -5,6 +5,7 @@ import { fetchUserDashboard } from "@/services/dashboard.service";
 import { Team } from "@/services/team.service";
 import { User } from "@/services/user.service";
 import { Company } from "@/services/company.service";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 export interface DashboardData {
   user: User;
@@ -13,7 +14,7 @@ export interface DashboardData {
 }
 
 interface UseUserDashboardProps {
-  userType?: "user" | "manager"; // Permet de spécifier le type d'utilisateur
+  userType?: "user" | "manager" | "admin"; // Permet de spécifier le type d'utilisateur
 }
 
 interface UseUserDashboardReturn {
@@ -21,7 +22,7 @@ interface UseUserDashboardReturn {
   loading: boolean;
   error: string | null;
   navigateToTeam: (teamId: string) => void;
-  navigateToCompanyManagement?: () => void; // Optionnel, uniquement pour les managers
+  navigateToCompanyManagement?: () => void; // Optionnel, uniquement pour les managers et admins
 }
 
 export const useUserDashboard = ({
@@ -33,6 +34,9 @@ export const useUserDashboard = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  // Déterminer le préfixe de route en fonction du type d'utilisateur
+  const routePrefix = getRoutePrefix(userType);
 
   // Chargement des données du tableau de bord
   useEffect(() => {
@@ -54,20 +58,25 @@ export const useUserDashboard = ({
 
   // Navigation vers la page d'une équipe
   const navigateToTeam = (teamId: string) => {
-    router.push(`/dashboard/team/${teamId}`);
+    router.push(`/dashboard/user/team/${teamId}`);
   };
 
-  // Navigation vers la gestion d'entreprise (uniquement pour les managers)
+  // Navigation vers la gestion d'entreprise (uniquement pour les managers et admins)
   const navigateToCompanyManagement = () => {
-    if (userType === "manager" && dashboardData?.company) {
-      router.push("/dashboard/manager/manage/company");
-    } else if (userType === "manager") {
-      router.push("/dashboard/manager/manage/company/new");
+    if (
+      (userType === "manager" || userType === "admin") &&
+      dashboardData?.company
+    ) {
+      router.push(`/dashboard/${routePrefix}/manage/company`);
+    } else if (userType === "manager" || userType === "admin") {
+      router.push(`/dashboard/${routePrefix}/manage/company/new`);
     }
   };
 
   // Retourne différentes fonctions selon le type d'utilisateur
-  return userType === "manager"
+  const isManagerOrAdmin = userType === "manager" || userType === "admin";
+
+  return isManagerOrAdmin
     ? {
         dashboardData,
         loading,

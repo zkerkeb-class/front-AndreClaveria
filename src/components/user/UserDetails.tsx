@@ -42,7 +42,7 @@ const UserDetails: React.FC<UserDetailsProps> = ({ params }) => {
   const hasAccess = useRoleCheck({
     isLoading: isAuthLoading,
     user: authUser,
-    requiredRole: "admin",
+    requiredRole: ["admin", "manager", "user"],
     redirectPath: "/dashboard",
   });
 

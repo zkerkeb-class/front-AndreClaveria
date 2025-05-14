@@ -9,6 +9,7 @@ import {
 } from "@/services/company.service";
 import { getTeamsByCompany, Team } from "@/services/team.service";
 import { getClientsByCompany, Client } from "@/services/client.service";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface UseCompanyManagementReturn {
   company: Company | null;
@@ -33,13 +34,16 @@ export const useCompanyManagement = (): UseCompanyManagementReturn => {
   const [error, setError] = useState<string | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
 
+  // Déterminer le préfixe de route en fonction du rôle de l'utilisateur
+  const routePrefix = getRoutePrefix(user?.role);
+
   // Fonctions de navigation
   const navigateToEditCompany = (companyId: string) => {
-    router.push(`/dashboard/manager/manage/company/edit/${companyId}`);
+    router.push(`/dashboard/${routePrefix}/manage/company/edit/${companyId}`);
   };
 
   const navigateToCreateCompany = () => {
-    router.push("/dashboard/manager/manage/company/new");
+    router.push(`/dashboard/${routePrefix}/manage/company/new`);
   };
 
   const navigateToTeamDetails = (teamId: string) => {
@@ -47,15 +51,17 @@ export const useCompanyManagement = (): UseCompanyManagementReturn => {
   };
 
   const navigateToClientDetails = (clientId: string) => {
-    router.push(`/dashboard/manager/client/${clientId}`);
+    router.push(`/dashboard/${routePrefix}/client/${clientId}`);
   };
 
   const navigateToTeamsManagement = (companyId: string) => {
-    router.push(`/dashboard/manager/manage/company/teams/${companyId}`);
+    router.push(`/dashboard/${routePrefix}/manage/company/teams/${companyId}`);
   };
 
   const navigateToClientsManagement = (companyId: string) => {
-    router.push(`/dashboard/manager/manage/company/clients/${companyId}`);
+    router.push(
+      `/dashboard/${routePrefix}/manage/company/clients/${companyId}`
+    );
   };
 
   // Vérification de rôle (admin ou manager)

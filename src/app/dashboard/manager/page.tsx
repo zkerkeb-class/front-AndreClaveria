@@ -12,6 +12,7 @@ import {
   FaEdit,
   FaCog,
 } from "react-icons/fa";
+import ActionButton from "@/components/common/ActionButton";
 
 export default function ManagerDashboard() {
   // Utilisation du hook personnalisé pour gérer la logique du tableau de bord
@@ -172,12 +173,13 @@ export default function ManagerDashboard() {
                     </div>
                   )}
                 </div>
-                <button
-                  onClick={() => navigateToTeam(team._id)}
-                  style={dashboardStyles.viewDetailsBtn}
+                <ActionButton
+                  onClick={() => navigateToTeam(team._id, company?._id)}
+                  variant="info"
+                  size="medium"
                 >
                   Voir les détails
-                </button>
+                </ActionButton>
               </div>
             ))}
           </div>

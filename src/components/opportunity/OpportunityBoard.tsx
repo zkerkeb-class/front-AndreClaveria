@@ -4,6 +4,7 @@ import { Opportunity } from "@/services/opportunity.service";
 import { formatCurrency } from "@/utils/formatters";
 import ActionButton from "@/components/common/ActionButton";
 import { useAuth } from "@/contexts/AuthContext";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 import {
   opportunityBoardStyles,
   statusColumns,
@@ -12,7 +13,7 @@ import {
 interface OpportunityBoardProps {
   opportunities: Opportunity[];
   clientId: string;
-  companyId: string;
+  companyId?: string; // Rendu optionnel pour le rôle "user"
   isLoading: boolean;
   onStatusChange: (opportunityId: string, newStatus: string) => void;
   viewMode: "kanban" | "list";
@@ -28,13 +29,30 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
 }) => {
   const router = useRouter();
   const { user } = useAuth();
-  const routePrefix = user?.role === "admin" ? "admin" : "manager";
+  const routePrefix = getRoutePrefix(user?.role);
+
   const styles = opportunityBoardStyles;
 
+  // Fonction pour générer les URLs de navigation selon le rôle de l'utilisateur
+  const getOpportunityEditUrl = (opportunityId: string) => {
+    if (routePrefix === "user") {
+      return `/dashboard/user/opportunity/${clientId}/edit/${opportunityId}`;
+    } else {
+      return `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${clientId}/edit/${opportunityId}`;
+    }
+  };
+
+  const getAddOpportunityUrl = () => {
+    
+    if (routePrefix === "user") {
+      return `/dashboard/user/opportunity/${clientId}/add`;
+    } else {
+      return `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${clientId}/add`;
+    }
+  };
+
   const handleOpportunityClick = (opportunityId: string) => {
-    router.push(
-      `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${clientId}/edit/${opportunityId}`
-    );
+    router.push(getOpportunityEditUrl(opportunityId));
   };
 
   const handleDragStart = (
@@ -67,11 +85,7 @@ const OpportunityBoard: React.FC<OpportunityBoardProps> = ({
       <div style={styles.emptyContainer}>
         <p>Aucune opportunité trouvée pour ce client.</p>
         <ActionButton
-          onClick={() =>
-            router.push(
-              `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${clientId}/add`
-            )
-          }
+          onClick={() => router.push(getAddOpportunityUrl())}
           variant="primary"
           size="medium"
         >

@@ -6,6 +6,7 @@ import ActionButton from "@/components/common/ActionButton";
 interface ClientHeaderProps {
   clientName: string;
   clientId: string;
+  company: { _id: string } | null;
   navigateBack: () => void;
   onDeleteClick: () => void;
 }
@@ -13,6 +14,7 @@ interface ClientHeaderProps {
 const ClientHeader: React.FC<ClientHeaderProps> = ({
   clientName,
   clientId,
+  company,
   navigateBack,
   onDeleteClick,
 }) => {
@@ -28,7 +30,7 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({
       <div style={styles.buttonContainer}>
         <ActionButton
           onClick={() =>
-            (window.location.href = `/dashboard/manage/client/edit/${clientId}`)
+            (window.location.href = `/dashboard/admin/manage/company/clients/${company?._id}/edit/${clientId}`)
           }
           variant="secondary"
           size="medium"

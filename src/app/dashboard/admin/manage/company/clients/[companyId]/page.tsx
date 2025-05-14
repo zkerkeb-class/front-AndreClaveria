@@ -7,6 +7,7 @@ import { useClient } from "@/hooks/useClient";
 import { useCompany } from "@/hooks/useCompany";
 import ClientTable from "@/components/clients/ClientTable";
 import ActionButton from "@/components/common/ActionButton";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface ClientManagementProps {
   params: Promise<{
@@ -54,8 +55,8 @@ const ClientManagement: React.FC<ClientManagementProps> = ({ params }) => {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
 
-  // Déterminer le préfixe de route pour les liens de navigation
-  const routePrefix = user?.role === "admin" ? "admin" : "manager";
+  // Utilisation de la fonction getRoutePrefix pour déterminer le préfixe de route
+  const routePrefix = getRoutePrefix(user?.role);
 
   // Affichage des erreurs
   const error = companyError || clientsError;

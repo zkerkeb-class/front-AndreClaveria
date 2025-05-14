@@ -1,6 +1,6 @@
 // src/hooks/useClientForm.ts
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   createClient,
@@ -93,7 +93,13 @@ export const useClientForm = ({
   clientId,
 }: UseClientFormProps): UseClientFormReturn => {
   const router = useRouter();
+  const searchParams = useSearchParams(); // Récupérez les paramètres de l'URL
   const { user, isLoading, setLoadingWithMessage } = useAuth();
+  const stepParam = searchParams.get("step");
+  const initialStep = stepParam ? parseInt(stepParam) : 1;
+  const [currentStep, setCurrentStep] = useState(
+    initialStep > 0 && initialStep <= 5 ? initialStep : 1
+  );
 
   // États généraux
   const [company, setCompany] = useState<Company | null>(null);
@@ -127,7 +133,7 @@ export const useClientForm = ({
   const [contacts, setContacts] = useState<ContactFormData[]>([]);
 
   // État pour la gestion des étapes
-  const [currentStep, setCurrentStep] = useState(1);
+
   const totalSteps = 5;
 
   // Définition des étapes
@@ -535,6 +541,8 @@ export const useClientForm = ({
   const getRoutePrefix = () => {
     return user?.role === "admin" ? "admin" : "manager";
   };
+
+  // Initialisez currentStep avec le paramètre URL s'il est valide
 
   return {
     // État et statut

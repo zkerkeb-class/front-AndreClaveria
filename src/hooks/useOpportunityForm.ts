@@ -13,6 +13,7 @@ import { getClientById, Client } from "@/services/client.service";
 import { getCompanyById, Company } from "@/services/company.service";
 import { getAllUsers, User } from "@/services/user.service";
 import { getContactsByClient, Contact } from "@/services/contact.service";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 // Interface pour les produits dans le formulaire
 export interface ProductFormData {
@@ -37,7 +38,7 @@ interface OpportunityFormData {
 
 interface UseOpportunityFormProps {
   mode: "create" | "edit";
-  companyId: string;
+  companyId?: string; // Rendu optionnel pour le rôle "user"
   clientId: string;
   opportunityId?: string;
 }
@@ -92,7 +93,6 @@ interface UseOpportunityFormReturn {
   // Helpers
   findUserById: (id: string) => string;
   calculateProductsTotal: () => number;
-  getRoutePrefix: () => string;
 }
 
 /**
@@ -106,6 +106,9 @@ export const useOpportunityForm = ({
 }: UseOpportunityFormProps): UseOpportunityFormReturn => {
   const router = useRouter();
   const { user, isLoading, setLoadingWithMessage } = useAuth();
+
+  // Utiliser getRoutePrefix pour déterminer le préfixe de route
+  const routePrefix = getRoutePrefix(user?.role);
 
   // États des données
   const [company, setCompany] = useState<Company | null>(null);
@@ -176,13 +179,21 @@ export const useOpportunityForm = ({
       try {
         setDataLoading(true);
 
-        // Récupération des détails de l'entreprise
-        const companyData = await getCompanyById(companyId);
-        if (isMounted) setCompany(companyData);
+        // Récupération des détails de l'entreprise (si companyId est fourni)
+        if (companyId) {
+          const companyData = await getCompanyById(companyId);
+          if (isMounted) setCompany(companyData);
+        }
 
         // Récupération des détails du client
         const clientData = await getClientById(clientId);
         if (isMounted) setClient(clientData);
+
+        // Si companyId n'est pas fourni mais que le client a une entreprise (rôle "user")
+        if (!companyId && clientData?.company) {
+          const companyData = await getCompanyById(clientData.company);
+          if (isMounted) setCompany(companyData);
+        }
 
         // Récupération des utilisateurs
         const usersData = await getAllUsers();
@@ -418,6 +429,17 @@ export const useOpportunityForm = ({
     }
   };
 
+  // Fonction pour générer l'URL de redirection après soumission
+  const getRedirectUrl = () => {
+    if (routePrefix === "user") {
+      return `/dashboard/user/opportunity/${clientId}`;
+    } else {
+      // Utiliser soit companyId fourni, soit celui récupéré du client
+      const effectiveCompanyId = companyId || client?.company;
+      return `/dashboard/${routePrefix}/manage/company/clients/${effectiveCompanyId}/opportunity/${clientId}`;
+    }
+  };
+
   // Soumission du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -432,6 +454,13 @@ export const useOpportunityForm = ({
 
     if (formData.value <= 0) {
       setError("La valeur de l'opportunité doit être supérieure à 0");
+      return;
+    }
+
+    // S'assurer que nous avons un companyId valide (soit fourni, soit depuis le client)
+    const effectiveCompanyId = companyId || client?.company;
+    if (!effectiveCompanyId) {
+      setError("ID de l'entreprise manquant");
       return;
     }
 
@@ -456,7 +485,7 @@ export const useOpportunityForm = ({
         status: formData.status,
         probability: formData.probability,
         expectedClosingDate: formData.expectedClosingDate || undefined,
-        company: companyId,
+        company: effectiveCompanyId,
         client: clientId,
         contacts: selectedContacts.length > 0 ? selectedContacts : undefined,
         assignedTo: formData.assignedTo || undefined,
@@ -494,10 +523,7 @@ export const useOpportunityForm = ({
 
       // Redirection après 2 secondes
       setTimeout(() => {
-        const routePrefix = user?.role === "admin" ? "admin" : "manager";
-        router.push(
-          `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${clientId}`
-        );
+        router.push(getRedirectUrl());
       }, 2000);
     } catch (err: any) {
       console.error(
@@ -528,11 +554,6 @@ export const useOpportunityForm = ({
       (sum, product) => sum + product.price * product.quantity,
       0
     );
-  };
-
-  // Déterminer le préfixe de route pour la navigation
-  const getRoutePrefix = () => {
-    return user?.role === "admin" ? "admin" : "manager";
   };
 
   return {
@@ -578,6 +599,5 @@ export const useOpportunityForm = ({
     // Helpers
     findUserById,
     calculateProductsTotal,
-    getRoutePrefix,
   };
 };

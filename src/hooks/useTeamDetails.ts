@@ -14,6 +14,8 @@ import {
   Client,
   getClientsByCompany,
 } from "@/services/client.service";
+import { useAuth } from "@/contexts/AuthContext";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface UseTeamDetailsReturn {
   team: Team | null;
@@ -41,6 +43,19 @@ export const useTeamDetails = (teamId: string): UseTeamDetailsReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
+  const { user } = useAuth();
+
+  // Utiliser getRoutePrefix pour déterminer le préfixe de route
+  const routePrefix = getRoutePrefix(user?.role);
+
+  // Déterminer la structure de route selon le rôle
+  const getBaseRoute = () => {
+    if (routePrefix === "user") {
+      return `/dashboard/user`;
+    } else {
+      return `/dashboard/${routePrefix}/manage`;
+    }
+  };
 
   useEffect(() => {
     const fetchTeamDetails = async () => {
@@ -167,7 +182,12 @@ export const useTeamDetails = (teamId: string): UseTeamDetailsReturn => {
       setIsLoading(true);
       await deleteTeam(teamId);
 
-      router.push(`/dashboard/admin/manage/company/${company._id}`);
+      const baseRoute = getBaseRoute();
+      if (routePrefix === "user") {
+        router.push(`${baseRoute}`);
+      } else {
+        router.push(`${baseRoute}/company/${company._id}`);
+      }
       return true;
     } catch (err) {
       console.error("Erreur lors de la suppression de l'équipe:", err);
@@ -180,35 +200,67 @@ export const useTeamDetails = (teamId: string): UseTeamDetailsReturn => {
 
   const navigateToCompany = () => {
     if (company) {
-      router.push(`/dashboard/admin/manage/company/${company._id}`);
+      const baseRoute = getBaseRoute();
+      if (routePrefix === "user") {
+        router.push(`/dashboard/user/companies/${company._id}`);
+      } else {
+        router.push(`${baseRoute}/company/${company._id}`);
+      }
     }
   };
 
   const navigateToMember = (userId: string) => {
-    router.push(`/dashboard/admin/manage/users/${userId}`);
+    const baseRoute = getBaseRoute();
+    if (routePrefix === "user") {
+      router.push(`/dashboard/user/users/${userId}`);
+    } else {
+      router.push(`${baseRoute}/users/${userId}`);
+    }
   };
 
   const navigateToClient = (clientId: string) => {
-    router.push(
-      `/dashboard/admin/manage/company/clients/${company?._id}/${clientId}`
-    );
+    const baseRoute = getBaseRoute();
+    if (routePrefix === "user") {
+      router.push(`/dashboard/user/clients/${clientId}`);
+    } else {
+      router.push(`${baseRoute}/company/clients/${company?._id}/${clientId}`);
+    }
   };
 
   const navigateToMembersManagement = () => {
-    router.push(
-      `/dashboard/admin/manage/company/teams/${company?._id}/members/${teamId}`
-    );
+    const baseRoute = getBaseRoute();
+    if (routePrefix === "user") {
+      router.push(`${baseRoute}/${teamId}/members`);
+    } else {
+      router.push(
+        `${baseRoute}/company/teams/${company?._id}/members/${teamId}`
+      );
+    }
   };
 
   const navigateToClientsManagement = () => {
-    router.push(`/dashboard/admin/manage/team/${teamId}/clients`);
+    const baseRoute = getBaseRoute();
+    if (routePrefix === "user") {
+      router.push(`${baseRoute}/${teamId}/clients`);
+    } else {
+      router.push(`${baseRoute}/team/${teamId}/clients`);
+    }
   };
 
   const navigateBack = () => {
+    const baseRoute = getBaseRoute();
     if (company) {
-      router.push(`/dashboard/admin/manage/company/${company._id}`);
+      if (routePrefix === "user") {
+        router.push(`${baseRoute}`);
+      } else {
+        router.push(`${baseRoute}/company/${company._id}`);
+      }
     } else {
-      router.push("/dashboard/admin/manage/teams");
+      if (routePrefix === "user") {
+        router.push(`${baseRoute}`);
+      } else {
+        router.push(`${baseRoute}/teams`);
+      }
     }
   };
 

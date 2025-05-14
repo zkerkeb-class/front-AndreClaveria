@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface UseTeamAccessProps {
   companyId: string;
@@ -21,12 +22,8 @@ export const useTeamAccess = ({ companyId, teamId }: UseTeamAccessProps) => {
     }
   }, [user, isLoading, router]);
 
-  // Détermine le préfixe de route en fonction du rôle de l'utilisateur
-  const getRoutePrefix = () => {
-    return user?.role === "admin" ? "admin" : "manager";
-  };
-
-  const routePrefix = getRoutePrefix();
+  // Utilisation de la fonction getRoutePrefix importée
+  const routePrefix = getRoutePrefix(user?.role);
 
   const navigateToTeamsList = () => {
     router.push(`/dashboard/${routePrefix}/manage/company/teams/${companyId}`);

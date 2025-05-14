@@ -6,6 +6,7 @@ import { useRoleCheck } from "@/hooks/useRoleCheck";
 import { useCompany } from "@/hooks/useCompany";
 import CompaniesTable from "@/components/admin/company/CompaniesTable"; // Importation du composant factorisé
 import ActionButton from "@/components/common/ActionButton";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 const CompanyManagement: React.FC = () => {
   const router = useRouter();
@@ -27,9 +28,12 @@ const CompanyManagement: React.FC = () => {
     updateCompanyData,
   } = useCompany();
 
+  // Utiliser getRoutePrefix pour déterminer le préfixe de route en fonction du rôle
+  const routePrefix = getRoutePrefix(user?.role);
+
   // Fonction de navigation vers les détails d'une entreprise
   const navigateToCompanyDetails = (companyId: string) => {
-    router.push(`/dashboard/admin/manage/company/${companyId}`);
+    router.push(`/dashboard/${routePrefix}/manage/company/${companyId}`);
   };
 
   // Fonction de navigation vers la gestion des entreprises (peut être utilisée pour les filtres ou le rafraîchissement)
@@ -84,7 +88,9 @@ const CompanyManagement: React.FC = () => {
         <h1 style={{ fontSize: "24px" }}>{pageTitle}</h1>
         {showAddButton && (
           <ActionButton
-            onClick={() => router.push("/dashboard/manager/manage/company/new")}
+            onClick={() =>
+              router.push(`/dashboard/${routePrefix}/manage/company/new`)
+            }
             variant="primary"
             size="large"
           >

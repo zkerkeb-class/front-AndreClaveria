@@ -34,7 +34,7 @@ export const teamDetailsStyles = {
     gridTemplateColumns: "1fr 2fr",
     gap: "2rem",
     alignItems: "start",
-    "@media (max-width: 1024px)": {
+    "@media (maxWidth: 1024px)": {
       gridTemplateColumns: "1fr",
     },
   },
@@ -76,7 +76,7 @@ export const teamDetailsStyles = {
     display: "flex",
     alignItems: "center",
     marginBottom: "1.5rem",
-    "@media (max-width: 768px)": {
+    " @media (maxWidth: 768px)": {
       flexDirection: "column" as const,
       alignItems: "center",
     },
@@ -92,14 +92,14 @@ export const teamDetailsStyles = {
     justifyContent: "center",
     fontSize: "2.5rem",
     marginRight: "1.5rem",
-    "@media (max-width: 768px)": {
+    " @media (maxWidth: 768px)": {
       marginRight: "0",
       marginBottom: "1rem",
     },
   },
   teamInfo: {
     flex: 1,
-    "@media (max-width: 768px)": {
+    " @media (maxWidth: 768px)": {
       textAlign: "center" as const,
       width: "100%",
     },
@@ -118,7 +118,7 @@ export const teamDetailsStyles = {
   badgeContainer: {
     display: "flex",
     gap: "0.75rem",
-    "@media (max-width: 768px)": {
+    " @media (maxWidth: 768px)": {
       justifyContent: "center",
     },
   },
@@ -140,7 +140,7 @@ export const teamDetailsStyles = {
     gridTemplateColumns: "repeat(2, 1fr)",
     gap: "1.5rem",
     margin: "1.5rem 0",
-    "@media (max-width: 500px)": {
+    "@media (maxWidth: 500px)": {
       gridTemplateColumns: "1fr",
     },
   },
@@ -361,7 +361,7 @@ export const teamDetailsStyles = {
     gridTemplateColumns: "repeat(2, 1fr)",
     gap: "1rem",
     marginTop: "1.5rem",
-    "@media (max-width: 600px)": {
+    "@media (maxWidth: 600px)": {
       gridTemplateColumns: "1fr",
     },
   },

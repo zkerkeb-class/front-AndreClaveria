@@ -15,6 +15,8 @@ import {
   Opportunity,
   getOpportunitiesByClient,
 } from "@/services/opportunity.service";
+import { useAuth } from "@/contexts/AuthContext";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface UseClientDetailsReturn {
   client: Client | null;
@@ -34,6 +36,7 @@ interface UseClientDetailsReturn {
   navigateToOpportunity: (opportunityId: string) => void;
   navigateToContactsManagement: () => void;
   navigateToOpportunitiesManagement: () => void;
+  navigateToMailPage: () => void;
   navigateBack: () => void;
 }
 
@@ -48,6 +51,19 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
+  const { user } = useAuth();
+
+  // Utiliser getRoutePrefix pour déterminer le préfixe de route
+  const routePrefix = getRoutePrefix(user?.role);
+
+  // Déterminer la structure de route selon le rôle
+  const getBaseRoute = () => {
+    if (routePrefix === "user") {
+      return `/dashboard/user/clients`;
+    } else {
+      return `/dashboard/${routePrefix}/manage`;
+    }
+  };
 
   useEffect(() => {
     const fetchClientDetails = async () => {
@@ -189,7 +205,8 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
       setIsLoading(true);
       await deleteClient(clientId);
 
-      router.push(`/dashboard/admin/manage/company/${company._id}`);
+      const baseRoute = getBaseRoute();
+      router.push(`${baseRoute}/company/${company._id}`);
       return true;
     } catch (err) {
       console.error("Erreur lors de la suppression du client:", err);
@@ -202,47 +219,97 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
 
   const navigateToCompany = () => {
     if (company) {
-      router.push(`/dashboard/admin/manage/company/${company._id}`);
+      const baseRoute = getBaseRoute();
+      router.push(`${baseRoute}/company/${company._id}`);
     }
   };
 
   const navigateToTeam = () => {
     if (team) {
-      router.push(`/dashboard/admin/manage/team/${team._id}`);
+      const baseRoute = getBaseRoute();
+      router.push(`${baseRoute}/team/${team._id}`);
     }
   };
 
   const navigateToAssignedUser = () => {
     if (assignedUser) {
-      router.push(`/dashboard/admin/users/${assignedUser._id}`);
+      const baseRoute = getBaseRoute();
+      router.push(`${baseRoute}/users/${assignedUser._id}`);
     }
   };
 
   const navigateToContact = (contactId: string) => {
-    router.push(`/dashboard/admin/manage/contact/${contactId}`);
+    const baseRoute = getBaseRoute();
+    router.push(`${baseRoute}/contact/${contactId}`);
   };
 
   const navigateToOpportunity = (opportunityId: string) => {
-    router.push(
-      `/dashboard/admin/manage/company/clients/${company?._id}/opportunity/${clientId}`
-    );
+    const baseRoute = getBaseRoute();
+    if (routePrefix === "user") {
+      router.push(`/dashboard/user/opportunity/${clientId}`);
+    } else {
+      router.push(
+        `${baseRoute}/company/clients/${company?._id}/opportunity/${clientId}`
+      );
+    }
   };
 
   const navigateToContactsManagement = () => {
-    router.push(`/dashboard/admin/manage/client/${clientId}/contacts`);
+    const baseRoute = getBaseRoute();
+    if (routePrefix === "user") {
+      router.push(`${baseRoute}/${company?._id}/edit/${clientId}?step=4`);
+    } else {
+      router.push(
+        `${baseRoute}/company/clients/${company?._id}/edit/${clientId}?step=4`
+      );
+    }
   };
 
   const navigateToOpportunitiesManagement = () => {
-    router.push(
-      `/dashboard/admin/manage/company/clients/${company?._id}/opportunity/${clientId}`
-    );
+    const baseRoute = getBaseRoute();
+    if (routePrefix === "user") {
+      router.push(`/dashboard/user/opportunity/${clientId}`);
+    } else {
+      router.push(
+        `${baseRoute}/company/clients/${company?._id}/opportunity/${clientId}`
+      );
+    }
   };
 
   const navigateBack = () => {
     if (company) {
-      router.push(`/dashboard/admin/manage/company/${company._id}`);
+      const baseRoute = getBaseRoute();
+      if (routePrefix === "user") {
+        router.push(`/dashboard/user/team/${team?._id}`);
+      } else {
+        router.push(`${baseRoute}/company/${company._id}`);
+      }
     } else {
-      router.push("/dashboard/admin/manage/clients");
+      const baseRoute = getBaseRoute();
+      if (routePrefix === "user") {
+        router.push(`${baseRoute}`);
+      } else {
+        router.push(`${baseRoute}/clients`);
+      }
+    }
+  };
+
+  const navigateToMailPage = () => {
+    const baseRoute = getBaseRoute();
+    if (company) {
+      if (routePrefix === "user") {
+        router.push(`${baseRoute}/${company._id}/mail/${clientId}`);
+      } else {
+        router.push(
+          `${baseRoute}/company/clients/${company._id}/mail/${clientId}`
+        );
+      }
+    } else {
+      if (routePrefix === "user") {
+        router.push(`${baseRoute}/${clientId}/mail`);
+      } else {
+        router.push(`${baseRoute}/clients/${clientId}/mail`);
+      }
     }
   };
 
@@ -257,6 +324,7 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
     error,
     updateClientDetails,
     deleteClientAndNavigate,
+    navigateToMailPage,
     navigateToCompany,
     navigateToTeam,
     navigateToAssignedUser,

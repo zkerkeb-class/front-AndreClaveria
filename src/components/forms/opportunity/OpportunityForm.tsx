@@ -8,6 +8,7 @@ import {
   ProductFormData,
 } from "@/hooks/useOpportunityForm";
 import { opportunityFormStyles as styles } from "@/styles/components/forms/OpportunityFormStyles";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 // Import des sous-composants
 import OpportunityInfoSection from "./OpportunityInfoSection";
@@ -20,7 +21,7 @@ import OpportunityContactsSection from "./OpportunityContactsSection";
 
 interface OpportunityFormProps {
   mode: "create" | "edit";
-  companyId: string;
+  companyId?: string; // Rendu optionnel pour les utilisateurs avec rôle "user"
   clientId: string;
   opportunityId?: string;
 }
@@ -33,6 +34,8 @@ const OpportunityForm: React.FC<OpportunityFormProps> = ({
 }) => {
   const router = useRouter();
   const { user, isLoading } = useAuth();
+  const routePrefix = getRoutePrefix(user?.role);
+  console.log(routePrefix);
 
   // Utilisation du hook personnalisé
   const {
@@ -60,7 +63,6 @@ const OpportunityForm: React.FC<OpportunityFormProps> = ({
     handleSubmit,
     findUserById,
     calculateProductsTotal,
-    getRoutePrefix,
   } = useOpportunityForm({
     mode,
     companyId,
@@ -82,8 +84,15 @@ const OpportunityForm: React.FC<OpportunityFormProps> = ({
     );
   }
 
-  // Déterminer le préfixe de route pour la navigation
-  const routePrefix = getRoutePrefix();
+  // Fonction pour générer l'URL de retour en fonction du rôle de l'utilisateur
+  const getBackUrl = () => {
+    // Pour les utilisateurs avec le rôle "user"
+    if (routePrefix === "user") {
+      return `/dashboard/user/opportunity/${clientId}`;
+    }
+    // Pour les rôles admin et manager
+    return `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${clientId}`;
+  };
 
   // Styles pour le récapitulatif
   const twoColumnLayout = {
@@ -428,9 +437,7 @@ const OpportunityForm: React.FC<OpportunityFormProps> = ({
         <button
           type="button"
           onClick={() => {
-            router.push(
-              `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${clientId}`
-            );
+            router.push(getBackUrl());
           }}
           style={styles.cancelButton}
         >
@@ -472,11 +479,7 @@ const OpportunityForm: React.FC<OpportunityFormProps> = ({
           )}
         </div>
         <button
-          onClick={() =>
-            router.push(
-              `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${clientId}`
-            )
-          }
+          onClick={() => router.push(getBackUrl())}
           style={styles.backButton}
         >
           Retour aux opportunités

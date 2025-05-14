@@ -34,7 +34,7 @@ export const clientDetailsStyles = {
     gridTemplateColumns: "1fr 2fr",
     gap: "2rem",
     alignItems: "start",
-    "@media (max-width: 1024px)": {
+    "@media (maxWidth: 1024px)": {
       gridTemplateColumns: "1fr",
     },
   },
@@ -76,7 +76,7 @@ export const clientDetailsStyles = {
     display: "flex",
     alignItems: "center",
     marginBottom: "1.5rem",
-    "@media (max-width: 768px)": {
+    " @media (maxWidth: 768px)": {
       flexDirection: "column" as const,
       alignItems: "center",
     },
@@ -91,7 +91,7 @@ export const clientDetailsStyles = {
     alignItems: "center",
     justifyContent: "center",
     marginRight: "1.5rem",
-    "@media (max-width: 768px)": {
+    " @media (maxWidth: 768px)": {
       marginRight: "0",
       marginBottom: "1rem",
     },
@@ -107,14 +107,14 @@ export const clientDetailsStyles = {
     color: "var(--color-blue, #1976d2)",
     fontSize: "2.5rem",
     marginRight: "1.5rem",
-    "@media (max-width: 768px)": {
+    " @media (maxWidth: 768px)": {
       marginRight: "0",
       marginBottom: "1rem",
     },
   },
   clientInfo: {
     flex: 1,
-    "@media (max-width: 768px)": {
+    " @media (maxWidth: 768px)": {
       textAlign: "center" as const,
       width: "100%",
     },
@@ -133,7 +133,7 @@ export const clientDetailsStyles = {
   badgeContainer: {
     display: "flex",
     gap: "0.75rem",
-    "@media (max-width: 768px)": {
+    " @media (maxWidth: 768px)": {
       justifyContent: "center",
     },
   },
@@ -155,7 +155,7 @@ export const clientDetailsStyles = {
     gridTemplateColumns: "repeat(2, 1fr)",
     gap: "1.5rem",
     margin: "1.5rem 0",
-    "@media (max-width: 500px)": {
+    "@media (maxWidth: 500px)": {
       gridTemplateColumns: "1fr",
     },
   },
@@ -219,8 +219,16 @@ export const clientDetailsStyles = {
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
+
+  contactActionStyles: {
+    display: "flex",
+    marginTop: "10px",
+    justifyContent: "flex-end",
+  },
+
   contactsContainer: {
     display: "flex",
+
     flexDirection: "column" as const,
     gap: "1rem",
     maxHeight: "500px",
@@ -229,6 +237,7 @@ export const clientDetailsStyles = {
   contactCard: {
     display: "flex",
     alignItems: "flex-start",
+    justifyContent: "space-between",
     padding: "1rem",
     borderRadius: "0.5rem",
     border: "1px solid var(--color-grey-400, #ccc)",
@@ -477,6 +486,23 @@ export const clientDetailsStyles = {
     alignItems: "center",
     zIndex: 1000,
     gap: "1rem",
+  },
+  noDataActions: {
+    display: "flex",
+    gap: "1rem",
+    marginTop: "1rem",
+  },
+  actionButtons: {
+    padding: "0.5rem 1rem",
+    borderRadius: "0.375rem",
+    fontSize: "1rem",
+    fontWeight: "500",
+    cursor: "pointer",
+    transition: "background-color 0.2s, transform 0.2s",
+    "&:hover": {
+      backgroundColor: "var(--color-blue-100, #e3f2fd)",
+      transform: "translateY(-2px)",
+    },
   },
 };
 

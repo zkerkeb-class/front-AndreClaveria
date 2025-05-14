@@ -311,7 +311,7 @@ export const globalStyles = `
   }
   
   /* Styles pour les tableaux responsifs */
-  @media (max-width: 768px) {
+   @media (maxWidth: 768px) {
     .table-responsive {
       display: block;
       width: 100%;

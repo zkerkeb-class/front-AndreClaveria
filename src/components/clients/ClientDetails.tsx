@@ -45,6 +45,7 @@ const ClientDetails: React.FC<ClientDetailsProps> = ({ params }) => {
     navigateToOpportunity,
     navigateToContactsManagement,
     navigateToOpportunitiesManagement,
+    navigateToMailPage,
     navigateBack,
   } = useClientDetails(clientId);
 
@@ -126,6 +127,7 @@ const ClientDetails: React.FC<ClientDetailsProps> = ({ params }) => {
       <ClientHeader
         clientName={client.name}
         clientId={clientId}
+        company={company}
         navigateBack={navigateBack}
         onDeleteClick={() => setShowDeleteModal(true)}
       />
@@ -153,6 +155,7 @@ const ClientDetails: React.FC<ClientDetailsProps> = ({ params }) => {
             contacts={contacts}
             navigateToContact={navigateToContact}
             navigateToContactsManagement={navigateToContactsManagement}
+            navigateToMailPage={navigateToMailPage}
           />
 
           <ClientOpportunitiesCard

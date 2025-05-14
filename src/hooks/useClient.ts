@@ -53,12 +53,7 @@ export const useClient = ({
     setError(null);
 
     try {
-      console.log(
-        "Début de la récupération des clients pour l'entreprise:",
-        companyId
-      );
       const clientsData = await getClientsByCompany(companyId);
-      console.log("Clients récupérés:", clientsData);
 
       // Vérifier que clientsData est bien un tableau
       if (Array.isArray(clientsData)) {

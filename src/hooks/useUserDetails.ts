@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { getUserById, updateUser, User } from "@/services/user.service";
 import { getAllCompanies, Company } from "@/services/company.service";
 import { getAllTeams, Team } from "@/services/team.service";
+import { useAuth } from "@/contexts/AuthContext";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface UseUserDetailsReturn {
   user: User | null;
@@ -25,6 +27,19 @@ export const useUserDetails = (userId: string): UseUserDetailsReturn => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { user: currentUser } = useAuth();
+
+  // Utiliser getRoutePrefix pour déterminer le préfixe de route
+  const routePrefix = getRoutePrefix(currentUser?.role);
+
+  // Déterminer la structure de route selon le rôle
+  const getBaseRoute = () => {
+    if (routePrefix === "user") {
+      return `/dashboard/user/users`;
+    } else {
+      return `/dashboard/${routePrefix}`;
+    }
+  };
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -138,15 +153,38 @@ export const useUserDetails = (userId: string): UseUserDetailsReturn => {
   };
 
   const navigateToCompany = (companyId: string) => {
-    router.push(`/dashboard/admin/manage/company/${companyId}`);
+    const baseRoute = getBaseRoute();
+    if (routePrefix === "user") {
+      router.push(`/dashboard/user/companies/${companyId}`);
+    } else {
+      router.push(`${baseRoute}/company/${companyId}`);
+    }
   };
 
   const navigateToTeam = (teamId: string) => {
-    router.push(`/dashboard/admin/manage/teams/${teamId}`);
+    const baseRoute = getBaseRoute();
+    if (routePrefix === "user") {
+      router.push(`/dashboard/user/team/${teamId}`);
+    } else {
+      router.push(`${baseRoute}/teams/${teamId}`);
+    }
   };
 
   const navigateBack = () => {
-    router.push("/dashboard/admin/manage/users");
+    // Pour les utilisateurs avec le rôle "user", s'il y a une équipe associée,
+    // rediriger vers la page de cette équipe
+    if (routePrefix === "user" && userTeams.length > 0) {
+      // S'il y a plusieurs équipes, prendre la première
+      const teamId = userTeams[0]._id;
+      router.push(`/dashboard/user/team/${teamId}`);
+    } else if (routePrefix === "user") {
+      // S'il n'y a pas d'équipes associées, rediriger vers la liste des utilisateurs
+      router.push(`/dashboard/user/users`);
+    } else {
+      // Pour admin et manager, comportement inchangé
+      const baseRoute = getBaseRoute();
+      router.push(`${baseRoute}`);
+    }
   };
 
   return {

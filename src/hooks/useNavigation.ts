@@ -1,6 +1,7 @@
 // src/hooks/useNavigation.ts
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface NavigationRoutes {
   dashboard: string;
@@ -40,30 +41,33 @@ export const useNavigation = () => {
   // Déterminer le rôle de l'utilisateur pour la navigation
   const role = user?.role || "user";
 
+  // Utiliser getRoutePrefix pour obtenir le préfixe de route
+  const routePrefix = getRoutePrefix(role);
+
   // Routes de base pour chaque type d'utilisateur
   const baseRoutes: Record<string, string> = {
-    admin: "/dashboard/admin",
-    manager: "/dashboard/manager",
-    user: "/dashboard/user",
+    admin: `/dashboard/admin`,
+    manager: `/dashboard/manager`,
+    user: `/dashboard/user`,
   };
 
   // Routes spécifiques basées sur le rôle
   const routes: NavigationRoutes = {
-    dashboard: baseRoutes[role] || "/dashboard/user",
+    dashboard: `/dashboard/${routePrefix}`,
     phone: {
-      recentCalls: `${baseRoutes[role]}/phone/recent`,
-      favorites: `${baseRoutes[role]}/phone/favorites`,
-      schedule: `${baseRoutes[role]}/phone/schedule`,
+      recentCalls: `/dashboard/${routePrefix}/phone/recent`,
+      favorites: `/dashboard/${routePrefix}/phone/favorites`,
+      schedule: `/dashboard/${routePrefix}/phone/schedule`,
     },
     email: {
-      inbox: `${baseRoutes[role]}/email/inbox`,
-      sent: `${baseRoutes[role]}/email/sent`,
-      drafts: `${baseRoutes[role]}/email/drafts`,
+      inbox: `/dashboard/${routePrefix}/email/inbox`,
+      sent: `/dashboard/${routePrefix}/email/sent`,
+      drafts: `/dashboard/${routePrefix}/email/drafts`,
     },
     calendar: {
-      agenda: `${baseRoutes[role]}/calendar/agenda`,
-      appointments: `${baseRoutes[role]}/calendar/appointments`,
-      events: `${baseRoutes[role]}/calendar/events`,
+      agenda: `/dashboard/${routePrefix}/calendar/agenda`,
+      appointments: `/dashboard/${routePrefix}/calendar/appointments`,
+      events: `/dashboard/${routePrefix}/calendar/events`,
     },
     admin: {
       userManagement: "/dashboard/admin/users",
@@ -125,7 +129,7 @@ export const useNavigation = () => {
   };
 
   const navigateToProfile = () => {
-    router.push(`${baseRoutes[role]}/profile`);
+    router.push(`/dashboard/${routePrefix}/profile`);
   };
 
   const goBack = () => {
@@ -150,7 +154,7 @@ export const useNavigation = () => {
     navigateToProfile,
     navigateTo,
     goBack,
-    baseRoute: baseRoutes[role] || "/dashboard/user",
+    baseRoute: `/dashboard/${routePrefix}`,
     isAdmin: role === "admin",
     isManager: role === "manager" || role === "admin",
     role,

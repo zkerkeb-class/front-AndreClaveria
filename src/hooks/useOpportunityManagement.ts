@@ -8,6 +8,7 @@ import {
   updateOpportunity,
 } from "@/services/opportunity.service";
 import { getClientById, Client } from "@/services/client.service";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 // Types de statut valides pour une opportunité
 type OpportunityStatus =
@@ -20,7 +21,7 @@ type OpportunityStatus =
 
 interface UseOpportunityManagementProps {
   clientId: string;
-  companyId: string;
+  companyId?: string; // Rendu optionnel pour le rôle "user"
 }
 
 interface UseOpportunityManagementReturn {
@@ -50,19 +51,58 @@ export const useOpportunityManagement = ({
   const [isLoadingOpportunities, setIsLoadingOpportunities] = useState(false);
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
 
+  // Utiliser getRoutePrefix pour déterminer le préfixe de route
+  const routePrefix = getRoutePrefix(user?.role);
+
   // Fonctions de navigation
   const navigateToClientsList = () => {
-    const routePrefix = user?.role === "admin" ? "admin" : "manager";
-    router.push(
-      `/dashboard/${routePrefix}/manage/company/clients/${companyId}`
+    // Log pour débogage
+    console.log(
+      "navigateToClientsList called, user role:",
+      user?.role,
+      "routePrefix:",
+      routePrefix
     );
+
+    if (routePrefix === "user") {
+      // Pour les utilisateurs avec rôle "user"
+      router.push(`/dashboard/user/clients`);
+    } else {
+      // Pour les rôles admin et manager
+      const effectiveCompanyId = companyId || client?.company;
+      if (!effectiveCompanyId) {
+        console.error("ID de l'entreprise manquant pour la navigation");
+        return;
+      }
+      router.push(
+        `/dashboard/${routePrefix}/manage/company/clients/${effectiveCompanyId}`
+      );
+    }
   };
 
   const navigateToAddOpportunity = () => {
-    const routePrefix = user?.role === "admin" ? "admin" : "manager";
-    router.push(
-      `/dashboard/${routePrefix}/manage/company/clients/${companyId}/opportunity/${clientId}/add`
+    // Log pour débogage
+    console.log(
+      "navigateToAddOpportunity called, user role:",
+      user?.role,
+      "routePrefix:",
+      routePrefix
     );
+
+    if (routePrefix === "user") {
+      // Pour les utilisateurs avec rôle "user"
+      router.push(`/dashboard/user/opportunity/${clientId}/add`);
+    } else {
+      // Pour les rôles admin et manager
+      const effectiveCompanyId = companyId || client?.company;
+      if (!effectiveCompanyId) {
+        console.error("ID de l'entreprise manquant pour la navigation");
+        return;
+      }
+      router.push(
+        `/dashboard/${routePrefix}/manage/company/clients/${effectiveCompanyId}/opportunity/${clientId}/add`
+      );
+    }
   };
 
   // Vérification de rôle (admin, manager ou user)

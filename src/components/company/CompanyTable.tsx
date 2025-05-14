@@ -8,6 +8,7 @@ import ToggleCompanyStatus from "@/components/company/ToggleCompanyStatus";
 import { Company } from "@/services/company.service";
 import { tableStyleProps } from "@/styles/components/tableStyles";
 import { useAuth } from "@/contexts/AuthContext";
+import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface CompanyTableProps {
   companies: Company[];
@@ -23,10 +24,6 @@ const CompanyTable: React.FC<CompanyTableProps> = ({
   const router = useRouter();
   const { user } = useAuth(); // Récupération de l'utilisateur connecté
 
-  // Détermination du préfixe de route basé sur le rôle
-  const getRoutePrefix = () => {
-    return user?.role === "admin" ? "admin" : "manager";
-  };
   // Formatage de la date de création
   const formatDate = (dateString?: string) => {
     if (!dateString) return "Non disponible";
@@ -77,7 +74,8 @@ const CompanyTable: React.FC<CompanyTableProps> = ({
     {
       header: "Actions",
       accessor: (company) => {
-        const routePrefix = getRoutePrefix();
+        // Utiliser la fonction getRoutePrefix importée
+        const routePrefix = getRoutePrefix(user?.role);
         return (
           <div
             style={{ display: "flex", justifyContent: "center", gap: "10px" }}

@@ -26,6 +26,17 @@ export interface UpdateUserRequest {
   password?: string; // Ajout du champ password
 }
 
+export interface UserCreateInput {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  active: boolean;
+  provider?: string;
+  phoneNumber?: string;
+  lastLogin?: string;
+}
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
