@@ -17,7 +17,6 @@ interface UseUserDetailsReturn {
   toggleUserStatus: () => Promise<boolean>;
   navigateToCompany: (companyId: string) => void;
   navigateToTeam: (teamId: string) => void;
-  navigateBack: () => void;
 }
 
 export const useUserDetails = (userId: string): UseUserDetailsReturn => {
@@ -155,35 +154,18 @@ export const useUserDetails = (userId: string): UseUserDetailsReturn => {
   const navigateToCompany = (companyId: string) => {
     const baseRoute = getBaseRoute();
     if (routePrefix === "user") {
-      router.push(`/dashboard/user/companies/${companyId}`);
+      router.push(`/dashboard/user/company/${companyId}`);
     } else {
-      router.push(`${baseRoute}/company/${companyId}`);
+      router.push(`${baseRoute}/manage/company/${companyId}`);
     }
   };
 
-  const navigateToTeam = (teamId: string) => {
+  const navigateToTeam = (teamId: string, companyId?: string) => {
     const baseRoute = getBaseRoute();
     if (routePrefix === "user") {
       router.push(`/dashboard/user/team/${teamId}`);
     } else {
-      router.push(`${baseRoute}/teams/${teamId}`);
-    }
-  };
-
-  const navigateBack = () => {
-    // Pour les utilisateurs avec le rôle "user", s'il y a une équipe associée,
-    // rediriger vers la page de cette équipe
-    if (routePrefix === "user" && userTeams.length > 0) {
-      // S'il y a plusieurs équipes, prendre la première
-      const teamId = userTeams[0]._id;
-      router.push(`/dashboard/user/team/${teamId}`);
-    } else if (routePrefix === "user") {
-      // S'il n'y a pas d'équipes associées, rediriger vers la liste des utilisateurs
-      router.push(`/dashboard/user/users`);
-    } else {
-      // Pour admin et manager, comportement inchangé
-      const baseRoute = getBaseRoute();
-      router.push(`${baseRoute}`);
+      router.push(`${baseRoute}/manage/company/teams/${companyId}/${teamId}`);
     }
   };
 
@@ -197,6 +179,5 @@ export const useUserDetails = (userId: string): UseUserDetailsReturn => {
     toggleUserStatus,
     navigateToCompany,
     navigateToTeam,
-    navigateBack,
   };
 };

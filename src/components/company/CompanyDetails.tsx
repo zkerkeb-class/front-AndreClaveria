@@ -11,6 +11,7 @@ import { useCompanyDetails } from "@/hooks/useCompanyDetails";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRoleCheck } from "@/hooks/useRoleCheck";
 import ActionButton from "@/components/common/ActionButton";
+import { useNavigation } from "@/utils/navigateBack";
 import { use } from "react";
 
 interface CompanyDetailsProps {
@@ -44,14 +45,14 @@ const CompanyDetails: React.FC<CompanyDetailsProps> = ({ params }) => {
     navigateToManager,
     navigateToTeamsManagement,
     navigateToClientsManagement,
-    navigateBack,
   } = useCompanyDetails(companyId);
 
+  const { navigateBack } = useNavigation();
   // Vérification du rôle pour l'accès
   const hasAccess = useRoleCheck({
     isLoading: isAuthLoading,
     user,
-    requiredRole: ["admin", "manager"],
+    requiredRole: ["admin", "manager", "user"],
     redirectPath: "/dashboard",
   });
 

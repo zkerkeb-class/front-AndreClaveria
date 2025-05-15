@@ -14,6 +14,7 @@ import { useContactClients } from "@/hooks/useContactClients";
 interface ContactTableProps {
   contacts: Contact[];
   clientId: string;
+  companyId: string;
   isLoading: boolean;
   onStatusChange: (contactId: string, newStatus: boolean) => void;
 }
@@ -21,6 +22,7 @@ interface ContactTableProps {
 const ContactTable: React.FC<ContactTableProps> = ({
   contacts,
   clientId,
+  companyId,
   isLoading,
   onStatusChange,
 }) => {
@@ -102,7 +104,7 @@ const ContactTable: React.FC<ContactTableProps> = ({
             <ActionButton
               onClick={() =>
                 router.push(
-                  `/dashboard/${routePrefix}/manage/company/contacts/${clientId}/edit/${contact._id}`
+                  `/dashboard/${routePrefix}/manage/company/clients/${companyId}/edit/${clientId}?step=4`
                 )
               }
               variant="secondary"

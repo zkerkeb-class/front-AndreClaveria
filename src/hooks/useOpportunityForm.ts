@@ -216,10 +216,6 @@ export const useOpportunityForm = ({
         if (isMounted) setAvailableContacts(clientContacts);
 
         if (mode === "edit" && opportunityId) {
-          console.log(
-            "Mode édition: chargement des données de l'opportunité",
-            opportunityId
-          );
           try {
             const opportunityData = await getOpportunityById(opportunityId);
             console.log("Données opportunité reçues:", opportunityData);

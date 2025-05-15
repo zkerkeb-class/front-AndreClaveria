@@ -6,7 +6,8 @@ interface UserTeamsCardProps {
   userTeams: any[];
   isTeamLeader: (team: any) => boolean;
   countTeamMembers: (team: any) => number;
-  navigateToTeam: (teamId: string) => void;
+  navigateToTeam: (teamId: string, companyId?: string) => void;
+  companyId?: string; // Ajout de cette prop
 }
 
 const UserTeamsCard: React.FC<UserTeamsCardProps> = ({
@@ -14,6 +15,7 @@ const UserTeamsCard: React.FC<UserTeamsCardProps> = ({
   isTeamLeader,
   countTeamMembers,
   navigateToTeam,
+  companyId,
 }) => {
   return (
     <>
@@ -30,7 +32,7 @@ const UserTeamsCard: React.FC<UserTeamsCardProps> = ({
               <div
                 key={team._id}
                 style={styles.teamItem}
-                onClick={() => navigateToTeam(team._id)}
+                onClick={() => navigateToTeam(team._id, team.company)}
               >
                 <FaUsers style={styles.teamIcon} />
                 <div style={styles.teamInfo}>

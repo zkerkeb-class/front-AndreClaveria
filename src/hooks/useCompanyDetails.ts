@@ -31,7 +31,6 @@ interface UseCompanyDetailsReturn {
   navigateToManager: (managerId: string) => void;
   navigateToTeamsManagement: () => void;
   navigateToClientsManagement: () => void;
-  navigateBack: () => void;
 }
 
 export const useCompanyDetails = (
@@ -237,15 +236,6 @@ export const useCompanyDetails = (
     }
   };
 
-  const navigateBack = () => {
-    const baseRoute = getBaseRoute();
-    if (routePrefix === "user") {
-      router.push(`/dashboard/user/company`);
-    } else {
-      router.push(`${baseRoute}/company`);
-    }
-  };
-
   return {
     company,
     manager,
@@ -265,6 +255,5 @@ export const useCompanyDetails = (
     navigateToManager,
     navigateToTeamsManagement,
     navigateToClientsManagement,
-    navigateBack,
   };
 };

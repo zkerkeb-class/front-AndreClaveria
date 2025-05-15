@@ -1,34 +1,15 @@
-"use client";
-import React, {
-  createContext,
-  useState,
-  useContext,
-  ReactNode,
-  useEffect,
-} from "react";
+// src/utils/navigation.ts
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-// Type pour le contexte de la navbar
-interface NavbarContextType {
-  hoveredIcon: number | null;
-  setHoveredIcon: (index: number | null) => void;
-  navigateBack: () => void;
-  getCurrentPath: () => string;
-  getPreviousPath: () => string;
-  debugHistory: () => string[];
-}
-
-// Clé pour le stockage de l'historique
+// Utiliser un objet de session ou localStorage pour stocker l'historique de navigation
 const HISTORY_KEY = "navigation_history";
 
-const NavbarContext = createContext<NavbarContextType | undefined>(undefined);
-
-export const NavbarProvider = ({ children }: { children: ReactNode }) => {
-  const [hoveredIcon, setHoveredIcon] = useState<number | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+export const useNavigation = () => {
   const router = useRouter();
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Fonctions de gestion de l'historique
+  // Initialiser ou récupérer l'historique
   const getHistory = (): string[] => {
     if (typeof window === "undefined") return [];
 
@@ -37,29 +18,31 @@ export const NavbarProvider = ({ children }: { children: ReactNode }) => {
     return storedHistory ? JSON.parse(storedHistory) : [];
   };
 
+  // Sauvegarder l'historique
   const saveHistory = (history: string[]) => {
     if (typeof window === "undefined") return;
 
     sessionStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   };
 
+  // Ajouter une page à l'historique
   const addToHistory = (path: string) => {
     const history = getHistory();
 
     // Éviter les doublons consécutifs
     if (history.length === 0 || history[history.length - 1] !== path) {
-      // Limiter la taille de l'historique
+      // Limiter la taille de l'historique (facultatif)
       if (history.length >= 20) {
-        const removed = history.shift();
+        const removed = history.shift(); // Enlever le plus ancien
       }
 
       history.push(path);
 
       saveHistory(history);
+    } else {
     }
   };
 
-  // Initialisation du système de tracking
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -119,46 +102,25 @@ export const NavbarProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const getCurrentPath = () => {
-    const history = getHistory();
-    const current = history.length > 0 ? history[history.length - 1] : "";
+  return {
+    navigateBack,
+    getCurrentPath: () => {
+      const history = getHistory();
+      const current = history.length > 0 ? history[history.length - 1] : "";
 
-    return current;
+      return current;
+    },
+    getPreviousPath: () => {
+      const history = getHistory();
+      const previous = history.length > 1 ? history[history.length - 2] : "";
+
+      return previous;
+    },
+    // Fonction de debug pour afficher l'historique complet
+    debugHistory: () => {
+      const history = getHistory();
+
+      return history;
+    },
   };
-
-  const getPreviousPath = () => {
-    const history = getHistory();
-    const previous = history.length > 1 ? history[history.length - 2] : "";
-
-    return previous;
-  };
-
-  const debugHistory = () => {
-    const history = getHistory();
-
-    return history;
-  };
-
-  return (
-    <NavbarContext.Provider
-      value={{
-        hoveredIcon,
-        setHoveredIcon,
-        navigateBack,
-        getCurrentPath,
-        getPreviousPath,
-        debugHistory,
-      }}
-    >
-      {children}
-    </NavbarContext.Provider>
-  );
-};
-
-export const useNavbar = (): NavbarContextType => {
-  const context = useContext(NavbarContext);
-  if (context === undefined) {
-    throw new Error("useNavbar must be used within a NavbarProvider");
-  }
-  return context;
 };

@@ -12,6 +12,7 @@ import UserTeamsCard from "./UserTeamsCard";
 import UserProfileCard from "./UserProfileCard";
 import UserEditForm from "./UserEditForm";
 import UserActivityCard from "./UserActivityCard";
+import { useNavigation } from "@/utils/navigateBack";
 
 interface UserDetailsProps {
   params: Promise<{
@@ -35,9 +36,9 @@ const UserDetails: React.FC<UserDetailsProps> = ({ params }) => {
     toggleUserStatus,
     navigateToCompany,
     navigateToTeam,
-    navigateBack,
   } = useUserDetails(userId);
 
+  const { navigateBack } = useNavigation();
   // Vérification du rôle admin
   const hasAccess = useRoleCheck({
     isLoading: isAuthLoading,

@@ -37,7 +37,6 @@ interface UseClientDetailsReturn {
   navigateToContactsManagement: () => void;
   navigateToOpportunitiesManagement: () => void;
   navigateToMailPage: () => void;
-  navigateBack: () => void;
 }
 
 export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
@@ -276,24 +275,6 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
     }
   };
 
-  const navigateBack = () => {
-    if (company) {
-      const baseRoute = getBaseRoute();
-      if (routePrefix === "user") {
-        router.push(`/dashboard/user/team/${team?._id}`);
-      } else {
-        router.push(`${baseRoute}/company/${company._id}`);
-      }
-    } else {
-      const baseRoute = getBaseRoute();
-      if (routePrefix === "user") {
-        router.push(`${baseRoute}`);
-      } else {
-        router.push(`${baseRoute}/clients`);
-      }
-    }
-  };
-
   const navigateToMailPage = () => {
     const baseRoute = getBaseRoute();
     if (company) {
@@ -332,6 +313,5 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
     navigateToOpportunity,
     navigateToContactsManagement,
     navigateToOpportunitiesManagement,
-    navigateBack,
   };
 };

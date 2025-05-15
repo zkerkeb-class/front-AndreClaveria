@@ -12,7 +12,7 @@ import ClientConnectionsCard from "./ClientConnectionsCard";
 import ClientContactsCard from "./ClientContactsCard";
 import ClientOpportunitiesCard from "./ClientOpportunitiesCard";
 import DeleteClientModal from "./DeleteClientModal";
-
+import { useNavigation } from "@/utils/navigateBack";
 interface ClientDetailsProps {
   params: Promise<{
     clientId: string;
@@ -46,9 +46,9 @@ const ClientDetails: React.FC<ClientDetailsProps> = ({ params }) => {
     navigateToContactsManagement,
     navigateToOpportunitiesManagement,
     navigateToMailPage,
-    navigateBack,
   } = useClientDetails(clientId);
 
+  const { navigateBack } = useNavigation();
   // Vérification du rôle pour l'accès
   const hasAccess = useRoleCheck({
     isLoading: isAuthLoading,

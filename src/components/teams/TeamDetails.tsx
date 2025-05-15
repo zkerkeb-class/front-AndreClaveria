@@ -14,7 +14,7 @@ import LoadingOverlay from "@/components/common/LoadingOverlay";
 import { teamDetailsStyles as styles } from "@/styles/pages/dashboard/admin/teamDetailsStyles";
 import { FaSyncAlt, FaArrowLeft } from "react-icons/fa";
 import ActionButton from "@/components/common/ActionButton";
-
+import { useNavigation } from "@/utils/navigateBack";
 interface TeamDetailsProps {
   params: Promise<{
     teamId: string;
@@ -43,9 +43,9 @@ const TeamDetails: React.FC<TeamDetailsProps> = ({ params }) => {
     navigateToClient,
     navigateToMembersManagement,
     navigateToClientsManagement,
-    navigateBack,
   } = useTeamDetails(teamId);
 
+  const { navigateBack } = useNavigation();
   // Vérification du rôle pour l'accès
   const hasAccess = useRoleCheck({
     isLoading: isAuthLoading,

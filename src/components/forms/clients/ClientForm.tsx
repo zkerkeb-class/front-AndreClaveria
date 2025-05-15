@@ -1,11 +1,11 @@
 // components/forms/client/ClientForm.tsx
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useClientForm } from "@/hooks/useClientForm";
 import { clientFormStyles as styles } from "@/styles/components/forms/ClientFormStyles";
-
+import { useNavigation } from "@/utils/navigateBack";
 // Import des sous-composants
 import ClientInfoSection from "./ClientInfoSection";
 import ClientContactSection from "./ClientContactSection";
@@ -58,6 +58,9 @@ const ClientForm: React.FC<ClientFormProps> = ({
     companyId,
     clientId,
   });
+  const { navigateBack } = useNavigation();
+  // Vérifier si l'utilisateur a le rôle "user"
+  const isUserRole = user?.role === "user";
 
   // Affichage conditionnel pendant le chargement
   if (isLoading || !user) {
@@ -73,6 +76,60 @@ const ClientForm: React.FC<ClientFormProps> = ({
     );
   }
 
+  // Version simplifiée pour les utilisateurs avec le rôle "user"
+  if (isUserRole) {
+    return (
+      <div>
+        <div style={styles.header}>
+          <div>
+            <h1 style={styles.title}>Attribution du client</h1>
+            {company && (
+              <p style={styles.subTitle}>
+                Client: <strong>{formData.name}</strong>
+              </p>
+            )}
+          </div>
+          <button onClick={navigateBack} style={styles.backButton}>
+            Retour à la liste
+          </button>
+        </div>
+
+        {error && <div style={styles.errorMessage}>{error}</div>}
+        {success && <div style={styles.successMessage}>{success}</div>}
+
+        <form onSubmit={(e) => e.preventDefault()}>
+          <div style={styles.container}>
+            <ClientAssignmentSection
+              assignedTo={formData.assignedTo}
+              team={formData.team}
+              users={users}
+              teams={teams}
+              handleChange={handleChange}
+            />
+          </div>
+
+          <div style={styles.buttonContainer}>
+            <button
+              type="button"
+              onClick={() => router.push(`/dashboard/user/clients`)}
+              style={styles.cancelButton}
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              style={styles.submitStepperButton}
+            >
+              Enregistrer l'attribution
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  // Version complète pour les rôles admin et manager
   // Rendu du stepper (indicateur d'étapes)
   const renderStepper = () => (
     <div style={styles.stepperContainer}>

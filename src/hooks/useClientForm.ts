@@ -506,10 +506,16 @@ export const useClientForm = ({
 
       // Redirection après 2 secondes
       setTimeout(() => {
-        const routePrefix = user?.role === "admin" ? "admin" : "manager";
-        router.push(
-          `/dashboard/${routePrefix}/manage/company/clients/${companyId}`
-        );
+        if (user?.role === "user") {
+          // Pour le rôle "user", rediriger vers la liste des clients
+          router.push(`/dashboard/user/clients/add/${companyId}`);
+        } else {
+          // Pour les rôles admin ou manager, rediriger vers la page de l'entreprise
+          const routePrefix = user?.role === "admin" ? "admin" : "manager";
+          router.push(
+            `/dashboard/${routePrefix}/manage/company/clients/${companyId}`
+          );
+        }
       }, 2000);
     } catch (err: any) {
       console.error(

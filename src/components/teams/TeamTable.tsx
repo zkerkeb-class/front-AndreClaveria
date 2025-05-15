@@ -89,6 +89,7 @@ const TeamTable: React.FC<TeamTableProps> = ({
             >
               Membres
             </ActionButton>
+
             <ToggleTeamStatus
               teamId={team._id}
               isActive={team.isActive}

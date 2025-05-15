@@ -31,7 +31,6 @@ interface UseTeamDetailsReturn {
   navigateToClient: (clientId: string) => void;
   navigateToMembersManagement: () => void;
   navigateToClientsManagement: () => void;
-  navigateBack: () => void;
 }
 
 export const useTeamDetails = (teamId: string): UseTeamDetailsReturn => {
@@ -202,7 +201,7 @@ export const useTeamDetails = (teamId: string): UseTeamDetailsReturn => {
     if (company) {
       const baseRoute = getBaseRoute();
       if (routePrefix === "user") {
-        router.push(`/dashboard/user/companies/${company._id}`);
+        router.push(`/dashboard/user/company/${company._id}`);
       } else {
         router.push(`${baseRoute}/company/${company._id}`);
       }
@@ -241,29 +240,11 @@ export const useTeamDetails = (teamId: string): UseTeamDetailsReturn => {
   const navigateToClientsManagement = () => {
     const baseRoute = getBaseRoute();
     if (routePrefix === "user") {
-      router.push(`${baseRoute}/${teamId}/clients`);
+      router.push(`${baseRoute}/clients/add/${company?._id}`);
     } else {
-      router.push(`${baseRoute}/team/${teamId}/clients`);
+      router.push(`${baseRoute}/company/clients/${company?._id}`);
     }
   };
-
-  const navigateBack = () => {
-    const baseRoute = getBaseRoute();
-    if (company) {
-      if (routePrefix === "user") {
-        router.push(`${baseRoute}`);
-      } else {
-        router.push(`${baseRoute}/company/${company._id}`);
-      }
-    } else {
-      if (routePrefix === "user") {
-        router.push(`${baseRoute}`);
-      } else {
-        router.push(`${baseRoute}/teams`);
-      }
-    }
-  };
-
   return {
     team,
     company,
@@ -278,6 +259,5 @@ export const useTeamDetails = (teamId: string): UseTeamDetailsReturn => {
     navigateToClient,
     navigateToMembersManagement,
     navigateToClientsManagement,
-    navigateBack,
   };
 };

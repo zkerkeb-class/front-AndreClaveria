@@ -17,7 +17,6 @@ interface UseTeamDetailReturn {
   error: string | null;
   formatDate: (dateString?: string) => string;
   getScoreColor: (score: number) => string;
-  navigateBack: () => void;
   navigateToClientDetail: (clientId: string) => void;
 }
 
@@ -30,11 +29,6 @@ export const useTeamDetail = ({
   const [members, setMembers] = useState<{ [key: string]: User }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Fonctions de navigation
-  const navigateBack = () => {
-    router.back();
-  };
 
   const navigateToClientDetail = (clientId: string) => {
     router.push(`/dashboard/client/${clientId}`);
@@ -164,7 +158,6 @@ export const useTeamDetail = ({
     error,
     formatDate,
     getScoreColor,
-    navigateBack,
     navigateToClientDetail,
   };
 };

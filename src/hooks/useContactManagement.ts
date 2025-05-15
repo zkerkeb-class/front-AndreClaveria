@@ -46,7 +46,7 @@ export const useContactManagement = ({
     const targetCompanyId = companyId || client?.company;
     const clientIdToUse = targetClientId || clientId;
     router.push(
-      `/dashboard/${routePrefix}/manage/company/clients/${targetCompanyId}/contacts/${clientIdToUse}/add`
+      `/dashboard/${routePrefix}/manage/company/clients/${targetCompanyId}/edit/${clientIdToUse}?step=4`
     );
   };
 
