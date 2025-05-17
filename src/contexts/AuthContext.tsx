@@ -134,6 +134,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!isLoading) {
       const currentPath = window.location.pathname;
 
+      if (!isAuthenticated && currentPath === "/health") {
+        return;
+      }
       if (!isAuthenticated && currentPath !== "/auth") {
         router.push("/auth");
       } else if (

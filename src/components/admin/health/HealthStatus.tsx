@@ -28,27 +28,36 @@ const HealthStatus: React.FC = () => {
     return `${time} ms`;
   };
 
+  // Fonction utilitaire pour extraire de façon sécurisée le message d'erreur
+  const getErrorMessage = (details: any): string => {
+    if (!details) return "Non spécifiée";
+
+    // Si code est disponible au niveau supérieur
+    if (details.code) return details.code;
+
+    // Si error est un objet
+    if (details.error && typeof details.error === "object") {
+      if (details.error.code === "ECONNREFUSED")
+        return "Service non disponible (connexion refusée)";
+      return (
+        details.error.code || details.error.message || "Erreur de connexion"
+      );
+    }
+
+    // Si error est une chaîne de caractères
+    if (details.error && typeof details.error === "string") {
+      return details.error;
+    }
+
+    return "Non spécifiée";
+  };
+
   return (
     <div style={healthStyles.container as CSSProperties}>
       <div style={healthStyles.header as CSSProperties}>
         <h1 style={healthStyles.title as CSSProperties}>
           État des Services CRM
         </h1>
-        <div style={healthStyles.actions as CSSProperties}>
-          <button
-            style={{
-              ...(healthStyles.refreshButton as CSSProperties),
-              backgroundColor: isHovered ? "#2563EB" : "#3B82F6",
-              opacity: loading ? 0.7 : 1,
-            }}
-            onClick={refreshServices}
-            disabled={loading}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            {loading ? "Rafraîchissement..." : "Rafraîchir"}
-          </button>
-        </div>
       </div>
 
       {error && (
@@ -101,7 +110,14 @@ const HealthStatus: React.FC = () => {
               {service.status === "down" && service.details && (
                 <div style={healthStyles.errorDetails as CSSProperties}>
                   <p style={{ margin: 0 }}>
-                    Erreur: {service.details.error || "Non spécifiée"}
+                    Erreur: {getErrorMessage(service.details)}
+                  </p>
+                </div>
+              )}
+              {service.status === "up" && service.details && (
+                <div style={healthStyles.serviceInfo as CSSProperties}>
+                  <p style={{ margin: 0 }}>
+                    Service: {service.details.service || service.name}
                   </p>
                 </div>
               )}

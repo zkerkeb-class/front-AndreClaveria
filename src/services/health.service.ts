@@ -1,7 +1,7 @@
 // services/health.service.ts
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL_NOTIFICATION || "http://localhost:3003/api/";
+  process.env.NEXT_PUBLIC_API_URL_METRICS || "http://localhost:3004/api/";
 
 export interface ServiceStatus {
   name: string;
@@ -30,16 +30,10 @@ export const getAllServicesStatus = async (
   forceRefresh = false
 ): Promise<ServiceStatus[]> => {
   try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("Non authentifié");
-    }
-
     const response = await fetch(`${API_URL}health/all`, {
       method: "GET",
       headers: {
         ...headers,
-        Authorization: `Bearer ${token}`,
       },
     });
 

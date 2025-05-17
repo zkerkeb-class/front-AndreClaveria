@@ -75,6 +75,11 @@ export const healthStyles = {
     border: "var(--border-width) solid var(--table-border)",
     transition: "var(--animation-transition)",
   },
+  serviceInfo: {
+    padding: "var(--spacing-normal)",
+    borderRadius: "var(--border-radius)",
+    transition: "var(--animation-transition)",
+  },
 
   serviceHeader: {
     display: "flex",

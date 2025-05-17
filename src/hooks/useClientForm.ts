@@ -504,7 +504,6 @@ export const useClientForm = ({
         setSuccess(`Client ${clientResponse.name} mis à jour avec succès !`);
       }
 
-      // Redirection après 2 secondes
       setTimeout(() => {
         if (user?.role === "user") {
           // Pour le rôle "user", rediriger vers la liste des clients
