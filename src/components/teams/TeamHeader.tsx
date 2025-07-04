@@ -3,7 +3,6 @@ import React from "react";
 import { teamDetailsStyles as styles } from "@/styles/pages/dashboard/admin/teamDetailsStyles";
 import { FaArrowLeft, FaEdit, FaTrashAlt, FaSyncAlt } from "react-icons/fa";
 import ActionButton from "@/components/common/ActionButton";
-import { getRoutePrefix } from "@/utils/getRoutePrefix";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface TeamHeaderProps {
@@ -26,15 +25,10 @@ const TeamHeader: React.FC<TeamHeaderProps> = ({
   canModifyTeam,
 }) => {
   const { user } = useAuth();
-  const routePrefix = getRoutePrefix(user?.role);
 
-  // Fonction pour générer l'URL d'édition selon le rôle
+  // Fonction pour générer l'URL d'édition
   const getEditUrl = () => {
-    if (routePrefix === "user") {
-      return `/dashboard/user/teams/edit/${teamId}`;
-    } else {
-      return `/dashboard/${routePrefix}/manage/company/teams/${companyId}/edit/${teamId}`;
-    }
+    return `/dashboard/teams/edit/${teamId}`;
   };
 
   return (

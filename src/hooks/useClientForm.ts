@@ -12,7 +12,7 @@ import { getCompanyById, Company } from "@/services/company.service";
 import { getAllUsers, User } from "@/services/user.service";
 import { getTeamsByCompany, Team } from "@/services/team.service";
 import { getContactsByClient } from "@/services/contact.service";
-import { ContactFormData } from "@/components/forms/contact/type";
+import { ContactFormData } from "@/components/forms/pipeline/contacts/type";
 
 interface ClientFormData {
   name: string;
@@ -81,7 +81,6 @@ interface UseClientFormReturn {
   // Helpers
   findUserById: (id: string) => string;
   findTeamById: (id: string) => string;
-  getRoutePrefix: () => string;
 }
 
 /**
@@ -93,7 +92,7 @@ export const useClientForm = ({
   clientId,
 }: UseClientFormProps): UseClientFormReturn => {
   const router = useRouter();
-  const searchParams = useSearchParams(); // Récupérez les paramètres de l'URL
+  const searchParams = useSearchParams();
   const { user, isLoading, setLoadingWithMessage } = useAuth();
   const stepParam = searchParams.get("step");
   const initialStep = stepParam ? parseInt(stepParam) : 1;
@@ -133,7 +132,6 @@ export const useClientForm = ({
   const [contacts, setContacts] = useState<ContactFormData[]>([]);
 
   // État pour la gestion des étapes
-
   const totalSteps = 5;
 
   // Définition des étapes
@@ -148,13 +146,9 @@ export const useClientForm = ({
   // Calcul du pourcentage de progression
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
 
-  // Vérification des droits d'accès
+  // Vérification de l'authentification
   useEffect(() => {
-    if (
-      !isLoading &&
-      user &&
-      !["admin", "manager", "user"].includes(user.role)
-    ) {
+    if (!isLoading && !user) {
       router.push("/dashboard");
     }
   }, [user, isLoading, router]);
@@ -164,7 +158,7 @@ export const useClientForm = ({
     let isMounted = true;
 
     const fetchData = async () => {
-      if (!user || !["admin", "manager", "user"].includes(user.role)) {
+      if (!user) {
         return;
       }
 
@@ -185,12 +179,7 @@ export const useClientForm = ({
 
         // En mode édition, charger les données du client
         if (mode === "edit" && clientId) {
-          console.log(
-            "Mode édition: chargement des données du client",
-            clientId
-          );
           const clientData = await getClientById(clientId);
-          console.log("Données client reçues:", clientData);
 
           if (isMounted) {
             setOriginalClient(clientData);
@@ -226,83 +215,59 @@ export const useClientForm = ({
                 clientData.isActive !== undefined ? clientData.isActive : true,
             });
 
-            // Chargement explicite des contacts du client via appel API séparé
+            // Chargement des contacts du client
             try {
-              console.log("Chargement des contacts pour le client:", clientId);
               const contactsData = await getContactsByClient(clientId);
-              console.log("Contacts récupérés:", contactsData);
 
-              // Vérifier que la réponse a le bon format
               if (
                 contactsData &&
                 typeof contactsData === "object" &&
                 "data" in contactsData &&
                 Array.isArray(contactsData.data)
               ) {
-                // Si la structure est { success, count, data }
-                console.log(
-                  "Contacts extraits de la structure API:",
-                  contactsData.data
-                );
-
                 if (isMounted) {
                   setContacts(
                     contactsData.data.map((contact: any) => ({
-                      _id: contact._id || "",
                       firstName: contact.firstName || "",
                       lastName: contact.lastName || "",
-                      position: contact.position || "",
                       email: contact.email || "",
                       phone: contact.phone || "",
-                      mobile: contact.mobile || "",
-                      isPrimary: contact.isPrimary || false,
-                      notes: contact.notes || "",
+                      position: contact.position || "",
+                      isMainContact: contact.isMainContact || false,
                     }))
                   );
                 }
               } else if (Array.isArray(contactsData)) {
-                // Si la réponse est directement un tableau
-                console.log("Contacts reçus au format tableau:", contactsData);
-
                 if (isMounted) {
                   setContacts(
                     contactsData.map((contact: any) => ({
-                      _id: contact._id || "",
                       firstName: contact.firstName || "",
                       lastName: contact.lastName || "",
-                      position: contact.position || "",
                       email: contact.email || "",
                       phone: contact.phone || "",
-                      mobile: contact.mobile || "",
-                      isPrimary: contact.isPrimary || false,
-                      notes: contact.notes || "",
+                      position: contact.position || "",
+                      isMainContact: contact.isMainContact || false,
                     }))
                   );
                 }
-              } else {
-                console.error(
-                  "Format de données de contacts inattendu:",
-                  contactsData
-                );
-                if (isMounted) setContacts([]);
               }
-            } catch (contactError) {
-              console.error(
-                "Erreur lors de la récupération des contacts:",
-                contactError
-              );
-              if (isMounted) setContacts([]);
+            } catch (err) {
+              console.error("Erreur lors du chargement des contacts:", err);
+              if (isMounted) {
+                setContacts([]);
+              }
             }
           }
         }
-
-        if (isMounted) setError(null);
-      } catch (err: any) {
-        console.error("Erreur lors de la récupération des données:", err);
-        if (isMounted)
-          setError("Impossible de charger les données nécessaires.");
+      } catch (err) {
+        console.error("Erreur lors du chargement des données:", err);
+        if (isMounted) {
+          setError("Impossible de charger les données nécessaires");
+        }
       } finally {
-        if (isMounted) setDataLoading(false);
+        if (isMounted) {
+          setDataLoading(false);
+        }
       }
     };
 
@@ -311,7 +276,7 @@ export const useClientForm = ({
     return () => {
       isMounted = false;
     };
-  }, [companyId, clientId, user, mode, router]);
+  }, [mode, companyId, clientId, user]);
 
   // Navigation entre les étapes
   const nextStep = () => {
@@ -435,8 +400,6 @@ export const useClientForm = ({
           notes: c.notes || undefined,
         }));
 
-      console.log("Contacts valides préparés:", validContacts);
-
       // Préparer des données client épurées
       const clientData = {
         name: formData.name,
@@ -472,15 +435,8 @@ export const useClientForm = ({
           contacts: validContacts.length > 0 ? validContacts : undefined,
         };
 
-        console.log(
-          "Données complètes pour création du client:",
-          clientWithContacts
-        );
-
         // Créer le client avec les contacts en une seule requête
         clientResponse = await createClient(clientWithContacts as any);
-        console.log("Client créé avec succès:", clientResponse);
-
         setSuccess(`Client ${clientResponse.name} créé avec succès !`);
       } else {
         // Ajouter les contacts au payload pour la mise à jour du client
@@ -489,32 +445,16 @@ export const useClientForm = ({
           contacts: validContacts.length > 0 ? validContacts : undefined,
         };
 
-        console.log(
-          "Données complètes pour mise à jour du client:",
-          clientWithContacts
-        );
-
         // Mettre à jour le client avec les contacts en une seule requête
         clientResponse = await updateClient(
           clientId!,
           clientWithContacts as any
         );
-        console.log("Client mis à jour avec succès:", clientResponse);
-
         setSuccess(`Client ${clientResponse.name} mis à jour avec succès !`);
       }
 
       setTimeout(() => {
-        if (user?.role === "user") {
-          // Pour le rôle "user", rediriger vers la liste des clients
-          router.push(`/dashboard/user/clients/add/${companyId}`);
-        } else {
-          // Pour les rôles admin ou manager, rediriger vers la page de l'entreprise
-          const routePrefix = user?.role === "admin" ? "admin" : "manager";
-          router.push(
-            `/dashboard/${routePrefix}/manage/company/clients/${companyId}`
-          );
-        }
+        router.push(`/dashboard/pipeline/clients?company=${companyId}`);
       }, 2000);
     } catch (err: any) {
       console.error(
@@ -542,12 +482,6 @@ export const useClientForm = ({
   const findTeamById = (id: string) => {
     return teams.find((t) => t._id === id)?.name || "Aucune équipe";
   };
-
-  const getRoutePrefix = () => {
-    return user?.role === "admin" ? "admin" : "manager";
-  };
-
-  // Initialisez currentStep avec le paramètre URL s'il est valide
 
   return {
     // État et statut
@@ -583,6 +517,5 @@ export const useClientForm = ({
     // Helpers
     findUserById,
     findTeamById,
-    getRoutePrefix,
   };
 };

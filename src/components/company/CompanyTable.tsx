@@ -8,7 +8,6 @@ import ToggleCompanyStatus from "@/components/company/ToggleCompanyStatus";
 import { Company } from "@/services/company.service";
 import { tableStyleProps } from "@/styles/components/tableStyles";
 import { useAuth } from "@/contexts/AuthContext";
-import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface CompanyTableProps {
   companies: Company[];
@@ -74,17 +73,13 @@ const CompanyTable: React.FC<CompanyTableProps> = ({
     {
       header: "Actions",
       accessor: (company) => {
-        // Utiliser la fonction getRoutePrefix importée
-        const routePrefix = getRoutePrefix(user?.role);
         return (
           <div
             style={{ display: "flex", justifyContent: "center", gap: "10px" }}
           >
             <ActionButton
               onClick={() =>
-                router.push(
-                  `/dashboard/${routePrefix}/manage/company/edit/${company._id}`
-                )
+                router.push(`/dashboard/companies/edit/${company._id}`)
               }
               variant="secondary"
               size="medium"
@@ -93,9 +88,7 @@ const CompanyTable: React.FC<CompanyTableProps> = ({
             </ActionButton>
             <ActionButton
               onClick={() =>
-                router.push(
-                  `/dashboard/${routePrefix}/manage/company/teams/${company._id}`
-                )
+                router.push(`/dashboard/companies/teams/${company._id}`)
               }
               size="medium"
             >
@@ -103,9 +96,7 @@ const CompanyTable: React.FC<CompanyTableProps> = ({
             </ActionButton>
             <ActionButton
               onClick={() =>
-                router.push(
-                  `/dashboard/${routePrefix}/manage/company/clients/${company._id}`
-                )
+                router.push(`/dashboard/companies/clients/${company._id}`)
               }
               size="medium"
             >

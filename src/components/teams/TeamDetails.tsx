@@ -46,11 +46,11 @@ const TeamDetails: React.FC<TeamDetailsProps> = ({ params }) => {
   } = useTeamDetails(teamId);
 
   const { navigateBack } = useNavigation();
-  // Vérification du rôle pour l'accès
+  // Vérification de l'accès
   const hasAccess = useRoleCheck({
     isLoading: isAuthLoading,
     user,
-    requiredRole: ["admin", "manager", "user"],
+    requiredRole: [], // Plus besoin de vérifier les rôles
     redirectPath: "/dashboard",
   });
 
@@ -60,7 +60,7 @@ const TeamDetails: React.FC<TeamDetailsProps> = ({ params }) => {
     window.location.reload();
   };
 
-  // Vérifier si l'utilisateur actuel est le leader de l'équipe ou un admin/manager
+  // Vérifier si l'utilisateur actuel est le leader de l'équipe
   const isTeamLeader = () => {
     if (!team || !user) return false;
 
@@ -74,16 +74,16 @@ const TeamDetails: React.FC<TeamDetailsProps> = ({ params }) => {
     return false;
   };
 
-  // Vérifier si l'utilisateur a les droits pour gérer l'équipe (leader ou admin/manager)
+  // Vérifier si l'utilisateur a les droits pour gérer l'équipe (leader)
   const canManageTeam = () => {
     if (!user) return false;
-    return isTeamLeader() || user.role === "admin" || user.role === "manager";
+    return isTeamLeader();
   };
 
-  // Vérifier si l'utilisateur peut modifier ou supprimer l'équipe (seulement admin/manager)
+  // Vérifier si l'utilisateur peut modifier ou supprimer l'équipe
   const canModifyTeam = () => {
     if (!user) return false;
-    return user.role === "admin" || user.role === "manager";
+    return isTeamLeader();
   };
 
   if (isAuthLoading || !user || !hasAccess) {

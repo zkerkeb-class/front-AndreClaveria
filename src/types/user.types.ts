@@ -4,7 +4,6 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: string;
   active: boolean;
   provider?: string;
   phoneNumber?: string;
@@ -15,7 +14,6 @@ export interface UpdateUserRequest {
   firstName?: string;
   lastName?: string;
   email?: string;
-  role?: string;
   active?: boolean;
   password?: string;
   phoneNumber?: string;
@@ -31,7 +29,6 @@ export interface CreateUserRequest {
   lastName: string;
   email: string;
   password: string;
-  role: string;
   phoneNumber?: string;
   active?: boolean;
 }

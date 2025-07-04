@@ -7,6 +7,9 @@ interface ActionButtonProps {
   variant?: "primary" | "secondary" | "success" | "danger" | "warning" | "info";
   size?: "small" | "medium" | "large";
   children: React.ReactNode;
+  customColor?: string;
+  customTextColor?: string;
+  customBorderColor?: string;
 }
 
 const ActionButton: React.FC<ActionButtonProps> = ({
@@ -15,6 +18,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   variant = "secondary",
   size = "medium",
   children,
+  customColor,
+  customTextColor,
+  customBorderColor,
 }) => {
   // Définir les couleurs en fonction du variant
   const variantStyles = {
@@ -73,6 +79,11 @@ const ActionButton: React.FC<ActionButtonProps> = ({
     cursor: disabled ? "not-allowed" : "pointer",
     opacity: disabled ? "var(--opacity-less)" : 1,
     fontWeight: "var(--font-weight-medium)",
+    ...(customColor && { backgroundColor: customColor }),
+    ...(customTextColor && { color: customTextColor }),
+    ...(customBorderColor && {
+      border: `var(--border-width) solid ${customBorderColor}`,
+    }),
   };
 
   return (

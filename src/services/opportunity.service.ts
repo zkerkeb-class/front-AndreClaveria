@@ -144,26 +144,41 @@ export const getOpportunitiesByCompany = async (
       throw new Error("Non authentifié");
     }
 
-    const response = await fetch(
-      `${API_URL}/opportunities/company/${companyId}`,
-      {
-        method: "GET",
-        headers: {
-          ...headers,
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const url = `${API_URL}/opportunities/company/${companyId}`;
+    console.log("URL de l'API pour les opportunités:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        ...headers,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Statut de la réponse:", response.status);
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("Erreur de l'API:", errorData);
       throw new Error(
         errorData.message ||
           "Erreur lors de la récupération des opportunités de l'entreprise"
       );
     }
 
-    return await response.json();
+    const responseData = await response.json();
+    console.log("Données reçues de l'API:", responseData);
+
+    // Extraire les opportunités du format de réponse
+    if (responseData && typeof responseData === "object") {
+      if ("data" in responseData && Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+    }
+
+    // Si la structure n'est pas celle attendue, retourner un tableau vide
+    console.warn("Format de réponse inattendu:", responseData);
+    return [];
   } catch (error: any) {
     console.error(
       `getOpportunitiesByCompany error for company ${companyId}:`,

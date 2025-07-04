@@ -10,7 +10,6 @@ interface UserFormData {
   email: string;
   password: string;
   confirmPassword: string;
-  role: string;
   phoneNumber: string;
   active: boolean;
 }
@@ -32,7 +31,7 @@ interface UseCreateUserReturn {
 }
 
 export const useCreateUser = ({
-  redirectPath = "/dashboard/admin/manage/users",
+  redirectPath = "/dashboard/users",
   redirectDelay = 2000,
 }: UseCreateUserProps = {}): UseCreateUserReturn => {
   // État initial du formulaire
@@ -42,7 +41,6 @@ export const useCreateUser = ({
     email: "",
     password: "",
     confirmPassword: "",
-    role: "user",
     phoneNumber: "",
     active: true,
   });
@@ -61,7 +59,6 @@ export const useCreateUser = ({
       email: "",
       password: "",
       confirmPassword: "",
-      role: "user",
       phoneNumber: "",
       active: true,
     });
@@ -108,7 +105,6 @@ export const useCreateUser = ({
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
-        role: formData.role,
         phoneNumber: formData.phoneNumber,
         active: formData.active,
       };

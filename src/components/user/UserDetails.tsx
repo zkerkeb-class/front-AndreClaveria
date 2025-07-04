@@ -39,11 +39,11 @@ const UserDetails: React.FC<UserDetailsProps> = ({ params }) => {
   } = useUserDetails(userId);
 
   const { navigateBack } = useNavigation();
-  // Vérification du rôle admin
+  // Vérification de l'accès
   const hasAccess = useRoleCheck({
     isLoading: isAuthLoading,
     user: authUser,
-    requiredRole: ["admin", "manager", "user"],
+    requiredRole: [], // Plus besoin de vérifier les rôles
     redirectPath: "/dashboard",
   });
 
@@ -54,7 +54,6 @@ const UserDetails: React.FC<UserDetailsProps> = ({ params }) => {
     lastName: "",
     email: "",
     phoneNumber: "",
-    role: "",
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -66,7 +65,6 @@ const UserDetails: React.FC<UserDetailsProps> = ({ params }) => {
         lastName: user.lastName || "",
         email: user.email || "",
         phoneNumber: user.phoneNumber || "",
-        role: user.role || "",
       });
     }
   }, [user]);

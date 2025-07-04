@@ -11,7 +11,6 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-// Contexte pour le thème
 const ThemeContext = React.createContext({
   isDarkMode: false,
   toggleTheme: () => {},
@@ -19,13 +18,10 @@ const ThemeContext = React.createContext({
 
 export const useTheme = () => React.useContext(ThemeContext);
 
-// Fournisseur de thème
 const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Initialiser le thème en fonction des préférences stockées
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
-    // Vérifier le thème sauvegardé dans localStorage
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)"
@@ -54,33 +50,28 @@ const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   );
 };
 
-// Composant interne qui utilise le contexte d'authentification
 const DashboardContent: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
   const [hoveredIcon, setHoveredIcon] = useState<number | null>(null);
   const { isDarkMode } = useTheme();
 
-  // Utilisation du hook personnalisé pour rendre le body scrollable
   useScrollableBody();
 
   if (isLoading) {
-    return null; // Le LoadingOverlay du AuthContext s'affichera
+    return null;
   }
 
-  // Style du contenu principal
   const contentStyle: CSSProperties = {
     ...styles.contentArea,
     ...(hoveredIcon !== null ? styles.contentWithMenu : {}),
-    // Ajoutez des styles spécifiques au thème sombre si nécessaire
     ...(isDarkMode
       ? { backgroundColor: "var(--color-white)", color: "var(--color-text)" }
       : {}),
   };
 
-  // Style fixe pour la barre latérale (ne change pas en mode sombre)
   const sidebarStyle: CSSProperties = {
     ...styles.fixedSidebar,
-    backgroundColor: "#1F2937", // Couleur fixe, ne changera pas avec le thème
+    backgroundColor: "#1F2937",
   };
 
   return (
@@ -88,12 +79,11 @@ const DashboardContent: React.FC<{ children: ReactNode }> = ({ children }) => {
       <div style={sidebarStyle}>
         <NavBar user={user} />
       </div>
-      <div style={contentStyle}>{children}</div>
+      <main style={contentStyle}>{children}</main>
     </div>
   );
 };
 
-// Layout principal qui fournit les contextes
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   return (
     <ThemeProvider>

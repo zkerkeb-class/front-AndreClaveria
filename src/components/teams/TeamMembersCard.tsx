@@ -16,7 +16,7 @@ interface TeamMembersCardProps {
   teamLeaderId?: string;
   navigateToMember: (memberId: string) => void;
   navigateToMembersManagement: () => void;
-  canManageTeam: boolean; // Nouveau prop pour contrôler l'accès
+  canManageTeam: boolean;
 }
 
 const TeamMembersCard: React.FC<TeamMembersCardProps> = ({
@@ -33,7 +33,6 @@ const TeamMembersCard: React.FC<TeamMembersCardProps> = ({
           <FaUserTie style={styles.sectionIcon} />
           Membres
         </h2>
-        {/* Bouton visible seulement si l'utilisateur peut gérer l'équipe */}
         {canManageTeam && (
           <ActionButton
             onClick={navigateToMembersManagement}
@@ -72,9 +71,6 @@ const TeamMembersCard: React.FC<TeamMembersCardProps> = ({
                     />
                   )}
                 </div>
-                {member.role && (
-                  <div style={styles.memberRole}>{member.role}</div>
-                )}
                 {member.email && (
                   <div style={styles.memberEmail}>
                     <FaEnvelope style={styles.memberEmailIcon} />
@@ -91,7 +87,6 @@ const TeamMembersCard: React.FC<TeamMembersCardProps> = ({
           <div style={styles.noDataText}>
             Aucun membre n'a été ajouté à cette équipe.
           </div>
-          {/* Bouton visible seulement si l'utilisateur peut gérer l'équipe */}
           {canManageTeam && (
             <ActionButton
               onClick={navigateToMembersManagement}

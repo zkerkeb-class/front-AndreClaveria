@@ -103,8 +103,8 @@ export const opportunityFormStyles = {
   },
 
   stepperActiveCircle: {
-    border: "var(--border-big-width) solid var(--color-blue)",
-    color: "var(--color-blue)",
+    border: "var(--border-big-width) solid #3498DB",
+    color: "#3498DB",
   },
 
   stepperCompletedCircle: {
@@ -121,7 +121,7 @@ export const opportunityFormStyles = {
   },
 
   stepperActiveLabel: {
-    color: "var(--color-blue)",
+    color: "#3498DB",
     fontWeight: "var(--font-weight-bold)",
   },
 
@@ -134,7 +134,7 @@ export const opportunityFormStyles = {
 
   stepperProgress: {
     height: "100%",
-    backgroundColor: "var(--color-green)",
+    backgroundColor: "#3498DB",
     borderRadius: "var(--border-small-radius)",
     transition: "width 0.3s ease",
   },
@@ -197,8 +197,6 @@ export const opportunityFormStyles = {
     border: "var(--border-width) solid var(--color-grey-400)",
     borderRadius: "var(--border-small-radius)",
     fontSize: "var(--font-size-small)",
-    backgroundImage:
-      "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
     backgroundRepeat: "no-repeat",
     backgroundPosition: "right 12px center",
     backgroundSize: "16px",
@@ -431,15 +429,18 @@ export const opportunityFormStyles = {
   },
 
   submitStepperButton: {
-    padding: "10px 20px",
-    backgroundColor: "var(--color-green)",
-    color: "var(--color-white)",
+    padding: "12px 32px",
+    backgroundColor: "#3498DB",
     border: "none",
-    borderRadius: "var(--border-small-radius)",
+    color: "#ffffff",
+    borderRadius: "6px",
     cursor: "pointer",
-    fontSize: "var(--font-size-small)",
-    fontWeight: "var(--font-weight-medium)",
-    transition: "var(--animation-transition)",
+    fontSize: "16px",
+    fontWeight: "600",
+    transition: "all 0.2s ease",
+    "&:hover": {
+      backgroundColor: "#2980B9",
+    },
   },
 
   cancelButton: {

@@ -6,9 +6,9 @@ import {
   getOpportunitiesByClient,
   Opportunity,
   updateOpportunity,
+  deleteOpportunity as deleteOpportunityService,
 } from "@/services/opportunity.service";
 import { getClientById, Client } from "@/services/client.service";
-import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 // Types de statut valides pour une opportunité
 type OpportunityStatus =
@@ -21,7 +21,7 @@ type OpportunityStatus =
 
 interface UseOpportunityManagementProps {
   clientId: string;
-  companyId?: string; // Rendu optionnel pour le rôle "user"
+  companyId?: string;
 }
 
 interface UseOpportunityManagementReturn {
@@ -37,6 +37,8 @@ interface UseOpportunityManagementReturn {
   ) => Promise<void>;
   navigateToClientsList: () => void;
   navigateToAddOpportunity: () => void;
+  navigateToEditOpportunity: (opportunityId: string) => void;
+  deleteOpportunity: (opportunityId: string) => Promise<void>;
 }
 
 export const useOpportunityManagement = ({
@@ -51,67 +53,60 @@ export const useOpportunityManagement = ({
   const [isLoadingOpportunities, setIsLoadingOpportunities] = useState(false);
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
 
-  // Utiliser getRoutePrefix pour déterminer le préfixe de route
-  const routePrefix = getRoutePrefix(user?.role);
+  // Fonction pour récupérer les opportunités
+  const fetchOpportunities = async () => {
+    setIsLoadingOpportunities(true);
+    try {
+      const response = await getOpportunitiesByClient(clientId);
+      let opportunitiesData: Opportunity[] = [];
+
+      if (
+        response &&
+        typeof response === "object" &&
+        "data" in response &&
+        Array.isArray(response.data)
+      ) {
+        opportunitiesData = response.data;
+      } else if (Array.isArray(response)) {
+        opportunitiesData = response;
+      }
+
+      setOpportunities(opportunitiesData);
+    } catch (err: any) {
+      console.error("Erreur lors de la récupération des opportunités:", err);
+      setError(
+        err.message ||
+          "Impossible de charger les opportunités. Veuillez réessayer."
+      );
+      setOpportunities([]);
+    } finally {
+      setIsLoadingOpportunities(false);
+    }
+  };
 
   // Fonctions de navigation
   const navigateToClientsList = () => {
-    // Log pour débogage
-    console.log(
-      "navigateToClientsList called, user role:",
-      user?.role,
-      "routePrefix:",
-      routePrefix
-    );
-
-    if (routePrefix === "user") {
-      // Pour les utilisateurs avec rôle "user"
-      router.push(`/dashboard/user/clients`);
-    } else {
-      // Pour les rôles admin et manager
-      const effectiveCompanyId = companyId || client?.company;
-      if (!effectiveCompanyId) {
-        console.error("ID de l'entreprise manquant pour la navigation");
-        return;
-      }
-      router.push(
-        `/dashboard/${routePrefix}/manage/company/clients/${effectiveCompanyId}`
-      );
+    const effectiveCompanyId = companyId || client?.company;
+    if (!effectiveCompanyId) {
+      console.error("ID de l'entreprise manquant pour la navigation");
+      return;
     }
+    router.push(`/dashboard/pipeline/clients?company=${effectiveCompanyId}`);
   };
 
   const navigateToAddOpportunity = () => {
-    // Log pour débogage
-    console.log(
-      "navigateToAddOpportunity called, user role:",
-      user?.role,
-      "routePrefix:",
-      routePrefix
-    );
-
-    if (routePrefix === "user") {
-      // Pour les utilisateurs avec rôle "user"
-      router.push(`/dashboard/user/opportunity/${clientId}/add`);
-    } else {
-      // Pour les rôles admin et manager
-      const effectiveCompanyId = companyId || client?.company;
-      if (!effectiveCompanyId) {
-        console.error("ID de l'entreprise manquant pour la navigation");
-        return;
-      }
-      router.push(
-        `/dashboard/${routePrefix}/manage/company/clients/${effectiveCompanyId}/opportunity/${clientId}/add`
-      );
-    }
+    router.push(`/dashboard/pipeline/clients/opportunity/${clientId}/add`);
   };
 
-  // Vérification de rôle (admin, manager ou user)
+  const navigateToEditOpportunity = (opportunityId: string) => {
+    router.push(
+      `/dashboard/pipeline/clients/opportunity/${clientId}/edit/${opportunityId}`
+    );
+  };
+
+  // Vérification de l'authentification
   useEffect(() => {
-    if (
-      !isLoading &&
-      user &&
-      !["admin", "manager", "user"].includes(user.role)
-    ) {
+    if (!isLoading && !user) {
       router.push("/dashboard");
     }
   }, [user, isLoading, router]);
@@ -128,55 +123,7 @@ export const useOpportunityManagement = ({
       }
     };
 
-    const fetchOpportunities = async () => {
-      setIsLoadingOpportunities(true);
-      try {
-        console.log(
-          "Début de la récupération des opportunités pour le client:",
-          clientId
-        );
-        const response = await getOpportunitiesByClient(clientId);
-        console.log("Réponse reçue pour les opportunités:", response);
-
-        // Extraction des opportunités de la réponse selon sa structure
-        let opportunitiesData: Opportunity[] = [];
-
-        if (
-          response &&
-          typeof response === "object" &&
-          "data" in response &&
-          Array.isArray(response.data)
-        ) {
-          opportunitiesData = response.data;
-          console.log(
-            "Opportunités extraites de la structure d'API:",
-            opportunitiesData
-          );
-        } else if (Array.isArray(response)) {
-          opportunitiesData = response;
-          console.log(
-            "Opportunités directement reçues comme tableau:",
-            opportunitiesData
-          );
-        } else {
-          console.error("Format de réponse non reconnu:", response);
-          // opportunitiesData est déjà initialisé comme un tableau vide
-        }
-
-        setOpportunities(opportunitiesData);
-      } catch (err: any) {
-        console.error("Erreur lors de la récupération des opportunités:", err);
-        setError(
-          err.message ||
-            "Impossible de charger les opportunités. Veuillez réessayer."
-        );
-        setOpportunities([]); // Initialiser avec un tableau vide en cas d'erreur
-      } finally {
-        setIsLoadingOpportunities(false);
-      }
-    };
-
-    if (user && ["admin", "manager", "user"].includes(user.role)) {
+    if (user) {
       fetchClientDetails();
       fetchOpportunities();
     }
@@ -187,7 +134,6 @@ export const useOpportunityManagement = ({
     opportunityId: string,
     newStatus: string
   ) => {
-    // Vérifier que le statut est valide
     if (
       ![
         "lead",
@@ -202,56 +148,36 @@ export const useOpportunityManagement = ({
       return;
     }
 
-    // Convertir le statut en type valide
     const validStatus = newStatus as OpportunityStatus;
 
     try {
-      // Mise à jour optimiste de l'état local
       setOpportunities((prevOpportunities) =>
         prevOpportunities.map((o) =>
           o._id === opportunityId ? { ...o, status: validStatus } : o
         )
       );
 
-      // Appel API pour mettre à jour le statut
       await updateOpportunity(opportunityId, { status: validStatus });
-      console.log(
-        `Opportunité ${opportunityId} mise à jour avec statut: ${validStatus}`
-      );
-
-      // On pourrait ajouter un message de succès ici si nécessaire
     } catch (error) {
       console.error("Erreur lors de la mise à jour du statut:", error);
-
-      // Afficher un message d'erreur à l'utilisateur
       setError(
         "Échec de la mise à jour du statut. Réessayez ou rafraîchissez la page."
       );
 
-      // Rollback en cas d'erreur
-      try {
-        const response = await getOpportunitiesByClient(clientId);
+      await fetchOpportunities();
+    }
+  };
 
-        // Utiliser le même traitement que dans fetchOpportunities
-        let refreshedOpportunities: Opportunity[] = [];
-
-        if (Array.isArray(response)) {
-          refreshedOpportunities = response;
-        } else if (
-          response &&
-          typeof response === "object" &&
-          "data" in response
-        ) {
-          refreshedOpportunities = response.data || [];
-        }
-
-        setOpportunities(refreshedOpportunities);
-      } catch (refreshError) {
-        console.error(
-          "Erreur lors du rafraîchissement des opportunités:",
-          refreshError
-        );
-      }
+  const deleteOpportunity = async (opportunityId: string) => {
+    try {
+      await deleteOpportunityService(opportunityId);
+      setOpportunities((prevOpportunities) =>
+        prevOpportunities.filter((opp) => opp._id !== opportunityId)
+      );
+      navigateToClientsList();
+    } catch (err: any) {
+      console.error("Erreur lors de la suppression:", err);
+      throw err;
     }
   };
 
@@ -265,5 +191,7 @@ export const useOpportunityManagement = ({
     handleStatusChange,
     navigateToClientsList,
     navigateToAddOpportunity,
+    navigateToEditOpportunity,
+    deleteOpportunity,
   };
 };

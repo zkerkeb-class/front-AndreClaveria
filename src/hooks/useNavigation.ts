@@ -1,162 +1,112 @@
 // src/hooks/useNavigation.ts
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
-import { getRoutePrefix } from "@/utils/getRoutePrefix";
-
-interface NavigationRoutes {
-  dashboard: string;
-  phone: {
-    recentCalls: string;
-    favorites: string;
-    schedule: string;
-  };
-  email: {
-    inbox: string;
-    sent: string;
-    drafts: string;
-  };
-  calendar: {
-    agenda: string;
-    appointments: string;
-    events: string;
-  };
-  admin: {
-    userManagement: string;
-    systemSettings: string;
-    activityLogs: string;
-    crmConfiguration: string;
-  };
-  manager: {
-    dashboard: string;
-    salesPerformance: string;
-    salesAnalysis: string;
-    teamStats: string;
-  };
-}
 
 export const useNavigation = () => {
   const router = useRouter();
-  const { user } = useAuth();
 
-  // Déterminer le rôle de l'utilisateur pour la navigation
-  const role = user?.role || "user";
-
-  // Utiliser getRoutePrefix pour obtenir le préfixe de route
-  const routePrefix = getRoutePrefix(role);
-
-  // Routes de base pour chaque type d'utilisateur
-  const baseRoutes: Record<string, string> = {
-    admin: `/dashboard/admin`,
-    manager: `/dashboard/manager`,
-    user: `/dashboard/user`,
-  };
-
-  // Routes spécifiques basées sur le rôle
-  const routes: NavigationRoutes = {
-    dashboard: `/dashboard/${routePrefix}`,
+  const routes = {
+    dashboard: "/dashboard",
+    pipeline: {
+      clients: "/dashboard/pipeline/clients",
+      contacts: {
+        list: "/dashboard/pipeline/contacts",
+        add: "/dashboard/pipeline/contacts/add",
+        edit: "/dashboard/pipeline/contacts/edit",
+      },
+      opportunities: "/dashboard/pipeline/opportunities",
+      deals: "/dashboard/pipeline/deals",
+    },
+    team: {
+      overview: "/dashboard/team",
+      members: "/dashboard/team/members",
+    },
+    profile: "/dashboard/profile",
+    settings: "/dashboard/settings",
     phone: {
-      recentCalls: `/dashboard/${routePrefix}/phone/recent`,
-      favorites: `/dashboard/${routePrefix}/phone/favorites`,
-      schedule: `/dashboard/${routePrefix}/phone/schedule`,
+      recentCalls: "/dashboard/phone/recent-calls",
+      favorites: "/dashboard/phone/favorites",
+      schedule: "/dashboard/phone/schedule",
     },
     email: {
-      inbox: `/dashboard/${routePrefix}/email/inbox`,
-      sent: `/dashboard/${routePrefix}/email/sent`,
-      drafts: `/dashboard/${routePrefix}/email/drafts`,
+      inbox: "/dashboard/email/inbox",
+      sent: "/dashboard/email/sent",
+      drafts: "/dashboard/email/drafts",
     },
     calendar: {
-      agenda: `/dashboard/${routePrefix}/calendar/agenda`,
-      appointments: `/dashboard/${routePrefix}/calendar/appointments`,
-      events: `/dashboard/${routePrefix}/calendar/events`,
+      agenda: "/dashboard/calendar/agenda",
+      appointments: "/dashboard/calendar/appointments",
+      events: "/dashboard/calendar/events",
     },
     admin: {
-      userManagement: "/dashboard/admin/users",
-      systemSettings: "/dashboard/admin/settings",
-      activityLogs: "/dashboard/admin/logs",
-      crmConfiguration: "/dashboard/admin/config",
+      userManagement: "/dashboard/admin/user-management",
+      systemSettings: "/dashboard/admin/system-settings",
+      activityLogs: "/dashboard/admin/activity-logs",
+      crmConfiguration: "/dashboard/admin/crm-configuration",
     },
     manager: {
-      dashboard: "/dashboard/manager",
-      salesPerformance: "/dashboard/manager/performance",
-      salesAnalysis: "/dashboard/manager/analysis",
+      dashboard: "/dashboard/manager/dashboard",
+      salesPerformance: "/dashboard/manager/sales-performance",
+      salesAnalysis: "/dashboard/manager/sales-analysis",
       teamStats: "/dashboard/manager/team-stats",
     },
   };
 
-  // Fonctions de navigation
-  const navigateToDashboard = () => {
-    router.push(routes.dashboard);
+  const navigateTo = (path: string) => {
+    router.push(path);
   };
 
-  const navigateToPhone = (
-    section: keyof typeof routes.phone = "recentCalls"
-  ) => {
+  const navigateToPipeline = (section: keyof typeof routes.pipeline) => {
+    if (section === "contacts") {
+      router.push(routes.pipeline.contacts.list);
+    } else {
+      router.push(routes.pipeline[section]);
+    }
+  };
+
+  const navigateToTeam = (section: keyof typeof routes.team) => {
+    router.push(routes.team[section]);
+  };
+
+  const navigateToPhone = (section: keyof typeof routes.phone) => {
     router.push(routes.phone[section]);
   };
 
-  const navigateToEmail = (section: keyof typeof routes.email = "inbox") => {
+  const navigateToEmail = (section: keyof typeof routes.email) => {
     router.push(routes.email[section]);
   };
 
-  const navigateToCalendar = (
-    section: keyof typeof routes.calendar = "agenda"
-  ) => {
+  const navigateToCalendar = (section: keyof typeof routes.calendar) => {
     router.push(routes.calendar[section]);
   };
 
-  const navigateToAdminSection = (section: keyof typeof routes.admin) => {
-    if (role === "admin") {
-      router.push(routes.admin[section]);
+  const navigateToAdmin = (section: keyof typeof routes.admin) => {
+    router.push(routes.admin[section]);
+  };
+
+  const navigateToManager = (section: keyof typeof routes.manager) => {
+    router.push(routes.manager[section]);
+  };
+
+  const navigateToContact = (action: "list" | "add" | "edit", id?: string, companyId?: string) => {
+    if (action === "edit" && id && companyId) {
+      router.push(`${routes.pipeline.contacts.edit}/${companyId}/${id}`);
+    } else if (action === "add" && companyId) {
+      router.push(`${routes.pipeline.contacts.add}/${companyId}`);
     } else {
-      console.warn("Permission denied: Admin access required");
+      router.push(routes.pipeline.contacts[action]);
     }
-  };
-
-  const navigateToManagerSection = (section: keyof typeof routes.manager) => {
-    if (role === "manager" || role === "admin") {
-      router.push(routes.manager[section]);
-    } else {
-      console.warn("Permission denied: Manager access required");
-    }
-  };
-
-  const navigateToTeam = (teamId: string) => {
-    router.push(`/dashboard/team/${teamId}`);
-  };
-
-  const navigateToCompany = (companyId: string) => {
-    router.push(`/dashboard/company/${companyId}`);
-  };
-
-  const navigateToProfile = () => {
-    router.push(`/dashboard/${routePrefix}/profile`);
-  };
-
-  const goBack = () => {
-    router.back();
-  };
-
-  // Fonction pour naviguer vers n'importe quelle route
-  const navigateTo = (route: string) => {
-    router.push(route);
   };
 
   return {
     routes,
-    navigateToDashboard,
+    navigateTo,
+    navigateToPipeline,
+    navigateToTeam,
     navigateToPhone,
     navigateToEmail,
     navigateToCalendar,
-    navigateToAdminSection,
-    navigateToManagerSection,
-    navigateToTeam,
-    navigateToCompany,
-    navigateToProfile,
-    navigateTo,
-    goBack,
-    baseRoute: `/dashboard/${routePrefix}`,
-    isAdmin: role === "admin",
-    isManager: role === "manager" || role === "admin",
-    role,
+    navigateToAdmin,
+    navigateToManager,
+    navigateToContact,
   };
 };

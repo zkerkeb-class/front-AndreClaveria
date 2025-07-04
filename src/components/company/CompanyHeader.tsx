@@ -4,7 +4,6 @@ import { companyDetailsStyles as styles } from "@/styles/pages/dashboard/admin/c
 import { FaArrowLeft, FaEdit } from "react-icons/fa";
 import ActionButton from "@/components/common/ActionButton";
 import { useAuth } from "@/contexts/AuthContext";
-import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface CompanyHeaderProps {
   companyId: string;
@@ -18,11 +17,8 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
   const router = useRouter();
   const { user } = useAuth();
 
-  // Déterminer le préfixe de route en fonction du rôle de l'utilisateur
-  const routePrefix = getRoutePrefix(user?.role);
-
   const handleEdit = () => {
-    router.push(`/dashboard/${routePrefix}/manage/company/edit/${companyId}`);
+    router.push(`/dashboard/companies/edit/${companyId}`);
   };
 
   return (

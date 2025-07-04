@@ -4,7 +4,6 @@ import {
   FaUser,
   FaEnvelope,
   FaPhone,
-  FaUserShield,
   FaCalendarAlt,
   FaCheck,
 } from "react-icons/fa";
@@ -18,18 +17,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   user,
   formatDate,
 }) => {
-  // Fonction pour obtenir la couleur du badge de rôle
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "#d32f2f"; // Rouge
-      case "manager":
-        return "#1976d2"; // Bleu
-      default:
-        return "#388e3c"; // Vert
-    }
-  };
-
   return (
     <>
       <div style={styles.profileHeader}>
@@ -43,14 +30,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           </h2>
           <div style={styles.profileEmail}>{user.email}</div>
           <div style={styles.profileBadges}>
-            <span
-              style={{
-                ...styles.roleBadge,
-                backgroundColor: getRoleBadgeColor(user.role),
-              }}
-            >
-              {user.role}
-            </span>
             <span
               style={{
                 ...styles.statusBadge,
@@ -95,13 +74,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           <div style={styles.detailsValue}>
             {user.phoneNumber || "Non renseigné"}
           </div>
-        </div>
-        <div style={styles.detailsItem}>
-          <div style={styles.detailsLabel}>
-            <FaUserShield style={{ marginRight: "8px" }} />
-            Rôle
-          </div>
-          <div style={styles.detailsValue}>{user.role}</div>
         </div>
         {user.lastLogin && (
           <div style={styles.detailsItem}>

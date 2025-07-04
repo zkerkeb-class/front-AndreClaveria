@@ -15,8 +15,6 @@ import {
   Opportunity,
   getOpportunitiesByClient,
 } from "@/services/opportunity.service";
-import { useAuth } from "@/contexts/AuthContext";
-import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface UseClientDetailsReturn {
   client: Client | null;
@@ -50,18 +48,10 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
-  const { user } = useAuth();
 
-  // Utiliser getRoutePrefix pour déterminer le préfixe de route
-  const routePrefix = getRoutePrefix(user?.role);
-
-  // Déterminer la structure de route selon le rôle
+  // Base route pour la navigation
   const getBaseRoute = () => {
-    if (routePrefix === "user") {
-      return `/dashboard/user/clients`;
-    } else {
-      return `/dashboard/${routePrefix}/manage`;
-    }
+    return `/dashboard/pipeline`;
   };
 
   useEffect(() => {
@@ -116,8 +106,6 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
         // Récupérer les contacts associés
         try {
           const contactsResponse = await getContactsByClient(clientId);
-
-          // Traitement normalisé de la réponse des contacts
           let normalizedContacts: Contact[] = [];
 
           if (contactsResponse && typeof contactsResponse === "object") {
@@ -125,10 +113,8 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
               "data" in contactsResponse &&
               Array.isArray(contactsResponse.data)
             ) {
-              // Format { success, data }
               normalizedContacts = contactsResponse.data;
             } else if (Array.isArray(contactsResponse)) {
-              // Format tableau direct
               normalizedContacts = contactsResponse;
             }
           }
@@ -142,8 +128,6 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
         // Récupérer les opportunités associées
         try {
           const opportunitiesData = await getOpportunitiesByClient(clientId);
-
-          // Normalisation de la réponse pour les opportunités (même logique que pour les contacts)
           let normalizedOpportunities = Array.isArray(opportunitiesData)
             ? opportunitiesData
             : opportunitiesData &&
@@ -203,9 +187,7 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
     try {
       setIsLoading(true);
       await deleteClient(clientId);
-
-      const baseRoute = getBaseRoute();
-      router.push(`${baseRoute}/company/${company._id}`);
+      router.push(`${getBaseRoute()}/clients/${company._id}`);
       return true;
     } catch (err) {
       console.error("Erreur lors de la suppression du client:", err);
@@ -218,80 +200,40 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
 
   const navigateToCompany = () => {
     if (company) {
-      const baseRoute = getBaseRoute();
-      router.push(`${baseRoute}/company/${company._id}`);
+      router.push(`${getBaseRoute()}/company/${company._id}`);
     }
   };
 
   const navigateToTeam = () => {
     if (team) {
-      const baseRoute = getBaseRoute();
-      router.push(`${baseRoute}/team/${team._id}`);
+      router.push(`${getBaseRoute()}/team/${team._id}`);
     }
   };
 
   const navigateToAssignedUser = () => {
     if (assignedUser) {
-      const baseRoute = getBaseRoute();
-      router.push(`${baseRoute}/users/${assignedUser._id}`);
+      router.push(`${getBaseRoute()}/users/${assignedUser._id}`);
     }
   };
 
   const navigateToContact = (contactId: string) => {
-    const baseRoute = getBaseRoute();
-    router.push(`${baseRoute}/contact/${contactId}`);
+    router.push(`${getBaseRoute()}/contact/${contactId}`);
   };
 
   const navigateToOpportunity = (opportunityId: string) => {
-    const baseRoute = getBaseRoute();
-    if (routePrefix === "user") {
-      router.push(`/dashboard/user/opportunity/${clientId}`);
-    } else {
-      router.push(
-        `${baseRoute}/company/clients/${company?._id}/opportunity/${clientId}`
-      );
-    }
+    router.push(`${getBaseRoute()}/opportunity/${opportunityId}`);
   };
 
   const navigateToContactsManagement = () => {
-    const baseRoute = getBaseRoute();
-    if (routePrefix === "user") {
-      router.push(`${baseRoute}/${company?._id}/edit/${clientId}?step=4`);
-    } else {
-      router.push(
-        `${baseRoute}/company/clients/${company?._id}/edit/${clientId}?step=4`
-      );
-    }
+    router.push(`${getBaseRoute()}/clients/${clientId}/contacts`);
   };
 
   const navigateToOpportunitiesManagement = () => {
-    const baseRoute = getBaseRoute();
-    if (routePrefix === "user") {
-      router.push(`/dashboard/user/opportunity/${clientId}`);
-    } else {
-      router.push(
-        `${baseRoute}/company/clients/${company?._id}/opportunity/${clientId}`
-      );
-    }
+    router.push(`${getBaseRoute()}/clients/${clientId}/opportunities`);
   };
 
   const navigateToMailPage = () => {
-    const baseRoute = getBaseRoute();
-    if (company) {
-      if (routePrefix === "user") {
-        router.push(`${baseRoute}/${company._id}/mail/${clientId}`);
-      } else {
-        router.push(
-          `${baseRoute}/company/clients/${company._id}/mail/${clientId}`
-        );
-      }
-    } else {
-      if (routePrefix === "user") {
-        router.push(`${baseRoute}/${clientId}/mail`);
-      } else {
-        router.push(`${baseRoute}/clients/${clientId}/mail`);
-      }
-    }
+    router.push(`${getBaseRoute()}/clients/${clientId}/mail`);
   };
 
   return {
@@ -305,7 +247,6 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
     error,
     updateClientDetails,
     deleteClientAndNavigate,
-    navigateToMailPage,
     navigateToCompany,
     navigateToTeam,
     navigateToAssignedUser,
@@ -313,5 +254,6 @@ export const useClientDetails = (clientId: string): UseClientDetailsReturn => {
     navigateToOpportunity,
     navigateToContactsManagement,
     navigateToOpportunitiesManagement,
+    navigateToMailPage,
   };
 };

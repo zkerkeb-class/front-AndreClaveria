@@ -1,5 +1,5 @@
 // src/hooks/useContactAssignedUsers.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Contact } from "@/services/contact.service";
 import { getUserById, User } from "@/services/user.service";
 
@@ -7,23 +7,35 @@ interface UseContactAssignedUsersReturn {
   assignedUsers: { [key: string]: User };
   loading: boolean;
   getAssignedUserName: (contact: Contact) => string;
+  filteredContacts: Contact[]; // Nouveaux contacts filtrés
 }
 
 /**
  * Hook pour gérer le chargement et l'accès aux utilisateurs assignés aux contacts
+ * Filtre les contacts pour que l'utilisateur ne voie que ceux qui lui sont assignés
  */
 export const useContactAssignedUsers = (
-  contacts: Contact[]
+  contacts: Contact[] = [], // Valeur par défaut
+  currentUserId: string // ID de l'utilisateur connecté
 ): UseContactAssignedUsersReturn => {
   const [assignedUsers, setAssignedUsers] = useState<{ [key: string]: User }>(
     {}
   );
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Chargement des utilisateurs assignés
+  // Filtrage des contacts assignés à l'utilisateur connecté
+  const filteredContacts = useMemo(() => {
+    if (!contacts || contacts.length === 0 || !currentUserId) return [];
+
+    return contacts.filter(
+      (contact) => contact && contact.assignedTo === currentUserId
+    );
+  }, [contacts, currentUserId]);
+
+  // Chargement des utilisateurs assignés (pour les contacts filtrés)
   useEffect(() => {
     const fetchAssignedUsers = async () => {
-      if (!contacts || contacts.length === 0) return;
+      if (!filteredContacts || filteredContacts.length === 0) return;
 
       setLoading(true);
       const userMap: { [key: string]: User } = {};
@@ -32,7 +44,7 @@ export const useContactAssignedUsers = (
       const userIds = new Set<string>();
 
       // Collecte des IDs uniques des utilisateurs assignés
-      contacts.forEach((contact) => {
+      filteredContacts.forEach((contact) => {
         if (contact.assignedTo) {
           userIds.add(contact.assignedTo);
         }
@@ -65,7 +77,7 @@ export const useContactAssignedUsers = (
     };
 
     fetchAssignedUsers();
-  }, [contacts]);
+  }, [filteredContacts]);
 
   // Fonction pour obtenir le nom de l'utilisateur assigné
   const getAssignedUserName = (contact: Contact): string => {
@@ -84,5 +96,6 @@ export const useContactAssignedUsers = (
     assignedUsers,
     loading,
     getAssignedUserName,
+    filteredContacts, // Retourne les contacts filtrés
   };
 };

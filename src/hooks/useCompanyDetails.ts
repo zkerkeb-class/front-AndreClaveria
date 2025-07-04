@@ -10,7 +10,6 @@ import { getTeamsByCompany, Team } from "@/services/team.service";
 import { getUserById, User } from "@/services/user.service";
 import { getClientsByCompany, Client } from "@/services/client.service";
 import { useAuth } from "@/contexts/AuthContext";
-import { getRoutePrefix } from "@/utils/getRoutePrefix";
 
 interface UseCompanyDetailsReturn {
   company: Company | null;
@@ -50,16 +49,9 @@ export const useCompanyDetails = (
   const router = useRouter();
   const { user } = useAuth();
 
-  // Utiliser getRoutePrefix pour déterminer le préfixe de route
-  const routePrefix = getRoutePrefix(user?.role);
-
-  // Déterminer la structure de route selon le rôle
+  // Base route pour la navigation
   const getBaseRoute = () => {
-    if (routePrefix === "user") {
-      return `/dashboard/user/company`;
-    } else {
-      return `/dashboard/${routePrefix}/manage`;
-    }
+    return `/dashboard/pipeline`;
   };
 
   useEffect(() => {
@@ -85,7 +77,6 @@ export const useCompanyDetails = (
               "Erreur lors de la récupération du manager:",
               managerError
             );
-            // Ne pas échouer complètement si la récupération du manager échoue
           }
         }
 
@@ -98,7 +89,7 @@ export const useCompanyDetails = (
             "Erreur lors de la récupération des équipes:",
             teamsError
           );
-          setTeams([]); // Définir un tableau vide en cas d'erreur
+          setTeams([]);
         }
 
         // Récupérer les clients de l'entreprise
@@ -108,14 +99,7 @@ export const useCompanyDetails = (
           try {
             companyClients = await getClientsByCompany(companyId);
 
-            // Vérification supplémentaire que nous avons bien reçu un tableau
             if (!Array.isArray(companyClients)) {
-              console.warn(
-                "getClientsByCompany n'a pas retourné un tableau, conversion:",
-                companyClients
-              );
-
-              // Si c'est un objet, essayer de trouver un tableau dedans
               if (companyClients && typeof companyClients === "object") {
                 const possibleArrayProps = Object.keys(companyClients).find(
                   (key) => Array.isArray((companyClients as any)[key])
@@ -124,11 +108,9 @@ export const useCompanyDetails = (
                 if (possibleArrayProps) {
                   companyClients = (companyClients as any)[possibleArrayProps];
                 } else {
-                  // Si pas de tableau trouvé, convertir en tableau vide
                   companyClients = [];
                 }
               } else {
-                // Si ce n'est pas un objet, initialiser à un tableau vide
                 companyClients = [];
               }
             }
@@ -143,7 +125,7 @@ export const useCompanyDetails = (
             "Erreur lors de la récupération des clients:",
             clientsError
           );
-          setClients([]); // Définir un tableau vide en cas d'erreur
+          setClients([]);
         }
       } catch (err) {
         console.error("Error fetching company details:", err);
@@ -158,7 +140,7 @@ export const useCompanyDetails = (
     }
   }, [companyId]);
 
-  // Calculer les clients paginés - s'assurer que clients est bien un tableau
+  // Calculer les clients paginés
   const safeClients = Array.isArray(clients) ? clients : [];
   const paginatedClients = safeClients.slice(
     (currentPage - 1) * itemsPerPage,
@@ -192,55 +174,30 @@ export const useCompanyDetails = (
   };
 
   const navigateToTeam = (teamId: string) => {
-    const baseRoute = getBaseRoute();
-    if (routePrefix === "user") {
-      router.push(`/dashboard/user/teams/${teamId}`);
-    } else {
-      router.push(`${baseRoute}/company/teams/${companyId}/${teamId}`);
-    }
+    router.push(`${getBaseRoute()}/team/${teamId}`);
   };
 
   const navigateToClient = (clientId: string) => {
-    const baseRoute = getBaseRoute();
-    if (routePrefix === "user") {
-      router.push(`/dashboard/user/clients/${clientId}`);
-    } else {
-      router.push(`${baseRoute}/company/clients/${companyId}/${clientId}`);
-    }
+    router.push(`${getBaseRoute()}/client/${clientId}`);
   };
 
   const navigateToManager = (managerId: string) => {
-    const baseRoute = getBaseRoute();
-    if (routePrefix === "user") {
-      router.push(`/dashboard/user/users/${managerId}`);
-    } else {
-      router.push(`${baseRoute}/users/${managerId}`);
-    }
+    router.push(`${getBaseRoute()}/user/${managerId}`);
   };
 
   const navigateToTeamsManagement = () => {
-    const baseRoute = getBaseRoute();
-    if (routePrefix === "user") {
-      router.push(`/dashboard/user/teams?company=${companyId}`);
-    } else {
-      router.push(`${baseRoute}/company/teams/${companyId}`);
-    }
+    router.push(`${getBaseRoute()}/teams?company=${companyId}`);
   };
 
   const navigateToClientsManagement = () => {
-    const baseRoute = getBaseRoute();
-    if (routePrefix === "user") {
-      router.push(`/dashboard/user/clients?company=${companyId}`);
-    } else {
-      router.push(`${baseRoute}/company/clients/${companyId}`);
-    }
+    router.push(`${getBaseRoute()}/clients?company=${companyId}`);
   };
 
   return {
     company,
     manager,
     teams,
-    clients: safeClients, // S'assurer que nous retournons toujours un tableau
+    clients: safeClients,
     isLoading,
     error,
     currentPage,

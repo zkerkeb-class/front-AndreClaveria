@@ -25,15 +25,15 @@ const AdminDashboard: React.FC = () => {
     navigateToSystemHealth,
   } = useAdminDashboard();
 
-  // Utilisation du hook pour vérifier le rôle admin
-  const hasAdminRole = useRoleCheck({
+  // Vérification de l'accès
+  const hasAccess = useRoleCheck({
     isLoading,
     user,
-    requiredRole: "admin",
+    requiredRole: [], // Plus besoin de vérifier les rôles
     redirectPath: "/dashboard",
   });
 
-  if (isLoading || !user || !hasAdminRole) {
+  if (isLoading || !user || !hasAccess) {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
 

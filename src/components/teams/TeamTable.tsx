@@ -25,8 +25,7 @@ const TeamTable: React.FC<TeamTableProps> = ({
   const router = useRouter();
 
   // Utilisation du hook personnalisé
-  const { loadingLeaders, getLeaderName, formatDate, getRoutePrefix } =
-    useTeamTable({ teams });
+  const { loadingLeaders, getLeaderName, formatDate } = useTeamTable({ teams });
 
   const columns: TableColumn<Team>[] = [
     {
@@ -62,18 +61,12 @@ const TeamTable: React.FC<TeamTableProps> = ({
     {
       header: "Actions",
       accessor: (team) => {
-        const routePrefix = getRoutePrefix();
-
         return (
           <div
             style={{ display: "flex", justifyContent: "center", gap: "10px" }}
           >
             <ActionButton
-              onClick={() =>
-                router.push(
-                  `/dashboard/${routePrefix}/manage/company/teams/${companyId}/edit/${team._id}`
-                )
-              }
+              onClick={() => router.push(`/dashboard/teams/edit/${team._id}`)}
               variant="secondary"
               size="medium"
             >
@@ -81,9 +74,7 @@ const TeamTable: React.FC<TeamTableProps> = ({
             </ActionButton>
             <ActionButton
               onClick={() =>
-                router.push(
-                  `/dashboard/${routePrefix}/manage/company/teams/${companyId}/members/${team._id}`
-                )
+                router.push(`/dashboard/teams/members/${team._id}`)
               }
               size="medium"
             >

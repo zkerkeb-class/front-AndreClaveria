@@ -11,9 +11,11 @@ import {
 } from "@/services/opportunity.service";
 import { getClientById, Client } from "@/services/client.service";
 import { getCompanyById, Company } from "@/services/company.service";
-import { getAllUsers, User } from "@/services/user.service";
+import { getAllUsers, User, getUserById } from "@/services/user.service";
 import { getContactsByClient, Contact } from "@/services/contact.service";
-import { getRoutePrefix } from "@/utils/getRoutePrefix";
+import { fetchUserDashboard } from "@/services/dashboard.service";
+import { DashboardData } from "./useUserDashboard";
+import { getTeamById, Team } from "@/services/team.service";
 
 // Interface pour les produits dans le formulaire
 export interface ProductFormData {
@@ -38,7 +40,7 @@ interface OpportunityFormData {
 
 interface UseOpportunityFormProps {
   mode: "create" | "edit";
-  companyId?: string; // Rendu optionnel pour le rôle "user"
+  companyId?: string;
   clientId: string;
   opportunityId?: string;
 }
@@ -53,6 +55,7 @@ interface UseOpportunityFormReturn {
   availableContacts: Contact[];
   selectedContacts: string[];
   originalOpportunity: Opportunity | null;
+  currentUserTeamId: string | null;
 
   // États du chargement et des erreurs
   dataLoading: boolean;
@@ -95,9 +98,6 @@ interface UseOpportunityFormReturn {
   calculateProductsTotal: () => number;
 }
 
-/**
- * Hook personnalisé pour gérer le formulaire des opportunités
- */
 export const useOpportunityForm = ({
   mode,
   companyId,
@@ -106,9 +106,6 @@ export const useOpportunityForm = ({
 }: UseOpportunityFormProps): UseOpportunityFormReturn => {
   const router = useRouter();
   const { user, isLoading, setLoadingWithMessage } = useAuth();
-
-  // Utiliser getRoutePrefix pour déterminer le préfixe de route
-  const routePrefix = getRoutePrefix(user?.role);
 
   // États des données
   const [company, setCompany] = useState<Company | null>(null);
@@ -119,6 +116,9 @@ export const useOpportunityForm = ({
   const [dataLoading, setDataLoading] = useState(true);
   const [originalOpportunity, setOriginalOpportunity] =
     useState<Opportunity | null>(null);
+  const [currentUserTeamId, setCurrentUserTeamId] = useState<string | null>(
+    null
+  );
 
   // Données du formulaire
   const [formData, setFormData] = useState<OpportunityFormData>({
@@ -156,13 +156,9 @@ export const useOpportunityForm = ({
   // Calcul du pourcentage de progression
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
 
-  // Vérification des droits d'accès
+  // Vérification de l'authentification
   useEffect(() => {
-    if (
-      !isLoading &&
-      user &&
-      !["admin", "manager", "user"].includes(user.role)
-    ) {
+    if (!isLoading && !user) {
       router.push("/dashboard");
     }
   }, [user, isLoading, router]);
@@ -172,12 +168,64 @@ export const useOpportunityForm = ({
     let isMounted = true;
 
     const fetchData = async () => {
-      if (!user || !["admin", "manager", "user"].includes(user.role)) {
+      if (!user) {
         return;
       }
 
       try {
         setDataLoading(true);
+
+        // Récupération des données du tableau de bord pour obtenir l'ID de l'équipe de l'utilisateur connecté
+        const dashboardData: DashboardData = await fetchUserDashboard();
+        let userTeamId: string | null = null;
+        if (dashboardData.teams && dashboardData.teams.length > 0) {
+          userTeamId = dashboardData.teams[0]._id;
+          setCurrentUserTeamId(userTeamId);
+
+          // Récupérer les membres de cette équipe
+          try {
+            const teamData = await getTeamById(userTeamId);
+            let teamMembers: User[] = [];
+
+            if (teamData.members && Array.isArray(teamData.members)) {
+              if (typeof teamData.members[0] === "string") {
+                // Si les membres sont des IDs
+                // Récupérer les détails complets pour chaque membre ID
+                const memberPromises = teamData.members.map(
+                  async (memberId) => {
+                    try {
+                      return await getUserById(memberId as string);
+                    } catch (memberErr) {
+                      console.error(
+                        `Erreur lors de la récupération du membre ${memberId}:`,
+                        memberErr
+                      );
+                      return null; // Retourner null en cas d'erreur
+                    }
+                  }
+                );
+                // Filtrer les membres null et s'assurer qu'ils sont de type User
+                teamMembers = (await Promise.all(memberPromises)).filter(
+                  (member) => member !== null
+                ) as User[];
+              } else {
+                // Si les membres sont déjà des objets User
+                // S'assurer qu'ils sont bien de type User[] (bien que l'API doive le garantir)
+                teamMembers = teamData.members as User[];
+              }
+            }
+            if (isMounted) setUsers(teamMembers); // Mettre à jour l'état 'users' avec les membres de l'équipe
+          } catch (teamErr) {
+            console.error(
+              `Erreur lors de la récupération de l'équipe ${userTeamId}:`,
+              teamErr
+            );
+            if (isMounted) setUsers([]); // Aucune équipe ou erreur, pas de membres
+          }
+        } else {
+          setCurrentUserTeamId(null); // Aucune équipe trouvée pour l'utilisateur
+          if (isMounted) setUsers([]); // Aucun membre si pas d'équipe
+        }
 
         // Récupération des détails de l'entreprise (si companyId est fourni)
         if (companyId) {
@@ -189,15 +237,11 @@ export const useOpportunityForm = ({
         const clientData = await getClientById(clientId);
         if (isMounted) setClient(clientData);
 
-        // Si companyId n'est pas fourni mais que le client a une entreprise (rôle "user")
+        // Si companyId n'est pas fourni mais que le client a une entreprise
         if (!companyId && clientData?.company) {
           const companyData = await getCompanyById(clientData.company);
           if (isMounted) setCompany(companyData);
         }
-
-        // Récupération des utilisateurs
-        const usersData = await getAllUsers();
-        if (isMounted) setUsers(usersData);
 
         // Récupération des contacts du client
         const contactsResponse = await getContactsByClient(clientId);
@@ -218,18 +262,15 @@ export const useOpportunityForm = ({
         if (mode === "edit" && opportunityId) {
           try {
             const opportunityData = await getOpportunityById(opportunityId);
-            console.log("Données opportunité reçues:", opportunityData);
 
             if (isMounted) {
               if (!opportunityData) {
-                console.error("Aucune donnée d'opportunité reçue");
                 setError("Impossible de charger les détails de l'opportunité.");
                 return;
               }
 
               setOriginalOpportunity(opportunityData);
 
-              // Vérifier et extraire correctement les valeurs des propriétés
               const assignedToId = opportunityData.assignedTo
                 ? typeof opportunityData.assignedTo === "object" &&
                   opportunityData.assignedTo
@@ -237,16 +278,6 @@ export const useOpportunityForm = ({
                   : opportunityData.assignedTo
                 : "";
 
-              // Logging pour déboguer
-              console.log("ID assigné extrait:", assignedToId);
-              console.log("opportunityData.status:", opportunityData.status);
-              console.log("opportunityData.value:", opportunityData.value);
-              console.log(
-                "opportunityData.probability:",
-                opportunityData.probability
-              );
-
-              // Mise à jour du formulaire avec les données de l'opportunité
               setFormData({
                 title: opportunityData.title || "",
                 description: opportunityData.description || "",
@@ -283,12 +314,10 @@ export const useOpportunityForm = ({
                     : true,
               });
 
-              // Chargement des produits
               if (
                 opportunityData.products &&
                 Array.isArray(opportunityData.products)
               ) {
-                console.log("Produits trouvés:", opportunityData.products);
                 setProducts(
                   opportunityData.products.map((product: Product) => ({
                     name: product.name || "",
@@ -300,19 +329,13 @@ export const useOpportunityForm = ({
                         : 1,
                   }))
                 );
-              } else {
-                console.log("Aucun produit trouvé dans l'opportunité");
               }
 
-              // Chargement des contacts
               if (
                 opportunityData.contacts &&
                 Array.isArray(opportunityData.contacts)
               ) {
-                console.log("Contacts trouvés:", opportunityData.contacts);
                 setSelectedContacts(opportunityData.contacts);
-              } else {
-                console.log("Aucun contact trouvé dans l'opportunité");
               }
             }
           } catch (err) {
@@ -341,7 +364,6 @@ export const useOpportunityForm = ({
 
   // Navigation entre les étapes
   const nextStep = () => {
-    // Validation de l'étape actuelle avant de passer à la suivante
     if (currentStep === 1 && !formData.title) {
       setError("Le titre de l'opportunité est obligatoire");
       return;
@@ -425,24 +447,12 @@ export const useOpportunityForm = ({
     }
   };
 
-  // Fonction pour générer l'URL de redirection après soumission
-  const getRedirectUrl = () => {
-    if (routePrefix === "user") {
-      return `/dashboard/user/opportunity/${clientId}`;
-    } else {
-      // Utiliser soit companyId fourni, soit celui récupéré du client
-      const effectiveCompanyId = companyId || client?.company;
-      return `/dashboard/${routePrefix}/manage/company/clients/${effectiveCompanyId}/opportunity/${clientId}`;
-    }
-  };
-
   // Soumission du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
 
-    // Validation finale
     if (!formData.title) {
       setError("Le titre de l'opportunité est obligatoire");
       return;
@@ -453,7 +463,6 @@ export const useOpportunityForm = ({
       return;
     }
 
-    // S'assurer que nous avons un companyId valide (soit fourni, soit depuis le client)
     const effectiveCompanyId = companyId || client?.company;
     if (!effectiveCompanyId) {
       setError("ID de l'entreprise manquant");
@@ -464,7 +473,6 @@ export const useOpportunityForm = ({
       const actionText = mode === "create" ? "Création" : "Mise à jour";
       setLoadingWithMessage(true, `${actionText} de l'opportunité...`);
 
-      // Filtrer les produits valides
       const validProducts = products
         .filter((p) => p.name && p.price > 0 && p.quantity > 0)
         .map((p) => ({
@@ -473,7 +481,6 @@ export const useOpportunityForm = ({
           quantity: p.quantity,
         }));
 
-      // Préparer les données de l'opportunité
       const opportunityData = {
         title: formData.title,
         description: formData.description || undefined,
@@ -493,33 +500,22 @@ export const useOpportunityForm = ({
       let opportunityResponse;
 
       if (mode === "create") {
-        console.log("Données pour création de l'opportunité:", opportunityData);
         opportunityResponse = await createOpportunity(opportunityData);
-        console.log("Opportunité créée avec succès:", opportunityResponse);
         setSuccess(
           `Opportunité "${opportunityResponse.title}" créée avec succès !`
         );
       } else {
-        console.log(
-          "Données pour mise à jour de l'opportunité:",
-          opportunityData
-        );
         opportunityResponse = await updateOpportunity(
           opportunityId!,
           opportunityData
-        );
-        console.log(
-          "Opportunité mise à jour avec succès:",
-          opportunityResponse
         );
         setSuccess(
           `Opportunité "${opportunityResponse.title}" mise à jour avec succès !`
         );
       }
 
-      // Redirection après 2 secondes
       setTimeout(() => {
-        router.push(getRedirectUrl());
+        router.push(`/dashboard/pipeline/clients/opportunity/${clientId}`);
       }, 2000);
     } catch (err: any) {
       console.error(
@@ -544,7 +540,6 @@ export const useOpportunityForm = ({
     return users.find((u) => u._id === id)?.firstName || "Non assigné";
   };
 
-  // Calculer le total des produits
   const calculateProductsTotal = () => {
     return products.reduce(
       (sum, product) => sum + product.price * product.quantity,
@@ -553,7 +548,6 @@ export const useOpportunityForm = ({
   };
 
   return {
-    // États des données
     formData,
     products,
     company,
@@ -562,38 +556,23 @@ export const useOpportunityForm = ({
     availableContacts,
     selectedContacts,
     originalOpportunity,
-
-    // États du chargement et des erreurs
     dataLoading,
     error,
     success,
-
-    // États de la progression
     currentStep,
     totalSteps,
     steps,
     progressPercentage,
-
-    // Handlers pour les données du formulaire
     handleChange,
-
-    // Handlers pour les produits
     addProduct,
     removeProduct,
     handleProductChange,
-
-    // Handlers pour les contacts
     handleContactSelection,
-
-    // Navigation
     nextStep,
     prevStep,
-
-    // Soumission
     handleSubmit,
-
-    // Helpers
     findUserById,
     calculateProductsTotal,
+    currentUserTeamId,
   };
 };

@@ -9,7 +9,6 @@ interface UserEditFormProps {
     lastName: string;
     email: string;
     phoneNumber: string;
-    role: string;
   };
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -85,24 +84,6 @@ const UserEditForm: React.FC<UserEditFormProps> = ({
           onChange={handleChange}
           style={styles.input}
         />
-      </div>
-
-      <div style={styles.formGroup}>
-        <label style={styles.label} htmlFor="role">
-          Rôle
-        </label>
-        <select
-          id="role"
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          style={styles.select}
-          required
-        >
-          <option value="user">Utilisateur</option>
-          <option value="manager">Manager</option>
-          <option value="admin">Administrateur</option>
-        </select>
       </div>
 
       <div style={styles.actionsContainer}>

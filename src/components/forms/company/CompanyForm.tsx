@@ -30,14 +30,11 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ mode, companyId }) => {
     isLoadingCompany,
     handleChange,
     handleSubmit,
-    getRoutePrefix,
   } = useCompanyForm({ mode, companyId });
 
   if (isLoading || !user) {
     return null; // Le LoadingOverlay du AuthContext s'affichera
   }
-
-  const routePrefix = getRoutePrefix();
 
   // Si mode édition et chargement des données, afficher un message de chargement
   if (mode === "edit" && !originalCompany && isLoadingCompany) {
@@ -65,9 +62,7 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ mode, companyId }) => {
             : "Modifier l'entreprise"}
         </h1>
         <button
-          onClick={() =>
-            router.push(`/dashboard/${routePrefix}/manage/company`)
-          }
+          onClick={() => router.push(`/dashboard/companies`)}
           style={styles.backButton}
         >
           Retour à la liste
@@ -109,9 +104,7 @@ const CompanyForm: React.FC<CompanyFormProps> = ({ mode, companyId }) => {
           <div style={styles.buttonContainer}>
             <button
               type="button"
-              onClick={() =>
-                router.push(`/dashboard/${routePrefix}/manage/company`)
-              }
+              onClick={() => router.push(`/dashboard/companies`)}
               style={styles.cancelButton}
             >
               Annuler

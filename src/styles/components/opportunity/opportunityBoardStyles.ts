@@ -1,7 +1,4 @@
-// styles/components/opportunity/opportunityBoardStyles.ts
-
 export const opportunityBoardStyles = {
-  // Styles principaux
   loadingContainer: {
     display: "flex",
     justifyContent: "center",
@@ -17,7 +14,6 @@ export const opportunityBoardStyles = {
     color: "var(--color-grey-600)",
   },
 
-  // Styles pour la vue en liste
   tableContainer: {
     overflowX: "auto" as const,
   },
@@ -79,7 +75,6 @@ export const opportunityBoardStyles = {
     fontSize: "var(--font-size-small-small)",
   },
 
-  // Styles pour la vue Kanban
   kanbanContainer: {
     display: "flex",
     overflowX: "auto" as const,
@@ -170,7 +165,6 @@ export const opportunityBoardStyles = {
     borderRadius: "var(--border-radius)",
   },
 
-  // Couleurs des statuts
   statusColors: {
     lead: "var(--color-green)",
     qualified: "var(--color-warning)",
@@ -181,16 +175,15 @@ export const opportunityBoardStyles = {
   },
 };
 
-// Statuts des opportunités pour l'utilisation avec le style
 export const statusColumns = [
-  { id: "lead", label: "Nouveaux", color: "var(--color-green)" },
-  { id: "qualified", label: "Qualifié", color: "var(--color-warning)" },
-  { id: "proposition", label: "En négociation", color: "var(--color-warning)" },
+  { id: "lead", label: "Nouveaux", color: "#A3B18A" },
+  { id: "qualified", label: "Qualifié", color: "#E9C46A" },
+  { id: "proposition", label: "En négociation", color: "#E76F51" },
   {
     id: "negotiation",
     label: "En attente de validation",
-    color: "var(--color-blue)",
+    color: "#3498DB",
   },
-  { id: "won", label: "Terminé (Gagné)", color: "var(--color-green)" },
-  { id: "lost", label: "Terminé (Perdu)", color: "var(--color-red)" },
+  { id: "won", label: "Terminé", color: "#F4F1DE" },
+  { id: "lost", label: "Terminé (Perdu)", color: "#F4F1DE" },
 ];

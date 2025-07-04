@@ -94,6 +94,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [isLoading]);
 
+  // Fonction pour vérifier la validité du token
+  const checkTokenValidity = () => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      handleLogout();
+    }
+  };
+
+  // Fonction centralisée pour la déconnexion
+  const handleLogout = () => {
+    setLoadingWithMessage(true, "Déconnexion en cours...");
+    document.documentElement.setAttribute("data-theme", "light");
+    logoutService();
+    setToken(null);
+    setUser(null);
+    router.push("/auth");
+    setIsLoading(false);
+  };
+
+  // Vérification périodique du token
+  useEffect(() => {
+    // Vérifier toutes les 5 minutes
+    const intervalId = setInterval(checkTokenValidity, 5 * 60 * 1000);
+
+    // Vérifier aussi lors du focus de la fenêtre
+    const handleFocus = () => {
+      checkTokenValidity();
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
+
   // Charge l'utilisateur et le token depuis le localStorage au démarrage
   useEffect(() => {
     const loadUserFromStorage = () => {
@@ -186,22 +223,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Fonction de déconnexion modifiée pour gérer le thème
   const logout = () => {
-    setLoadingWithMessage(true, "Déconnexion en cours...");
-
-    // 1. Réinitialiser d'abord le thème à "light" avant de supprimer les données
-    document.documentElement.setAttribute("data-theme", "light");
-
-    // 2. Ensuite appeler logoutService qui supprime les données du localStorage
-    logoutService();
-
-    // 3. Réinitialiser l'état local
-    setToken(null);
-    setUser(null);
-
-    // 4. Enfin, rediriger vers la page d'authentification
-    router.push("/auth");
-
-    setIsLoading(false);
+    handleLogout();
   };
 
   // Fonction de mise à jour du profil

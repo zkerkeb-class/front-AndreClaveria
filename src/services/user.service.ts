@@ -9,21 +9,22 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: string;
   active: boolean;
+  role: string;
   provider?: string;
   phoneNumber?: string;
   lastLogin?: string;
+  companyId?: string;
+  teams?: string[]; // IDs des équipes auxquelles l'utilisateur appartient
 }
 
 export interface UpdateUserRequest {
   firstName?: string;
   lastName?: string;
   email?: string;
-  role?: string;
   active?: boolean;
   phoneNumber?: string;
-  password?: string; // Ajout du champ password
+  password?: string;
 }
 
 export interface UserCreateInput {
@@ -31,12 +32,12 @@ export interface UserCreateInput {
   firstName: string;
   lastName: string;
   email: string;
-  role: string;
   active: boolean;
   provider?: string;
   phoneNumber?: string;
   lastLogin?: string;
 }
+
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;

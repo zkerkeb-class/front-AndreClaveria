@@ -32,7 +32,6 @@ const TeamForm: React.FC<TeamFormProps> = ({ mode, companyId, teamId }) => {
     isLoadingData,
     handleChange,
     handleSubmit,
-    getRoutePrefix,
   } = useTeamForm({
     mode,
     companyId,
@@ -60,8 +59,6 @@ const TeamForm: React.FC<TeamFormProps> = ({ mode, companyId, teamId }) => {
     );
   }
 
-  const routePrefix = getRoutePrefix();
-
   return (
     <div>
       <div style={styles.header}>
@@ -76,11 +73,7 @@ const TeamForm: React.FC<TeamFormProps> = ({ mode, companyId, teamId }) => {
           )}
         </div>
         <button
-          onClick={() =>
-            router.push(
-              `/dashboard/${routePrefix}/manage/company/teams/${companyId}`
-            )
-          }
+          onClick={() => router.push(`/dashboard/teams`)}
           style={styles.backButton}
         >
           Retour à la liste
@@ -112,11 +105,7 @@ const TeamForm: React.FC<TeamFormProps> = ({ mode, companyId, teamId }) => {
           <div style={styles.buttonContainer}>
             <button
               type="button"
-              onClick={() =>
-                router.push(
-                  `/dashboard/${routePrefix}/manage/company/teams/${companyId}`
-                )
-              }
+              onClick={() => router.push(`/dashboard/teams`)}
               style={styles.cancelButton}
             >
               Annuler

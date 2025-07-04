@@ -32,6 +32,7 @@ interface UseClientReturn {
   ) => Promise<boolean>;
   deleteClientById: (clientId: string) => Promise<boolean>;
   resetError: () => void;
+  setClient: (client: Client | null) => void; // ✅ NOUVELLE FONCTION AJOUTÉE
 }
 
 export const useClient = ({
@@ -46,6 +47,11 @@ export const useClient = ({
 
   // Fonction pour réinitialiser les erreurs
   const resetError = () => setError(null);
+
+  // ✅ FONCTION POUR MISE À JOUR DIRECTE DU CLIENT
+  const setClientDirectly = (newClient: Client | null) => {
+    setClient(newClient);
+  };
 
   // Charger tous les clients d'une entreprise
   const loadClients = async (companyId: string): Promise<void> => {
@@ -145,31 +151,46 @@ export const useClient = ({
     clientId: string,
     clientData: Partial<Client>
   ): Promise<boolean> => {
-    setIsLoading(true);
+    // ✅ NE PAS METTRE setIsLoading(true) pour éviter le flicker
     setError(null);
 
     try {
+      console.log(`🔄 Mise à jour du client ${clientId} avec:`, clientData);
+
       const updatedClient = await updateClient(clientId, clientData);
 
-      // Mettre à jour les données locales
-      setClient((prev) =>
-        prev && prev._id === clientId ? updatedClient : prev
-      );
+      // ✅ AMÉLIORATION : Mettre à jour les données locales CORRECTEMENT
+      setClient((prev) => {
+        if (prev && prev._id === clientId) {
+          // Merger les nouvelles données avec les anciennes au lieu de remplacer
+          const merged = { ...prev, ...updatedClient };
+          console.log("✅ Client mis à jour dans le state:", merged);
+          return merged;
+        }
+        return prev;
+      });
+
       setClients((prev) =>
-        prev.map((c) => (c._id === clientId ? updatedClient : c))
+        prev.map((c) => {
+          if (c._id === clientId) {
+            // Même chose pour la liste des clients
+            return { ...c, ...updatedClient };
+          }
+          return c;
+        })
       );
 
+      console.log("✅ Mise à jour réussie dans useClient");
       return true;
     } catch (err: any) {
       console.error(
-        `Erreur lors de la mise à jour du client ${clientId}:`,
+        `❌ Erreur lors de la mise à jour du client ${clientId}:`,
         err
       );
       setError(err.message || "Impossible de mettre à jour le client");
       return false;
-    } finally {
-      setIsLoading(false);
     }
+    // ✅ PAS DE setIsLoading(false) ici pour éviter les re-renders inutiles
   };
 
   // Supprimer un client
@@ -222,5 +243,6 @@ export const useClient = ({
     updateClientData,
     deleteClientById,
     resetError,
+    setClient: setClientDirectly, // ✅ EXPOSER LA FONCTION setClient
   };
 };

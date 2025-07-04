@@ -12,8 +12,8 @@ interface UseRoleCheckProps {
 }
 
 /**
- * Hook personnalisé pour vérifier si l'utilisateur a un rôle requis
- * Redirige l'utilisateur s'il n'a pas le rôle approprié
+ * Hook personnalisé pour vérifier l'accès à une page
+ * Retourne toujours true car nous n'utilisons plus de rôles
  */
 export const useRoleCheck = ({
   isLoading,
@@ -26,26 +26,13 @@ export const useRoleCheck = ({
   useEffect(() => {
     if (isLoading) return;
 
-    // Si l'utilisateur n'est pas connecté ou n'a pas de rôle
-    if (!user || !user.role) {
+    // Si l'utilisateur n'est pas connecté
+    if (!user) {
       router.push(redirectPath);
       return;
     }
+  }, [isLoading, user, redirectPath, router]);
 
-    // Vérification du rôle
-    const hasRequiredRole = Array.isArray(requiredRole)
-      ? requiredRole.includes(user.role)
-      : user.role === requiredRole;
-
-    if (!hasRequiredRole) {
-      router.push(redirectPath);
-    }
-  }, [isLoading, user, requiredRole, redirectPath, router]);
-
-  // Retourne true si l'utilisateur a le rôle requis
-  if (isLoading || !user || !user.role) return false;
-
-  return Array.isArray(requiredRole)
-    ? requiredRole.includes(user.role)
-    : user.role === requiredRole;
+  // Retourne true si l'utilisateur est connecté
+  return !isLoading && !!user;
 };

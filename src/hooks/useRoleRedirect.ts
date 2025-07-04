@@ -12,7 +12,8 @@ interface UseRoleRedirectProps {
 }
 
 /**
- * Hook personnalisé pour rediriger l'utilisateur en fonction de son rôle
+ * Hook personnalisé pour rediriger l'utilisateur
+ * Redirige toujours vers le chemin par défaut
  */
 export const useRoleRedirect = ({
   isLoading,
@@ -24,10 +25,6 @@ export const useRoleRedirect = ({
 
   useEffect(() => {
     if (isLoading || !user) return;
-
-    const userRole = user.role || "default";
-    const redirectPath = roleRedirects[userRole] || defaultRedirect;
-
-    router.push(redirectPath);
-  }, [isLoading, user, roleRedirects, defaultRedirect, router]);
+    router.push(defaultRedirect);
+  }, [isLoading, user, defaultRedirect, router]);
 };

@@ -2,10 +2,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 
 /**
- * Hook pour déterminer le préfixe de route basé sur le rôle de l'utilisateur
- * @returns Le préfixe de route ('admin' ou 'manager')
+ * Hook pour déterminer le préfixe de route
+ * @returns Le préfixe de route ('dashboard')
  */
 export const useRoutePrefix = (): string => {
-  const { user } = useAuth();
-  return user?.role === "admin" ? "admin" : "manager";
+  return "dashboard";
 };

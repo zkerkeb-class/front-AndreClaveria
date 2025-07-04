@@ -12,7 +12,6 @@ import {
 } from "react-icons/fa";
 
 export default function UserDashboard() {
-  // Utilisation du hook personnalisé pour gérer la logique du tableau de bord
   const { dashboardData, loading, error, navigateToTeam } = useUserDashboard();
 
   if (loading) {

@@ -20,6 +20,9 @@ interface TableProps<T> {
   styleProps?: TableStyleProps;
   pagination?: boolean; // Activer/désactiver la pagination
   defaultItemsPerPage?: 5 | 10 | 25; // Nombre d'éléments par page par défaut
+  paginationActiveColor?: string; // Couleur de fond pour le numéro de page actif
+  paginationTextColor?: string; // Couleur du texte pour les numéros de page
+  onRowClick?: (item: T) => void;
 }
 
 const Table = <T extends object>({
@@ -32,6 +35,9 @@ const Table = <T extends object>({
   styleProps,
   pagination = true,
   defaultItemsPerPage = 10,
+  paginationActiveColor = "#A3B18A", // Couleur par défaut si non spécifiée
+  paginationTextColor = "#A3B18A", // Couleur par défaut si non spécifiée
+  onRowClick,
 }: TableProps<T>) => {
   const styles = tableStyles(styleProps);
 
@@ -106,47 +112,6 @@ const Table = <T extends object>({
     setCurrentPage(1); // Revenir à la première page
   };
 
-  // Style pour les contrôles de pagination
-  const paginationStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: "16px",
-    padding: "8px 16px",
-    backgroundColor: "#f7f9fc",
-    borderRadius: "8px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  };
-
-  const pageButtonStyle = (isActive: boolean): React.CSSProperties => ({
-    padding: "4px 10px",
-    margin: "0 4px",
-    backgroundColor: isActive ? "#1976d2" : "#ffffff",
-    color: isActive ? "#ffffff" : "#333333",
-    border: isActive ? "1px solid #1976d2" : "1px solid #dddddd",
-    borderRadius: "4px",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-  });
-
-  const disabledButtonStyle: React.CSSProperties = {
-    padding: "4px 10px",
-    margin: "0 4px",
-    backgroundColor: "#f0f0f0",
-    color: "#aaaaaa",
-    border: "1px solid #dddddd",
-    borderRadius: "4px",
-    cursor: "not-allowed",
-  };
-
-  const selectStyle: React.CSSProperties = {
-    padding: "4px 8px",
-    borderRadius: "4px",
-    border: "1px solid #dddddd",
-    backgroundColor: "#ffffff",
-    marginLeft: "8px",
-  };
-
   if (isLoading) {
     return (
       <div
@@ -195,14 +160,30 @@ const Table = <T extends object>({
                   ...styles.rowStyle(rowIndex % 2 === 1),
                 }}
               >
-                {columns.map((column, colIndex) => (
-                  <td
-                    key={colIndex}
-                    style={getCellStyle(column, rowIndex % 2 === 1)}
-                  >
-                    {renderCell(item, column)}
-                  </td>
-                ))}
+                {columns.map((column, colIndex) => {
+                  const isLastColumn = colIndex === columns.length - 1;
+                  const cellStyle = {
+                    ...getCellStyle(column, rowIndex % 2 === 1),
+                    cursor: !isLastColumn && onRowClick ? "pointer" : undefined,
+                  };
+
+                  return (
+                    <td
+                      key={colIndex}
+                      style={cellStyle}
+                      onClick={
+                        !isLastColumn && onRowClick
+                          ? (e) => {
+                              e.stopPropagation();
+                              onRowClick(item);
+                            }
+                          : undefined
+                      }
+                    >
+                      {renderCell(item, column)}
+                    </td>
+                  );
+                })}
               </tr>
             ))
           )}
@@ -211,111 +192,131 @@ const Table = <T extends object>({
 
       {/* Contrôles de pagination */}
       {pagination && data.length > 0 && (
-        <div style={paginationStyle}>
-          <div>
-            <span style={{ marginRight: "10px" }}>
-              Afficher
-              <select
-                value={itemsPerPage}
-                onChange={(e) =>
-                  handleItemsPerPageChange(
-                    Number(e.target.value) as 5 | 10 | 25
-                  )
-                }
-                style={selectStyle}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            margin: "0 16px 16px",
+            borderRadius: "8px",
+          }}
+        >
+          {/* Pagination Controls */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            {/* Pagination buttons in the middle/right */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+              }}
+            >
+              {/* Previous button */}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                style={{
+                  padding: "4px 10px",
+                  backgroundColor: "transparent",
+                  color: currentPage === 1 ? "#aaaaaa" : paginationTextColor,
+                  border: "1px solid transparent",
+                  borderRadius: "4px",
+                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                  transition: "all 0.2s ease",
+                  outline: "none",
+                }}
               >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-              </select>
-              éléments
-            </span>
+                &lt; Prev
+              </button>
 
-            <span>
-              {data.length > 0
-                ? `${(currentPage - 1) * itemsPerPage + 1} - ${Math.min(
-                    currentPage * itemsPerPage,
-                    data.length
-                  )} sur ${data.length}`
-                : "0 élément"}
-            </span>
-          </div>
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    style={{
+                      padding: "4px 10px",
+                      backgroundColor:
+                        page === currentPage
+                          ? paginationActiveColor
+                          : "transparent",
+                      color:
+                        page === currentPage ? "#ffffff" : paginationTextColor,
+                      border:
+                        page === currentPage
+                          ? `1px solid ${paginationActiveColor}`
+                          : `1px solid ${paginationTextColor}`,
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      outline: "none",
+                    }}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
 
-          <div>
-            <button
-              onClick={() => handlePageChange(1)}
-              disabled={currentPage === 1}
-              style={
-                currentPage === 1 ? disabledButtonStyle : pageButtonStyle(false)
-              }
-              aria-label="Première page"
-            >
-              &laquo;
-            </button>
+              {/* Next button */}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: "4px 10px",
+                  backgroundColor: "transparent",
+                  color:
+                    currentPage === totalPages
+                      ? "#aaaaaa"
+                      : paginationTextColor,
+                  border: "1px solid transparent",
+                  borderRadius: "4px",
+                  cursor:
+                    currentPage === totalPages ? "not-allowed" : "pointer",
+                  transition: "all 0.2s ease",
+                  outline: "none",
+                }}
+              >
+                Next &gt;
+              </button>
 
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              style={
-                currentPage === 1 ? disabledButtonStyle : pageButtonStyle(false)
-              }
-              aria-label="Page précédente"
-            >
-              &lsaquo;
-            </button>
-
-            {/* Affichage des numéros de page */}
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              // Logique pour afficher les numéros de page autour de la page courante
-              let pageNum = currentPage;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => handlePageChange(pageNum)}
-                  style={pageButtonStyle(pageNum === currentPage)}
-                  aria-label={`Page ${pageNum}`}
-                  aria-current={pageNum === currentPage ? "page" : undefined}
+              {/* "X per page" on the right */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginLeft: "10px",
+                }}
+              >
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) =>
+                    handleItemsPerPageChange(
+                      Number(e.target.value) as 5 | 10 | 25
+                    )
+                  }
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: "4px",
+                    border: "1px solid #dddddd",
+                    backgroundColor: "#ffffff",
+                    marginRight: "5px",
+                    color: paginationTextColor,
+                  }}
                 >
-                  {pageNum}
-                </button>
-              );
-            })}
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages || totalPages === 0}
-              style={
-                currentPage === totalPages || totalPages === 0
-                  ? disabledButtonStyle
-                  : pageButtonStyle(false)
-              }
-              aria-label="Page suivante"
-            >
-              &rsaquo;
-            </button>
-
-            <button
-              onClick={() => handlePageChange(totalPages)}
-              disabled={currentPage === totalPages || totalPages === 0}
-              style={
-                currentPage === totalPages || totalPages === 0
-                  ? disabledButtonStyle
-                  : pageButtonStyle(false)
-              }
-              aria-label="Dernière page"
-            >
-              &raquo;
-            </button>
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                </select>
+                <span style={{ color: paginationTextColor }}>par page</span>
+              </div>
+            </div>
           </div>
         </div>
       )}

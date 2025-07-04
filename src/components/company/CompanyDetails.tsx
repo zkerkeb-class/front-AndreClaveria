@@ -48,11 +48,11 @@ const CompanyDetails: React.FC<CompanyDetailsProps> = ({ params }) => {
   } = useCompanyDetails(companyId);
 
   const { navigateBack } = useNavigation();
-  // Vérification du rôle pour l'accès
+  // Vérification de l'accès
   const hasAccess = useRoleCheck({
     isLoading: isAuthLoading,
     user,
-    requiredRole: ["admin", "manager", "user"],
+    requiredRole: [], // Plus besoin de vérifier les rôles
     redirectPath: "/dashboard",
   });
 

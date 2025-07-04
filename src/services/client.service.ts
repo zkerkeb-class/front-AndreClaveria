@@ -17,48 +17,67 @@ export interface Client {
   phone?: string;
   email?: string;
   logo?: string;
-  company: string; // Référence à l'entreprise propriétaire
-  team?: string; // Équipe responsable
-  assignedTo?: string; // ID utilisateur responsable
-  goodForCustomer?: number; // Score de 0 à 100, défaut 50
-  contacts?: string[]; // IDs des contacts
-  opportunities?: string[]; // IDs des opportunités
-  isActive: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-export interface ContactInput {
-  firstName: string;
-  lastName: string;
-  position?: string;
-  email?: string;
-  phone?: string;
-  mobile?: string;
-  isPrimary?: boolean;
-  notes?: string;
+  company: string; // ID de l'entreprise propriétaire
+  team?: string; // ID de l'équipe responsable (optionnel)
+  assignedTo?: string; // ID utilisateur responsable (optionnel)
+  goodForCustomer?: number; // Indicateur "bonne poire" (0-100)
+  contacts?: string[]; // IDs des contacts - gérés par le service contact
+  opportunities?: string[]; // IDs des opportunités - gérées par le service opportunité
+  isActive?: boolean;
+
+  // Données commerciales
+  estimatedBudget?: number; // Budget estimé en €
+  companySize?: "1-10" | "11-50" | "51-200" | "200+"; // Taille entreprise
+  hasWorkedWithUs?: boolean; // Déjà client ?
+  knowsUs?: boolean; // Nous connaît ?
+
+  // Pipeline de vente
+  stage?:
+    | "prospect"
+    | "contacted"
+    | "interested"
+    | "proposal"
+    | "negotiation"
+    | "closed_won"
+    | "closed_lost";
+  lastContactDate?: Date; // Dernier contact avec le client
+  urgency?: "low" | "medium" | "high"; // Urgence du besoin
+
+  // Interactions (limitées à 5 max)
+  interactions?: {
+    date: Date;
+    type:
+      | "call"
+      | "email"
+      | "meeting"
+      | "demo"
+      | "proposal"
+      | "follow_up"
+      | "other";
+    outcome: "positive" | "neutral" | "negative" | "no_response";
+    notes?: string; // Limite des notes (200 caractères max)
+  }[];
+
+  // Résultats IA (calculés automatiquement)
+  aiScore?: number; // Score IA de 0 à 100
+  aiRecommendation?: string; // Recommandation d'action
+  aiLastAnalysis?: Date; // Date de la dernière analyse IA
+
+  // Timestamps
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-// Type étendu pour inclure les contacts lors de la création
-export interface ClientCreateInput {
+// Type pour la création d'un nouveau Client (sans _id)
+export interface ClientCreateInput
+  extends Omit<Client, "_id" | "createdAt" | "updatedAt"> {
   name: string;
-  description?: string;
-  sector?: string;
-  address?: {
-    street?: string;
-    city?: string;
-    zipCode?: string;
-    country?: string;
-  };
-  phone?: string;
-  email?: string;
-  logo?: string;
   company: string;
-  team?: string;
-  assignedTo?: string;
-  goodForCustomer?: number;
   isActive?: boolean;
-  contacts?: ContactInput[];
 }
+
+// Type avec _id optionnel pour les inputs
+export type ClientInput = Omit<Client, "_id"> & { _id?: string };
 const headers = {
   "Content-Type": "application/json",
 };
@@ -88,7 +107,8 @@ export const getAllClients = async (): Promise<Client[]> => {
       );
     }
 
-    return await response.json();
+    const result = await response.json();
+    return result.data || [];
   } catch (error: any) {
     console.error("getAllClients error:", error);
     throw error;
@@ -108,7 +128,7 @@ export const getClientById = async (id: string): Promise<Client> => {
     const response = await fetch(`${API_URL}/clients/${id}`, {
       method: "GET",
       headers: {
-        ...headers,
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
@@ -116,33 +136,37 @@ export const getClientById = async (id: string): Promise<Client> => {
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
-        errorData.message || "Erreur lors de la récupération du client"
+        errorData.error ||
+          errorData.message ||
+          "Erreur lors de la récupération du client"
       );
     }
 
-    // Ajouter du debug pour voir la structure de la réponse
     const data = await response.json();
-    console.log("Réponse de getClientById:", data);
 
-    // Gérer différentes structures de réponse
-    if (data && data.data) {
+    // Gérer différents formats de réponse possibles
+    if (data.success && data.data) {
       return data.data;
-    } else if (data && data._id) {
+    } else if (data._id) {
+      // Si la réponse est directement l'objet client
       return data;
-    } else {
-      console.warn("Structure de réponse inattendue dans getClientById:", data);
-      return data;
+    } else if (data.client) {
+      // Si la réponse contient un champ client
+      return data.client;
     }
+
+    throw new Error("Format de réponse invalide");
   } catch (error: any) {
     console.error(`getClientById error for id ${id}:`, error);
-    throw error;
+    throw new Error(
+      error.message || "Erreur lors de la récupération du client"
+    );
   }
 };
 
 /**
  * Récupère les clients par entreprise
  */
-// Modification de la fonction getClientsByCompany dans client.service.ts
 export const getClientsByCompany = async (
   companyId: string
 ): Promise<Client[]> => {
@@ -168,28 +192,8 @@ export const getClientsByCompany = async (
       );
     }
 
-    // Ajouter du debug pour voir la structure de la réponse
-    const data = await response.json();
-    console.log("Structure de la réponse API:", data);
-
-    // Vérifier si la réponse est directement un tableau ou si les données sont dans une propriété
-    if (Array.isArray(data)) {
-      return data;
-    } else if (data && Array.isArray(data.data)) {
-      return data.data;
-    } else if (data && typeof data === "object") {
-      // Chercher une propriété qui contient un tableau
-      const possibleArrayProps = Object.keys(data).find((key) =>
-        Array.isArray(data[key])
-      );
-      if (possibleArrayProps) {
-        return data[possibleArrayProps];
-      }
-    }
-
-    // Si nous arrivons ici, la structure n'est pas celle attendue
-    console.error("Structure de réponse inattendue:", data);
-    return []; // Retourner un tableau vide pour éviter les erreurs
+    const result = await response.json();
+    return result.data || [];
   } catch (error: any) {
     console.error(`getClientsByCompany error for company ${companyId}:`, error);
     throw error;
@@ -288,6 +292,11 @@ export const createClient = async (
 /**
  * Met à jour un client
  */
+// services/client.service.ts (partie updateClient améliorée)
+
+/**
+ * Met à jour un client
+ */
 export const updateClient = async (
   id: string,
   clientData: Partial<Client>
@@ -297,6 +306,8 @@ export const updateClient = async (
     if (!token) {
       throw new Error("Non authentifié");
     }
+
+    console.log(`🔄 Mise à jour du client ${id} avec:`, clientData);
 
     const response = await fetch(`${API_URL}/clients/${id}`, {
       method: "PUT",
@@ -314,9 +325,26 @@ export const updateClient = async (
       );
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("📤 Réponse API mise à jour:", data);
+
+    // ✅ Gérer différents formats de réponse possibles
+    if (data.success && data.data) {
+      return data.data;
+    } else if (data.client) {
+      return data.client;
+    } else if (data._id) {
+      // Si c'est directement l'objet client
+      return data;
+    } else if (data.updatedClient) {
+      return data.updatedClient;
+    }
+
+    // Si aucun format reconnu, retourner tel quel
+    console.warn("⚠️ Format de réponse inattendu:", data);
+    return data;
   } catch (error: any) {
-    console.error(`updateClient error for id ${id}:`, error);
+    console.error(`❌ updateClient error for id ${id}:`, error);
     throw error;
   }
 };

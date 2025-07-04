@@ -52,7 +52,8 @@ export const getAllContacts = async (): Promise<Contact[]> => {
       );
     }
 
-    return await response.json();
+    const result = await response.json();
+    return result.data || [];
   } catch (error: any) {
     console.error("getAllContacts error:", error);
     throw error;
@@ -64,6 +65,7 @@ export const getAllContacts = async (): Promise<Contact[]> => {
  */
 export const getContactById = async (id: string): Promise<Contact> => {
   try {
+    console.log("getContactById called with ID:", id);
     const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("Non authentifié");
@@ -77,14 +79,25 @@ export const getContactById = async (id: string): Promise<Contact> => {
       },
     });
 
+    console.log("API Response status:", response.status);
+
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("API Error response:", errorData);
       throw new Error(
         errorData.message || "Erreur lors de la récupération du contact"
       );
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("API Response data:", data);
+
+    // Vérifier si la réponse contient les données dans data.data
+    if (data.success && data.data) {
+      return data.data;
+    }
+
+    throw new Error("Format de réponse invalide");
   } catch (error: any) {
     console.error(`getContactById error for id ${id}:`, error);
     throw error;
@@ -174,7 +187,8 @@ export const getContactsByCompany = async (
       );
     }
 
-    return await response.json();
+    const result = await response.json();
+    return result.data || [];
   } catch (error: any) {
     console.error(
       `getContactsByCompany error for company ${companyId}:`,
@@ -191,6 +205,7 @@ export const createContact = async (
   contactData: Partial<Contact>
 ): Promise<Contact> => {
   try {
+    console.log("Données du contact à créer:", contactData);
     const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("Non authentifié");
@@ -205,17 +220,47 @@ export const createContact = async (
       body: JSON.stringify(contactData),
     });
 
+    console.log("Statut de la réponse:", response.status);
+    const responseData = await response.json();
+    console.log("Réponse complète de l'API:", responseData);
+
     if (!response.ok) {
-      const errorData = await response.json();
+      // Si l'API renvoie un message d'erreur détaillé
+      if (responseData.error) {
+        throw new Error(responseData.error);
+      }
+      // Si l'API renvoie un message dans data
+      if (responseData.data && responseData.data.message) {
+        throw new Error(responseData.data.message);
+      }
+      // Si l'API renvoie un message direct
+      if (responseData.message) {
+        throw new Error(responseData.message);
+      }
+      // Message d'erreur par défaut avec le statut
       throw new Error(
-        errorData.message || "Erreur lors de la création du contact"
+        `Erreur lors de la création du contact (${response.status})`
       );
     }
 
-    return await response.json();
+    // Vérifier si la réponse contient les données dans data.data
+    if (responseData.success && responseData.data) {
+      return responseData.data;
+    }
+
+    // Si la réponse est directement le contact
+    if (responseData._id) {
+      return responseData;
+    }
+
+    console.error("Format de réponse inattendu:", responseData);
+    throw new Error("Format de réponse invalide");
   } catch (error: any) {
-    console.error("createContact error:", error);
-    throw error;
+    console.error("Erreur détaillée lors de la création du contact:", error);
+    if (error.message) {
+      throw new Error(error.message);
+    }
+    throw new Error("Erreur lors de la création du contact");
   }
 };
 
