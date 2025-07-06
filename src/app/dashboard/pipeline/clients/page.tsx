@@ -90,8 +90,6 @@ const ClientList: React.FC = () => {
             style={{
               fontSize: "50px",
               marginBottom: "8px",
-              color: "#333333",
-              fontFamily: "var(--font-first)",
             }}
           >
             Clients

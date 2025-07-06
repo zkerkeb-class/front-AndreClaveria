@@ -1,16 +1,63 @@
-// services/ai.service.ts
+// services/ai.service.ts - INTERFACES MISES À JOUR
 
 const AI_API_URL =
-  process.env.NEXT_PUBLIC_AI_API_URL || "http://localhost:3005/api";
+  process.env.NEXT_PUBLIC_API_URL_IA || "http://localhost:3005/api";
 
-// Types correspondant exactement à votre backend + config IA
+// ✅ Interface complète correspondant exactement à votre API
 export interface AIAnalysisResult {
+  // Données de base (existantes)
   score: number; // Score de 0 à 100
-  recommendation: string; // Recommandation d'action
-  reasoning: string; // Raisonnement de l'IA
-  priority: "disqualified" | "low" | "medium" | "high" | "critical"; // ✅ Mis à jour
-  nextAction: string; // Prochaine action recommandée
-  timeframe: string; // Délai recommandé
+  recommendation?: string; // Recommandation d'action simple
+  reasoning?: string; // Raisonnement de l'IA
+  priority:
+    | "disqualified"
+    | "low"
+    | "medium"
+    | "high"
+    | "critical"
+    | "basse"
+    | "moyenne"
+    | "haute";
+  nextAction?: string; // Prochaine action recommandée
+  timeframe?: string; // Délai recommandé
+
+  // ✅ Nouvelles données complètes de votre API
+  category?: string; // Catégorie du client (ex: "révision")
+  timestamp?: string; // Timestamp de l'analyse
+
+  // Arrays détaillés
+  strengths?: string[]; // Forces du client
+  weaknesses?: string[]; // Faiblesses du client
+
+  // Recommandations détaillées
+  recommendations?: {
+    immediate?: string; // Actions immédiates
+    shortTerm?: string; // Court terme
+    longTerm?: string; // Long terme
+  };
+
+  // Évaluation des risques
+  riskAssessment?: {
+    level?: string; // "high", "medium", "low"
+    factors?: string[]; // Facteurs de risque
+    mitigation?: string; // Stratégie d'atténuation
+  };
+
+  // Plan d'action détaillé
+  nextSteps?: {
+    action?: string; // Action à mener
+    timeframe?: string; // Délai pour l'action
+    responsible?: string; // Responsable
+    success_metrics?: string; // Métriques de succès
+  };
+}
+
+// ✅ Interface pour la réponse complète de l'API
+export interface AIAnalysisResponse {
+  success: boolean;
+  clientId: string;
+  analysis: AIAnalysisResult;
+  timestamp: string;
 }
 
 export interface AIHealthStatus {
@@ -46,7 +93,7 @@ export const checkAIHealth = async (): Promise<AIHealthStatus> => {
 
     console.log(`🔍 Vérification santé du service IA: ${AI_API_URL}/health`);
 
-    const response = await fetch(`${AI_API_URL}/health`, {
+    const response = await fetch(`http://localhost:3005/health`, {
       method: "GET",
       headers: {
         ...headers,
@@ -82,7 +129,7 @@ export const checkAIHealth = async (): Promise<AIHealthStatus> => {
 };
 
 /**
- * Analyser un client spécifique avec l'IA
+ * ✅ Analyser un client spécifique avec l'IA - MISE À JOUR
  */
 export const analyzeClient = async (
   clientId: string
@@ -122,18 +169,18 @@ export const analyzeClient = async (
     const data = await response.json();
     console.log("🎯 Résultat de l'analyse IA brut:", data);
 
-    // Gérer différents formats de réponse possibles selon votre backend
+    // ✅ Gérer le format de réponse de votre API
     let analysisResult: AIAnalysisResult;
 
-    if (data.success && data.data) {
-      // Format: { success: true, data: AIAnalysisResult }
-      analysisResult = data.data;
+    if (data.success && data.analysis) {
+      // Format: { success: true, analysis: AIAnalysisResult, clientId, timestamp }
+      analysisResult = {
+        ...data.analysis,
+        timestamp: data.timestamp, // Ajouter le timestamp de la réponse
+      };
     } else if (data.score !== undefined) {
       // Format direct: AIAnalysisResult
-      analysisResult = data;
-    } else if (data.analysis) {
-      // Format: { analysis: AIAnalysisResult }
-      analysisResult = data.analysis;
+      analysisResult = data as AIAnalysisResult;
     } else {
       throw new Error("Format de réponse invalide du service IA");
     }
@@ -145,18 +192,43 @@ export const analyzeClient = async (
 
     console.log("✅ Analyse IA terminée:", {
       score: analysisResult.score,
+      category: analysisResult.category,
       priority: analysisResult.priority,
-      nextAction: analysisResult.nextAction,
+      strengthsCount: analysisResult.strengths?.length || 0,
+      weaknessesCount: analysisResult.weaknesses?.length || 0,
+      hasRecommendations: !!analysisResult.recommendations,
+      hasRiskAssessment: !!analysisResult.riskAssessment,
+      hasNextSteps: !!analysisResult.nextSteps,
     });
 
+    // ✅ Retourner les données complètes avec fallbacks pour compatibilité
     return {
       score: analysisResult.score,
-      recommendation:
-        analysisResult.recommendation || "Aucune recommandation disponible",
-      reasoning: analysisResult.reasoning || "Raisonnement non fourni",
+      category: analysisResult.category,
       priority: analysisResult.priority || "medium",
-      nextAction: analysisResult.nextAction || "Contacter le client",
-      timeframe: analysisResult.timeframe || "Cette semaine",
+      reasoning: analysisResult.reasoning || "Raisonnement non fourni",
+      timestamp: analysisResult.timestamp,
+
+      // Données détaillées (nouvelles)
+      strengths: analysisResult.strengths || [],
+      weaknesses: analysisResult.weaknesses || [],
+      recommendations: analysisResult.recommendations,
+      riskAssessment: analysisResult.riskAssessment,
+      nextSteps: analysisResult.nextSteps,
+
+      // Fallbacks pour compatibilité avec l'ancien format
+      recommendation:
+        analysisResult.recommendation ||
+        analysisResult.recommendations?.immediate ||
+        "Aucune recommandation disponible",
+      nextAction:
+        analysisResult.nextAction ||
+        analysisResult.nextSteps?.action ||
+        "Contacter le client",
+      timeframe:
+        analysisResult.timeframe ||
+        analysisResult.nextSteps?.timeframe ||
+        "Cette semaine",
     };
   } catch (error: any) {
     console.error(
@@ -222,7 +294,7 @@ export const formatAIScore = (score: number): string => {
 };
 
 /**
- * Fonction utilitaire pour formater la priorité (mise à jour)
+ * ✅ Fonction utilitaire pour formater la priorité - MISE À JOUR
  */
 export const formatPriority = (
   priority: AIAnalysisResult["priority"]
@@ -231,10 +303,13 @@ export const formatPriority = (
     case "critical":
       return "🚨 Critique";
     case "high":
+    case "haute":
       return "🔴 Haute";
     case "medium":
+    case "moyenne":
       return "🟡 Moyenne";
     case "low":
+    case "basse":
       return "🟢 Basse";
     case "disqualified":
       return "❌ Disqualifié";
@@ -256,7 +331,7 @@ export const getScoreColor = (score: number): string => {
 };
 
 /**
- * Obtenir la couleur de la priorité (mise à jour)
+ * ✅ Obtenir la couleur de la priorité - MISE À JOUR
  */
 export const getPriorityColor = (
   priority: AIAnalysisResult["priority"]
@@ -265,10 +340,13 @@ export const getPriorityColor = (
     case "critical":
       return "#D32F2F"; // Rouge foncé
     case "high":
+    case "haute":
       return "#F44336"; // Rouge
     case "medium":
+    case "moyenne":
       return "#FF9800"; // Orange
     case "low":
+    case "basse":
       return "#4CAF50"; // Vert
     case "disqualified":
       return "#9E9E9E"; // Gris

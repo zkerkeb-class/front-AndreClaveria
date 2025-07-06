@@ -42,8 +42,6 @@ export default function EditContactPage() {
           style={{
             fontSize: "50px",
             marginBottom: "8px",
-            color: "#333333",
-            fontFamily: "var(--font-first)",
           }}
         >
           {isEditMode ? "Modifier le contact" : "Créer un contact"}

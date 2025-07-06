@@ -1,6 +1,7 @@
 "use client";
 import React, { ReactNode, useState, useEffect } from "react";
 import NavBar from "@/components/common/NavBar";
+import Chatbot from "@/components/chatbot/Chatbot";
 import { NavbarProvider } from "@/contexts/NavBarContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useScrollableBody } from "@/hooks/useScrollableBody";
@@ -79,7 +80,16 @@ const DashboardContent: React.FC<{ children: ReactNode }> = ({ children }) => {
       <div style={sidebarStyle}>
         <NavBar user={user} />
       </div>
-      <main style={contentStyle}>{children}</main>
+      <main style={contentStyle}>
+        {children}
+
+        {/* Chatbot intégré */}
+        <Chatbot
+          position="bottom-right"
+          theme={isDarkMode ? "dark" : "light"}
+          className="dashboard-chatbot"
+        />
+      </main>
     </div>
   );
 };
