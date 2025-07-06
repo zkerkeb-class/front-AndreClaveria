@@ -25,7 +25,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ clientId, clientName }) => {
     runAnalysis,
     clearError,
     lastAnalysisDate,
-  } = useClientAI(clientId, false); // Pas d'auto-analyse
+  } = useClientAI(clientId, false);
 
   const handleAnalyze = async () => {
     clearError();
@@ -34,13 +34,13 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ clientId, clientName }) => {
 
   const isAnalysisRecent =
     lastAnalysisDate &&
-    Date.now() - lastAnalysisDate.getTime() < 24 * 60 * 60 * 1000; // 24h
+    Date.now() - lastAnalysisDate.getTime() < 24 * 60 * 60 * 1000;
 
   const getScoreColorExtended = (score: number) => {
-    if (score >= 80) return "#4CAF50"; // Vert
-    if (score >= 60) return "#FF9800"; // Orange
-    if (score >= 40) return "#FFC107"; // Jaune
-    return "#F44336"; // Rouge
+    if (score >= 80) return "#4CAF50";
+    if (score >= 60) return "#FF9800";
+    if (score >= 40) return "#FFC107";
+    return "#F44336";
   };
 
   const getPriorityColorExtended = (priority: string) => {
@@ -790,58 +790,8 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ clientId, clientName }) => {
           )}
 
           {/* Bouton pour afficher/masquer le debug */}
-          <div style={{ textAlign: "center", marginTop: "20px" }}>
-            <ActionButton
-              onClick={() => setShowFullAnalysis(!showFullAnalysis)}
-              variant="secondary"
-              size="small"
-            >
-              {showFullAnalysis
-                ? "Masquer les données debug"
-                : "Voir les données debug"}
-              <span style={{ marginLeft: "5px" }}>
-                {showFullAnalysis ? "🔼" : "🔽"}
-              </span>
-            </ActionButton>
-          </div>
 
           {/* DONNÉES TECHNIQUES DEBUG */}
-          {showFullAnalysis && (
-            <details
-              style={{
-                backgroundColor: "#e9ecef",
-                padding: "15px",
-                borderRadius: "8px",
-                border: "1px solid #dee2e6",
-                marginTop: "15px",
-              }}
-            >
-              <summary
-                style={{
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  color: "#495057",
-                  marginBottom: "10px",
-                }}
-              >
-                🔧 Données Techniques Complètes
-              </summary>
-              <pre
-                style={{
-                  backgroundColor: "#f8f9fa",
-                  padding: "15px",
-                  borderRadius: "4px",
-                  fontSize: "12px",
-                  overflow: "auto",
-                  color: "#212529",
-                  fontFamily: "monospace",
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {JSON.stringify(analysis, null, 2)}
-              </pre>
-            </details>
-          )}
         </div>
       )}
 

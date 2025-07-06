@@ -631,23 +631,6 @@ const ClientDetail: React.FC = () => {
         >
           {client.name}
         </h1>
-        <p style={{ color: "#666", fontSize: "16px" }}>ID: {client._id}</p>
-
-        {/* 🔍 DEBUG: Bouton pour forcer l'analyse des données */}
-        <button
-          onClick={debugClientDataForAI}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            marginTop: "10px",
-          }}
-        >
-          🔍 Debug: Analyser les données IA
-        </button>
       </div>
 
       <div
@@ -1233,56 +1216,6 @@ const ClientDetail: React.FC = () => {
 
       {/* ✅ COMPOSANT ANALYSE IA */}
       <div style={{ marginTop: "30px" }}>
-        <h3 style={{ marginBottom: "15px", color: "#333" }}>
-          🤖 Analyse IA du Client
-        </h3>
-        {/* 🔍 DEBUG: Affichage des données transmises */}
-        <div
-          style={{
-            backgroundColor: "#e8f4fd",
-            padding: "15px",
-            borderRadius: "8px",
-            marginBottom: "15px",
-            border: "1px solid #bee5eb",
-          }}
-        >
-          <h4 style={{ margin: "0 0 10px 0", color: "#0c5460" }}>
-            🔍 Données Debug pour l'IA:
-          </h4>
-          <div style={{ fontSize: "12px", fontFamily: "monospace" }}>
-            <p>
-              <strong>Client ID:</strong> {client._id}
-            </p>
-            <p>
-              <strong>Budget:</strong> {client.estimatedBudget || "❌ Manquant"}
-            </p>
-            <p>
-              <strong>Taille:</strong> {client.companySize || "❌ Manquant"}
-            </p>
-            <p>
-              <strong>Score:</strong> {client.goodForCustomer || "❌ Manquant"}
-            </p>
-            <p>
-              <strong>Ancien client:</strong>{" "}
-              {client.hasWorkedWithUs ? "✅ Oui" : "❌ Non"}
-            </p>
-            <p>
-              <strong>Nous connaît:</strong>{" "}
-              {client.knowsUs ? "✅ Oui" : "❌ Non"}
-            </p>
-            <p>
-              <strong>Interactions:</strong> {localInteractions.length} (
-              {localInteractions.length > 0 ? "✅ OK" : "❌ Aucune"})
-            </p>
-            <p>
-              <strong>Secteur:</strong> {client.sector || "❌ Manquant"}
-            </p>
-            <p>
-              <strong>Actif:</strong>{" "}
-              {client.isActive !== false ? "✅ Oui" : "❌ Non"}
-            </p>
-          </div>
-        </div>
         <AIAnalysis clientId={client._id} clientName={client.name} />
       </div>
 
