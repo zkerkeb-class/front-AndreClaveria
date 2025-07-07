@@ -28,9 +28,9 @@ export const useNavigation = () => {
       schedule: "/dashboard/phone/schedule",
     },
     email: {
-      inbox: "/dashboard/email/inbox",
-      sent: "/dashboard/email/sent",
-      drafts: "/dashboard/email/drafts",
+      inbox: "/dashboard/mail/",
+      sent: "/dashboard/mail/",
+      drafts: "/dashboard/mail/",
     },
     calendar: {
       agenda: "/dashboard/calendar/agenda",
@@ -87,7 +87,11 @@ export const useNavigation = () => {
     router.push(routes.manager[section]);
   };
 
-  const navigateToContact = (action: "list" | "add" | "edit", id?: string, companyId?: string) => {
+  const navigateToContact = (
+    action: "list" | "add" | "edit",
+    id?: string,
+    companyId?: string
+  ) => {
     if (action === "edit" && id && companyId) {
       router.push(`${routes.pipeline.contacts.edit}/${companyId}/${id}`);
     } else if (action === "add" && companyId) {

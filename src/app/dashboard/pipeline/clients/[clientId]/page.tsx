@@ -16,9 +16,6 @@ const ClientDetail: React.FC = () => {
   // Récupération du clientId depuis les paramètres d'URL
   const clientId = params.clientId as string;
 
-  // 🔍 DEBUG: Log du clientId
-  console.log("🔍 [CLIENT-DETAIL] ClientId reçu:", clientId);
-
   const [commercialData, setCommercialData] = useState({
     estimatedBudget: "",
     companySize: "",
@@ -57,93 +54,6 @@ const ClientDetail: React.FC = () => {
   // État local pour les interactions pour mise à jour immédiate
   const [localInteractions, setLocalInteractions] = useState<any[]>([]);
 
-  // 🔍 DEBUG: Surveiller les changements du client
-  useEffect(() => {
-    if (client) {
-      console.log("🔍 [CLIENT-DETAIL] Client chargé:", {
-        id: client._id,
-        name: client.name,
-        sector: client.sector,
-        estimatedBudget: client.estimatedBudget,
-        companySize: client.companySize,
-        goodForCustomer: client.goodForCustomer,
-        hasWorkedWithUs: client.hasWorkedWithUs,
-        knowsUs: client.knowsUs,
-        isActive: client.isActive,
-        interactionsCount: client.interactions?.length || 0,
-        opportunitiesCount: client.opportunities?.length || 0,
-        contactsCount: client.contacts?.length || 0,
-        createdAt: client.createdAt,
-        updatedAt: client.updatedAt,
-      });
-
-      // 🔍 DEBUG: Détail des interactions
-      if (client.interactions && client.interactions.length > 0) {
-        console.log(
-          "🔍 [CLIENT-DETAIL] Interactions détaillées:",
-          client.interactions.map((int, index) => ({
-            index,
-            date: int.date,
-            type: int.type,
-            outcome: int.outcome,
-            notes: int.notes?.substring(0, 50) + "..." || "Pas de notes",
-            daysSince: Math.floor(
-              (new Date().getTime() - new Date(int.date).getTime()) /
-                (1000 * 60 * 60 * 24)
-            ),
-          }))
-        );
-      } else {
-        console.log("🔍 [CLIENT-DETAIL] Aucune interaction trouvée");
-      }
-
-      // 🔍 DEBUG: Détail des opportunités
-      if (client.opportunities && client.opportunities.length > 0) {
-        console.log(
-          "🔍 [CLIENT-DETAIL] Opportunités détaillées:",
-          client.opportunities
-        );
-      } else {
-        console.log("🔍 [CLIENT-DETAIL] Aucune opportunité trouvée");
-      }
-
-      setCommercialData({
-        estimatedBudget: client.estimatedBudget?.toString() || "",
-        companySize: client.companySize || "",
-        hasWorkedWithUs: client.hasWorkedWithUs || false,
-        knowsUs: client.knowsUs || false,
-        goodForCustomer: client.goodForCustomer || 50,
-      });
-
-      // 🔍 DEBUG: Données commerciales initialisées
-      console.log("🔍 [CLIENT-DETAIL] Données commerciales initialisées:", {
-        estimatedBudget: client.estimatedBudget?.toString() || "",
-        companySize: client.companySize || "",
-        hasWorkedWithUs: client.hasWorkedWithUs || false,
-        knowsUs: client.knowsUs || false,
-        goodForCustomer: client.goodForCustomer || 50,
-      });
-
-      // ✅ Initialiser les interactions locales
-      setLocalInteractions(client.interactions || []);
-    }
-  }, [client]);
-
-  // 🔍 DEBUG: Surveiller les changements des données commerciales
-  useEffect(() => {
-    console.log(
-      "🔍 [CLIENT-DETAIL] Données commerciales mises à jour:",
-      commercialData
-    );
-  }, [commercialData]);
-
-  // 🔍 DEBUG: Surveiller les erreurs
-  useEffect(() => {
-    if (clientError) {
-      console.error("🔍 [CLIENT-DETAIL] Erreur client:", clientError);
-    }
-  }, [clientError]);
-
   // Nettoyage des timeouts au démontage du composant
   useEffect(() => {
     return () => {
@@ -165,14 +75,9 @@ const ClientDetail: React.FC = () => {
 
   // Auto-save SIMPLE sans double mise à jour
   const handleCommercialDataChange = (field: string, value: any) => {
-    console.log(`🔄 [CLIENT-DETAIL] Changement détecté: ${field} = ${value}`);
-
     const newData = { ...commercialData, [field]: value };
-    setCommercialData(newData); // ✅ SEULEMENT mise à jour de l'état local
+    setCommercialData(newData);
     setSaveStatus("saving");
-
-    // 🔍 DEBUG: Nouvelles données avant sauvegarde
-    console.log("🔍 [CLIENT-DETAIL] Nouvelles données commerciales:", newData);
 
     // Annuler le timeout précédent
     if (saveTimeout) {
@@ -182,10 +87,6 @@ const ClientDetail: React.FC = () => {
     // Créer un nouveau timeout pour sauvegarder après 1.5 secondes
     const timeout = setTimeout(async () => {
       try {
-        console.log(
-          `💾 [CLIENT-DETAIL] Début de la sauvegarde pour le client: ${clientId}`
-        );
-
         const updateData: Partial<Client> = {
           estimatedBudget: newData.estimatedBudget
             ? parseInt(newData.estimatedBudget)
@@ -196,45 +97,20 @@ const ClientDetail: React.FC = () => {
           goodForCustomer: newData.goodForCustomer,
         };
 
-        // 🔍 DEBUG: Données formatées pour la sauvegarde
-        console.log(
-          "🔍 [CLIENT-DETAIL] Données formatées pour sauvegarde:",
-          updateData
-        );
-
-        // ✅ Utiliser directement le service pour éviter les conflits de state
+        // Utiliser directement le service pour éviter les conflits de state
         const updatedClient = await updateClient(clientId, updateData);
 
         if (updatedClient) {
-          console.log(
-            "✅ [CLIENT-DETAIL] Données sauvegardées automatiquement"
-          );
-          console.log("🔍 [CLIENT-DETAIL] Client après sauvegarde:", {
-            id: updatedClient._id,
-            name: updatedClient.name,
-            estimatedBudget: updatedClient.estimatedBudget,
-            companySize: updatedClient.companySize,
-            hasWorkedWithUs: updatedClient.hasWorkedWithUs,
-            knowsUs: updatedClient.knowsUs,
-            goodForCustomer: updatedClient.goodForCustomer,
-          });
           setSaveStatus("saved");
           setTimeout(() => setSaveStatus("idle"), 2000);
         } else {
-          console.error(
-            "❌ [CLIENT-DETAIL] Échec de la sauvegarde automatique"
-          );
           setSaveStatus("error");
           setTimeout(() => setSaveStatus("idle"), 3000);
         }
       } catch (error) {
-        console.error(
-          "💥 [CLIENT-DETAIL] Erreur lors de la sauvegarde automatique:",
-          error
-        );
         setSaveStatus("error");
 
-        // ✅ REVERT EN CAS D'ERREUR - remettre les valeurs d'origine
+        // REVERT EN CAS D'ERREUR - remettre les valeurs d'origine
         if (client) {
           const revertData = {
             estimatedBudget: client.estimatedBudget?.toString() || "",
@@ -243,10 +119,6 @@ const ClientDetail: React.FC = () => {
             knowsUs: client.knowsUs || false,
             goodForCustomer: client.goodForCustomer || 50,
           };
-          console.log(
-            "🔄 [CLIENT-DETAIL] Revert vers les données originales:",
-            revertData
-          );
           setCommercialData(revertData);
         }
 
@@ -319,7 +191,6 @@ const ClientDetail: React.FC = () => {
     }
 
     setInteractionSaving(true);
-    console.log("🔍 [CLIENT-DETAIL] Ajout d'interaction:", newInteraction);
 
     try {
       const newInteractionObj = {
@@ -340,35 +211,20 @@ const ClientDetail: React.FC = () => {
         notes: newInteraction.notes,
       };
 
-      console.log(
-        "🔍 [CLIENT-DETAIL] Nouvelle interaction formatée:",
-        newInteractionObj
-      );
-
       const updatedInteractions = [
         newInteractionObj,
         ...localInteractions,
       ].slice(0, 5); // Limiter à 5 interactions
 
-      console.log(
-        "🔍 [CLIENT-DETAIL] Liste des interactions mise à jour:",
-        updatedInteractions
-      );
-
-      // ✅ MISE À JOUR IMMÉDIATE DE L'ÉTAT LOCAL
+      // MISE À JOUR IMMÉDIATE DE L'ÉTAT LOCAL
       setLocalInteractions(updatedInteractions);
 
-      // ✅ Sauvegarde en arrière-plan
+      // Sauvegarde en arrière-plan
       const updatedClient = await updateClient(clientId, {
         interactions: updatedInteractions,
       });
 
       if (updatedClient) {
-        console.log("✅ [CLIENT-DETAIL] Interaction ajoutée avec succès!");
-        console.log("🔍 [CLIENT-DETAIL] Client après ajout interaction:", {
-          interactionsCount: updatedClient.interactions?.length || 0,
-          lastInteraction: updatedClient.interactions?.[0],
-        });
         setNewInteraction({
           type: "call",
           outcome: "neutral",
@@ -376,175 +232,25 @@ const ClientDetail: React.FC = () => {
         });
         setShowAddInteraction(false);
       } else {
-        // ❌ Revert en cas d'erreur
-        console.error("❌ [CLIENT-DETAIL] Échec sauvegarde interaction");
+        // Revert en cas d'erreur
         setLocalInteractions(client?.interactions || []);
         throw new Error("Échec de la sauvegarde");
       }
     } catch (error) {
-      console.error(
-        "💥 [CLIENT-DETAIL] Erreur lors de l'ajout de l'interaction:",
-        error
-      );
       alert("Erreur lors de l'ajout de l'interaction");
 
-      // ❌ Revert en cas d'erreur
+      // Revert en cas d'erreur
       setLocalInteractions(client?.interactions || []);
     } finally {
       setInteractionSaving(false);
     }
   };
 
-  // 🔍 DEBUG: Fonction pour analyser les données envoyées à l'IA
-  const debugClientDataForAI = () => {
-    if (!client) {
-      console.log("🔍 [DEBUG-IA] Aucun client disponible pour l'analyse");
-      return;
-    }
-
-    console.log("🔍 [DEBUG-IA] === DONNÉES CLIENT ENVOYÉES À L'IA ===");
-
-    // Simuler la structure ClientData exacte
-    const clientDataForAI = {
-      _id: client._id,
-      name: client.name,
-      description: client.description || undefined,
-      sector: client.sector || undefined,
-      phone: client.phone || undefined,
-      email: client.email || undefined,
-      goodForCustomer: client.goodForCustomer || undefined,
-      contacts: client.contacts || undefined,
-      opportunities: client.opportunities || undefined,
-      isActive: client.isActive !== undefined ? client.isActive : undefined,
-      createdAt: client.createdAt || undefined,
-      updatedAt: client.updatedAt || undefined,
-      assignedTo: client.assignedTo || undefined,
-      interactions: client.interactions || undefined,
-      companySize: client.companySize || undefined,
-      hasWorkedWithUs: client.hasWorkedWithUs || undefined,
-      knowsUs: client.knowsUs || undefined,
-      estimatedBudget: client.estimatedBudget || undefined,
-    };
-
-    console.log("🔍 [DEBUG-IA] Structure complète:", clientDataForAI);
-
-    // Analyser chaque champ important
-    console.log("🔍 [DEBUG-IA] === ANALYSE PAR CHAMP ===");
-    console.log(
-      "📊 Budget estimé:",
-      clientDataForAI.estimatedBudget,
-      typeof clientDataForAI.estimatedBudget
-    );
-    console.log(
-      "🏢 Taille entreprise:",
-      clientDataForAI.companySize,
-      typeof clientDataForAI.companySize
-    );
-    console.log(
-      "⭐ Score client:",
-      clientDataForAI.goodForCustomer,
-      typeof clientDataForAI.goodForCustomer
-    );
-    console.log(
-      "🤝 Ancien client:",
-      clientDataForAI.hasWorkedWithUs,
-      typeof clientDataForAI.hasWorkedWithUs
-    );
-    console.log(
-      "👋 Nous connaît:",
-      clientDataForAI.knowsUs,
-      typeof clientDataForAI.knowsUs
-    );
-    console.log(
-      "🏢 Secteur:",
-      clientDataForAI.sector,
-      typeof clientDataForAI.sector
-    );
-    console.log(
-      "✅ Actif:",
-      clientDataForAI.isActive,
-      typeof clientDataForAI.isActive
-    );
-
-    // Analyser les interactions
-    if (
-      clientDataForAI.interactions &&
-      clientDataForAI.interactions.length > 0
-    ) {
-      console.log("🔍 [DEBUG-IA] === INTERACTIONS ===");
-      console.log("📊 Nombre:", clientDataForAI.interactions.length);
-      clientDataForAI.interactions.forEach((int, index) => {
-        const daysSince = Math.floor(
-          (new Date().getTime() - new Date(int.date).getTime()) /
-            (1000 * 60 * 60 * 24)
-        );
-        console.log(`🔹 Interaction ${index + 1}:`, {
-          date: int.date,
-          type: int.type,
-          outcome: int.outcome,
-          daysSince: daysSince,
-          hasNotes: !!int.notes,
-        });
-      });
-    } else {
-      console.log("🔍 [DEBUG-IA] Aucune interaction disponible");
-    }
-
-    // Analyser les opportunités
-    if (
-      clientDataForAI.opportunities &&
-      clientDataForAI.opportunities.length > 0
-    ) {
-      console.log("🔍 [DEBUG-IA] === OPPORTUNITÉS ===");
-      console.log("📊 Nombre:", clientDataForAI.opportunities.length);
-      console.log("📋 Détail:", clientDataForAI.opportunities);
-    } else {
-      console.log("🔍 [DEBUG-IA] Aucune opportunité disponible");
-    }
-
-    // Validation des champs requis
-    console.log("🔍 [DEBUG-IA] === VALIDATION ===");
-    const requiredFields = ["_id", "name"];
-    const missingRequired = requiredFields.filter(
-      (field) => !clientDataForAI[field as keyof typeof clientDataForAI]
-    );
-    console.log(
-      "❗ Champs requis manquants:",
-      missingRequired.length > 0 ? missingRequired : "Aucun"
-    );
-
-    const recommendedFields = [
-      "sector",
-      "companySize",
-      "estimatedBudget",
-      "goodForCustomer",
-    ];
-    const missingRecommended = recommendedFields.filter(
-      (field) => !clientDataForAI[field as keyof typeof clientDataForAI]
-    );
-    console.log(
-      "⚠️ Champs recommandés manquants:",
-      missingRecommended.length > 0 ? missingRecommended : "Aucun"
-    );
-
-    return clientDataForAI;
-  };
-
-  // 🔍 DEBUG: Exécuter l'analyse quand le client change
-  useEffect(() => {
-    if (client) {
-      setTimeout(() => {
-        debugClientDataForAI();
-      }, 1000); // Délai pour permettre à tous les states de se mettre à jour
-    }
-  }, [client, localInteractions, commercialData]);
-
   if (isLoadingAuth || !hasAccess) {
     return null;
   }
 
   if (!clientId) {
-    console.error("🔍 [CLIENT-DETAIL] ID du client manquant");
     return (
       <div style={{ padding: "20px", color: "#d32f2f" }}>
         <h2>Erreur</h2>
@@ -577,7 +283,6 @@ const ClientDetail: React.FC = () => {
   }
 
   if (isLoadingClient) {
-    console.log("🔍 [CLIENT-DETAIL] Chargement du client en cours...");
     return (
       <div style={{ padding: "20px" }}>
         <p>Chargement des données du client...</p>
@@ -586,7 +291,6 @@ const ClientDetail: React.FC = () => {
   }
 
   if (!client) {
-    console.error("🔍 [CLIENT-DETAIL] Client non trouvé");
     return (
       <div style={{ padding: "20px" }}>
         <h2>Client non trouvé</h2>
@@ -604,11 +308,6 @@ const ClientDetail: React.FC = () => {
       </div>
     );
   }
-
-  console.log(
-    "🔍 [CLIENT-DETAIL] Rendu du composant avec client:",
-    client.name
-  );
 
   return (
     <div>
@@ -1214,7 +913,7 @@ const ClientDetail: React.FC = () => {
         )}
       </div>
 
-      {/* ✅ COMPOSANT ANALYSE IA */}
+      {/* COMPOSANT ANALYSE IA */}
       <div style={{ marginTop: "30px" }}>
         <AIAnalysis clientId={client._id} clientName={client.name} />
       </div>

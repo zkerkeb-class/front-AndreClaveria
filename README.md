@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Application Frontend
 
-## Getting Started
+Application web moderne construite avec Next.js, offrant une interface utilisateur réactive et élégante pour votre plateforme de services.
 
-First, run the development server:
+## 🚀 Fonctionnalités
+
+- **Next.js 15** : Framework React moderne avec App Router
+- **TypeScript** : Typage statique pour une meilleure robustesse
+- **Paiements Stripe** : Intégration complète des paiements
+- **Interface réactive** : Design adaptatif pour tous les appareils
+- **Composants réutilisables** : Architecture modulaire
+- **Optimisations performances** : Turbopack pour un développement rapide
+
+## 📋 Prérequis
+
+- Node.js (version 18 ou supérieure)
+- npm ou yarn
+- Compte Stripe (pour les paiements)
+
+## 🛠️ Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Cloner le repository
+git clone <url-du-repository>
+
+# Installer les dépendances
+npm install
+
+# Configurer les variables d'environnement
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ⚙️ Configuration
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Créez un fichier `.env.local` avec les variables suivantes :
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=votre-secret-nextauth
+```
 
-## Learn More
+## 🚀 Démarrage
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Développement (avec Turbopack)
+npm run dev
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Production
+npm run build
+npm start
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Linting
+npm run lint
+```
 
-## Deploy on Vercel
+## 📱 Pages et Fonctionnalités
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Pages Principales
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Accueil** : Présentation des services
+- **Authentification** : Connexion et inscription
+- **Tableau de bord** : Interface utilisateur principale
+- **Paiements** : Gestion des abonnements et paiements
+- **Profil** : Gestion du compte utilisateur
+
+### Composants
+
+- **Layout** : Structure générale de l'application
+- **Header/Footer** : Navigation et informations
+- **Forms** : Formulaires réactifs avec validation
+- **Cards** : Composants d'affichage des données
+- **Modals** : Fenêtres modales pour les interactions
+
+## 🎨 Design System
+
+### Couleurs
+
+- **Primary** : Bleu (#3B82F6)
+- **Secondary** : Gris (#6B7280)
+- **Success** : Vert (#10B981)
+- **Warning** : Orange (#F59E0B)
+- **Error** : Rouge (#EF4444)
+
+### Typographie
+
+- **Headings** : Inter Bold
+- **Body** : Inter Regular
+- **Code** : JetBrains Mono
+
+## 🔧 Technologies Utilisées
+
+- **Next.js 15** : Framework React
+- **React 19** : Bibliothèque UI
+- **TypeScript** : Typage statique
+- **TailwindCSS** : Framework CSS
+- **Stripe** : Paiements en ligne
+- **Lucide React** : Icônes
+- **React Icons** : Icônes supplémentaires
+
+## 🛡️ Sécurité
+
+- Authentification sécurisée
+- Validation côté client et serveur
+- Protection CSRF
+- Sanitisation des données
+- HTTPS en production
+
+## 📊 Performance
+
+- **Optimisations Next.js** : SSR, SSG, ISR
+- **Lazy loading** : Chargement différé des composants
+- **Optimisation images** : next/image
+- **Bundle splitting** : Séparation du code
+- **Caching** : Mise en cache intelligente
+
+## 🧪 Tests
+
+```bash
+# Tests unitaires
+npm run test
+
+# Tests end-to-end
+npm run test:e2e
+
+# Coverage
+npm run test:coverage
+```
+
+## 📝 Licence
+
+ISC
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! Veuillez suivre les conventions de code et créer une issue avant de soumettre une pull request.
+
+## 📞 Support
+
+Pour toute question ou problème, n'hésitez pas à créer une issue sur le repository.
